@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "539423629115",
+    "project_id": "hellopaw-58a20",
+    "storage_bucket": "hellopaw-58a20.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:539423629115:android:c82ce1aa5d75a7e91de11e",
+        "android_client_info": {
+          "package_name": "com.example.projecthellopaw"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyBBCGE-V5JE9aO1jUZQZKvjyfj1kDoYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

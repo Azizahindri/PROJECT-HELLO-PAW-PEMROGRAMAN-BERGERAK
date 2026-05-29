@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Project Hello Paw</string>
+
+    <!-- General -->
+    <string name="login">Masuk</string>
+    <string name="register">Daftar</string>
+    <string name="logout">Keluar</string>
+    <string name="save">Simpan</string>
+    <string name="cancel">Batal</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
+    <string name="waiting">Menunggu</string>
+    <string name="active">Aktif</string>
+    <string name="edit_profile">Edit Profil</string>
+    <string name="consultation_price">Rp 50.000</string>
+    <string name="back">Kembali</string>
+    <string name="menu">Menu</string>
+    <string name="send">Kirim</string>
+
+    <!-- Navigation -->
+    <string name="home">Beranda</string>
+    <string name="profile">Profil</string>
+    <string name="appointment">Antrean</string>
+    <string name="consultation">Konsultasi</string>
+    <string name="payment">Pembayaran</string>
+    <string name="chat">Chat</string>
+    <string name="doctor">Dokter</string>
+    <string name="pet">Hewan Peliharaan</string>
+    <string name="pet_stuff">Pet Stuff</string>
+
+    <!-- Doctor Dashboard -->
+    <string name="hello_doctor">Hello Dokter!</string>
+    <string name="loading">Memuat...</string>
+    <string name="main_menu">Menu Utama</string>
+    <string name="articles_title">Artikel seputar kesehatan hewan</string>
+    <string name="read_more">Baca selengkapnya →</string>
+    <string name="sample_article_title">Cara Merawat Hewan Peliharaan</string>
+    <string name="sample_article_desc">Panduan lengkap merawat hewan peliharaan kesayangan Anda</string>
+
+    <!-- Chat - IMPORTANT! These fix your errors -->
+    <string name="default_owner_name">Pemilik Hewan</string>
+    <string name="type_message">Ketik pesan...</string>
+    <string name="ai_suggestion">Saran AI</string>
+    <string name="ai_suggestion_1">Baik, akan saya perhatikan kondisinya.</string>
+    <string name="ai_suggestion_2">Apakah hewan sudah makan dan minum dengan normal hari ini?</string>
+    <string name="ai_suggestion_3">Silakan ceritakan lebih detail gejala yang dialami hewan Anda.</string>
+
+    <!-- Welcome Message for Chat -->
+    <string name="welcome_message">Halo! Selamat datang di ruang konsultasi HelloPaw.\n\nTips sebelum memulai konsultasi:\n• Ceritakan keluhan atau gejala yang dialami hewan peliharaan Anda.\n• Berikan informasi tambahan seperti usia, jenis hewan, dan riwayat kesehatannya.\n• Dokter akan segera merespons pertanyaan Anda.</string>
+
+    <!-- Appointment -->
+    <string name="appointment_title">Daftar Antrean Pasien</string>
+    <string name="no_appointment">Belum ada pasien</string>
+    <string name="no_appointment_desc">Pasien yang sudah membayar akan muncul di sini</string>
+    <string name="owner_name">Nama Pemilik</string>
+    <string name="pet_info">Nama Hewan · Jenis</string>
+    <string name="sample_time">Kemarin 14:30</string>
+    <string name="waiting_status">Menunggu</string>
+    <string name="active_status">Sedang Berlangsung</string>
+
+    <!-- Edit Profile -->
+    <string name="edit_doctor_title">Edit Profil Dokter</string>
+    <string name="change_photo">Ubah Foto</string>
+    <string name="specialization">Spesialisasi</string>
+    <string name="str_number">Nomor STR</string>
+    <string name="consultation_fee">Tarif Konsultasi</string>
+    <string name="bio">Bio / Deskripsi Diri</string>
+    <string name="experience">Tahun Pengalaman</string>
+    <string name="clinic_name">Nama Klinik / Tempat Praktek</string>
+    <string name="online_status">Status Online</string>
+    <string name="online_status_desc">Tampil sebagai dokter tersedia</string>
+    <string name="save_changes">Simpan Perubahan</string>
+
+    <!-- AI Bottom Sheet -->
+    <string name="ai_suggest_title">Saran Balasan AI</string>
+    <string name="ai_suggest_tap">Ketuk untuk menggunakan</string>
+    <string name="ai_suggest_1">Saran balasan 1</string>
+    <string name="ai_suggest_2">Saran balasan 2</string>
+    <string name="ai_suggest_3">Saran balasan 3</string>
+
+    <!-- Empty States -->
+    <string name="no_data">Belum ada data</string>
+    <string name="no_pet">Belum ada hewan peliharaan</string>
+    <string name="no_article">Belum ada artikel</string>
+
+    <!-- Toast Messages -->
+    <string name="profile_saved">Profil berhasil disimpan!</string>
+    <string name="save_failed">Gagal menyimpan</string>
+    <string name="payment_success">Pembayaran Berhasil Diverifikasi!</string>
+    <string name="validation_error_specialization">Spesialisasi tidak boleh kosong</string>
+    <string name="validation_error_str">Nomor STR tidak boleh kosong</string>
+    <string name="validation_error_fee">Masukkan tarif yang valid</string>
+
+    <!-- Payment -->
+    <string name="payment_title">Pembayaran Konsultasi</string>
+    <string name="total_price">Total: Rp 50.000</string>
+    <string name="scan_qris">Silakan scan QRIS di atas menggunakan E-Wallet Anda</string>
+    <string name="confirm_payment">SAYA SUDAH BAYAR</string>
+
+    <!-- AI Suggestions (Medical) -->
+    <string name="ai_fever_1">Berikan kompres hangat dan pastikan hewan minum air yang cukup.</string>
+    <string name="ai_fever_2">Jika demam berlanjut lebih dari 24 jam, segera bawa ke klinik.</string>
+    <string name="ai_fever_3">Berikan paracetamol khusus hewan sesuai dosis yang dianjurkan.</string>
+
+    <string name="ai_vomit_1">Jangan diberi makan dulu selama 4-6 jam untuk mengistirahatkan lambung.</string>
+    <string name="ai_vomit_2">Berikan air putih sedikit demi sedikit agar tidak dehidrasi.</string>
+    <string name="ai_vomit_3">Amati apakah ada darah dalam muntahan, jika ada segera ke klinik.</string>
+
+    <!-- AI Medical Suggestions - Additional -->
+    <string name="ai_wound_1">Bersihkan luka dengan antiseptik yang aman untuk hewan.</string>
+    <string name="ai_wound_2">Hindari hewan menjilat lukanya, gunakan cone collar jika perlu.</string>
+    <string name="ai_wound_3">Jika luka dalam atau lebar, segera bawa ke klinik untuk dijahit.</string>
+
+    <string name="ai_eating_1">Coba tawarkan makanan favoritnya atau makanan dengan aroma yang kuat.</string>
+    <string name="ai_eating_2">Periksa apakah ada masalah pada gigi atau mulut.</string>
+    <string name="ai_eating_3">Jika tidak mau makan lebih dari 2 hari, perlu pemeriksaan lebih lanjut.</string>
+
+    <string name="ai_diarrhea_1">Berikan makanan yang mudah dicerna seperti nasi dan ayam rebus.</string>
+    <string name="ai_diarrhea_2">Pastikan hewan tetap terhidrasi dengan minum air yang cukup.</string>
+    <string name="ai_diarrhea_3">Berikan probiotik khusus hewan untuk membantu pemulihan.</string>
+
+    <string name="nama_pengguna">Nama Pengguna</string>
+    <string name="ketik_pesan">Ketik pesan...</string>
+    <string name="hello_dokter">Hello Dokter!</string>
+    <string name="memuat">Memuat...</string>
+    <string name="menu_utama">Menu Utama</string>
+    <string name="notification">Notification</string>
+    <string name="schedule">Schedule</string>
+    <string name="article">Article</string>
+    <string name="artikel_seputar">Artikel seputar kesehatan hewan</string>
+    <string name="ubah_foto">Ubah Foto</string>
+    <string name="spesialisasi">Spesialisasi</string>
+    <string name="nomor_str">Nomor STR</string>
+    <string name="tarif_konsultasi">Tarif Konsultasi</string>
+    <string name="tahun_pengalaman">Tahun Pengalaman</string>
+    <string name="nama_klinik">Nama Klinik / Tempat Praktek</string>
+    <string name="status_online">Status Online</string>
+    <string name="status_online_desc">Tampil sebagai dokter tersedia</string>
+    <string name="simpan_perubahan">Simpan Perubahan</string>
+    <string name="batal">Batal</string>
+    <string name="saran_balasan_ai">Saran Balasan AI</string>
+    <string name="ketuk_gunakan">Ketuk untuk menggunakan</string>
+    <string name="saran_1">Saran balasan 1</string>
+    <string name="saran_2">Saran balasan 2</string>
+    <string name="saran_3">Saran balasan 3</string>
+    <string name="nama_pemilik">Nama Pemilik</string>
+    <string name="nama_hewan">Nama Hewan · Jenis</string>
+    <string name="kemarin">Kemarin 14:30</string>
+    <string name="menunggu">Menunggu</string>
+    <string name="judul_artikel">Judul Artikel</string>
+    <string name="deskripsi_artikel">Deskripsi artikel singkat...</string>
+    <string name="baca_selengkapnya">Baca selengkapnya →</string>
+    <string name="hellopaw">HelloPaw</string>
+    <string name="beranda">Beranda</string>
+    <string name="antrean">Antrean</string>
+    <string name="profil">Profil</string>
+
+    <!-- ============================================ -->
+    <!-- CONTENT DESCRIPTIONS (Tambahkan ini!)        -->
+    <!-- ============================================ -->
+    <string name="photo">Foto Profil</string>
+    <string name="doctor_photo">Foto Dokter</string>
+    <string name="owner_avatar">Foto Pemilik</string>
+    <string name="chevron">Panah Kanan</string>
+    <string name="article_thumbnail">Thumbnail Artikel</string>
+    <string name="logo">Logo HelloPaw</string>
+    <string name="ai_icon">Icon AI</string>
+    <string name="empty_state">Ilustrasi Kosong</string>
+</resources>
