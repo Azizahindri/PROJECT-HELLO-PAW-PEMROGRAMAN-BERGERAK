@@ -12,25 +12,42 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjectHelloPaw">
 
-        <!-- MAIN ACTIVITY -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.auth.SplashActivity"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- PROGRAMMER 3 -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false" />
+
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
         <activity
             android:name=".ui.chat.ChatActivity"
             android:exported="false" />
 
         <activity
             android:name=".ui.doctor.DoctorMainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.doctor.EditDoctorProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.doctor.AppointmentFragment"
             android:exported="false" />
 
     </application>

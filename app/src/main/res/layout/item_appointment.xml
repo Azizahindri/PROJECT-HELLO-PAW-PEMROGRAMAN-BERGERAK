@@ -24,7 +24,7 @@
             android:id="@+id/iv_owner_avatar"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_person_placeholder" />
+            android:src="@drawable/ic_person_placeholer" />
 
         <LinearLayout
             android:layout_width="0dp"
