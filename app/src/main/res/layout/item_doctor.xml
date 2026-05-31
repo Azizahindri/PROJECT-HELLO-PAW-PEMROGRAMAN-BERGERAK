@@ -4,116 +4,144 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="14dp"
-    android:layout_marginVertical="6dp"
-    app:cardCornerRadius="14dp"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="3dp"
     app:cardBackgroundColor="#FFFFFF">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="14dp">
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
 
-        <!-- Foto Profil Bulat -->
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/ivDoctorPhoto"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/ic_launcher_foreground"
+        <!-- Avatar Dokter -->
+        <ImageView
+            android:id="@+id/ivDoctorAvatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             app:civ_border_width="2dp"
             app:civ_border_color="#C8E0F5"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Nama Dokter -->
-        <TextView
-            android:id="@+id/tvDoctorName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="drh. Susianti"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:textColor="#356187"
-            app:layout_constraintTop_toTopOf="@id/ivDoctorPhoto"
-            app:layout_constraintStart_toEndOf="@id/ivDoctorPhoto"
-            app:layout_constraintEnd_toStartOf="@id/ivChatBtn"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="2dp" />
-
-        <!-- Spesialisasi -->
-        <TextView
-            android:id="@+id/tvDoctorSpecialization"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Dokter Hewan Umum"
-            android:textSize="12sp"
-            android:textColor="#7A9EC0"
-            app:layout_constraintTop_toBottomOf="@id/tvDoctorName"
-            app:layout_constraintStart_toEndOf="@id/ivDoctorPhoto"
-            app:layout_constraintEnd_toStartOf="@id/ivChatBtn"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="2dp" />
-
-        <!-- Rating Bintang -->
-        <RatingBar
-            android:id="@+id/ratingBar"
-            style="@style/Widget.AppCompat.RatingBar.Small"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:numStars="5"
-            android:rating="4.5"
-            android:stepSize="0.5"
-            android:isIndicator="true"
-            android:progressTint="#FFC107"
-            app:layout_constraintTop_toBottomOf="@id/tvDoctorSpecialization"
-            app:layout_constraintStart_toEndOf="@id/ivDoctorPhoto"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp" />
-
-        <!-- Jumlah ulasan -->
-        <TextView
-            android:id="@+id/tvReviewCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="5 Ulasan"
-            android:textSize="11sp"
-            android:textColor="#9BBBD4"
-            app:layout_constraintTop_toBottomOf="@id/ratingBar"
-            app:layout_constraintStart_toEndOf="@id/ivDoctorPhoto"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="2dp" />
-
-        <!-- Tarif -->
-        <TextView
-            android:id="@+id/tvDoctorPrice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Rp 50.000"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#356187"
-            app:layout_constraintTop_toBottomOf="@id/tvReviewCount"
-            app:layout_constraintStart_toEndOf="@id/ivDoctorPhoto"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp" />
-
-        <!-- Tombol Chat / Konsultasi (ikon bulat biru) -->
-        <ImageView
-            android:id="@+id/ivChatBtn"
-            android:layout_width="38dp"
-            android:layout_height="38dp"
-            android:src="@android:drawable/ic_menu_send"
-            android:tint="#356187"
-            android:background="@drawable/bg_circle_blue"
+            android:src="@drawable/ic_doctor_avatar"
+            android:background="@drawable/bg_avatar_circle"
             android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:scaleType="centerCrop" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Info Dokter -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
 
+            <TextView
+                android:id="@+id/tvDoctorName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="drh. Nama Dokter"
+                android:textColor="#1A2D4E"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/tvSpecialization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dokter Hewan Umum"
+                android:textColor="#6B7C93"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <!-- Rating -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:stepSize="0.5"
+                    android:progressTint="#FFB800"
+                    android:isIndicator="true" />
+
+                <TextView
+                    android:id="@+id/tvRatingCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0"
+                    android:textColor="#FFB800"
+                    android:textSize="11sp"
+                    android:layout_marginStart="4dp" />
+
+                <!-- Bullet separator -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    android:textColor="#AAAAAA"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tvExperience"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 Tahun"
+                    android:textColor="#6B7C93"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+            <!-- Harga & Status -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/tvFee"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rp 50.000,00"
+                    android:textColor="#356187"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Online"
+                    android:textSize="10sp"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_status_online"
+                    android:textColor="#2E7D32" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Tombol Konsultasi Kecil -->
+        <ImageView
+            android:id="@+id/ivConsultBtn"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_chat_bubble"
+            android:background="@drawable/bg_btn_consult_circle"
+            android:padding="8dp"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
 </androidx.cardview.widget.CardView>
