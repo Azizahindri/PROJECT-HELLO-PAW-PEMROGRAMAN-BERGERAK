@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.projecthellopaw.R
 import java.text.SimpleDateFormat
 import java.util.Locale
+import com.example.projecthellopaw.data.model.Message // ◄── Tambahkan baris ini!
 
 class ChatAdapter(
     private val messages: MutableList<Message>,
@@ -69,19 +70,30 @@ class ChatAdapter(
 
         when (holder) {
             is SystemViewHolder -> holder.tvMessage.text = msg.text
+
             is LeftViewHolder -> {
                 holder.tvMessage.text = msg.text
                 holder.tvTimestamp.text = timeStr
-                if (msg.senderName.isNotEmpty()) {
+
+                // --- LOGIKA IMPROVISASI NAMA PENGIRIM ---
+                // Cek apakah pesan sebelumnya dikirim oleh orang yang sama
+                val isPreviousSameSender = position > 0 && messages[position - 1].senderId == msg.senderId
+
+                if (msg.senderName.isNotEmpty() && !isPreviousSameSender) { // ◄── Selesai!
+                    // Hanya tampilkan nama jika ini adalah awal chat dari si pengirim
                     holder.tvSenderName.visibility = View.VISIBLE
                     holder.tvSenderName.text = msg.senderName
                 } else {
+                    // Sembunyikan nama jika dia mengirim pesan beruntun (seperti WhatsApp/Telegram)
                     holder.tvSenderName.visibility = View.GONE
                 }
+                // ----------------------------------------
             }
+
             is RightViewHolder -> {
                 holder.tvMessage.text = msg.text
                 holder.tvTimestamp.text = timeStr
+                // Sesuai logika Programmer 4, jika isAiGenerated = true, badge AI langsung menyala!
                 holder.tvAiBadge.visibility = if (msg.isAiGenerated) View.VISIBLE else View.GONE
             }
         }

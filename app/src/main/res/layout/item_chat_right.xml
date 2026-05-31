@@ -37,8 +37,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="4dp"
-                android:text="🤖 AI"
+                android:text="🤖 AI Suggestion"
                 android:textColor="#C8E6C9"
+                android:textStyle="bold"
                 android:textSize="10sp"
                 android:visibility="gone" />
 

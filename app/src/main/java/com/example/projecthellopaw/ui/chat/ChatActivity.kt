@@ -4,25 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.projecthellopaw.R
+import com.example.projecthellopaw.data.model.Message
+import com.example.projecthellopaw.databinding.ActivityChatBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
-import com.example.projecthellopaw.R
-import com.example.projecthellopaw.databinding.ActivityChatBinding
+import com.google.mlkit.nl.smartreply.SmartReply
+import com.google.mlkit.nl.smartreply.SmartReplySuggestionResult
+import com.google.mlkit.nl.smartreply.TextMessage
 import java.util.Date
-
-data class Message(
-    val messageId: String = "",
-    val senderId: String = "",
-    val senderName: String = "",
-    val text: String = "",
-    val timestamp: Date? = null,
-    val isAiGenerated: Boolean = false
-)
 
 class ChatActivity : AppCompatActivity() {
 
@@ -62,7 +58,7 @@ class ChatActivity : AppCompatActivity() {
             val consultationText = getString(R.string.consultation)
             binding.tvChatSubtitle.text = "$consultationText · $petName"
         }
-        binding.ivMenuDots.setOnClickListener { /* show options menu */ }
+        binding.ivMenuDots.setOnClickListener { /* show options menu jika perlu */ }
     }
 
     private fun setupChat() {
@@ -103,18 +99,12 @@ class ChatActivity : AppCompatActivity() {
         db.collection("chat_rooms").document(chatRoomId)
             .collection("messages")
             .add(message)
-            .addOnFailureListener { e ->
-                // Handle error jika perlu
-            }
 
         db.collection("chat_rooms").document(chatRoomId)
             .update(
                 "lastMessage", text,
                 "lastMessageTime", com.google.firebase.firestore.FieldValue.serverTimestamp()
             )
-            .addOnFailureListener { e ->
-                // Handle error jika perlu
-            }
     }
 
     private fun listenToMessages() {
@@ -135,9 +125,7 @@ class ChatActivity : AppCompatActivity() {
             .collection("messages")
             .orderBy("timestamp", Query.Direction.ASCENDING)
             .addSnapshotListener { snapshots, error ->
-                if (error != null || snapshots == null) {
-                    return@addSnapshotListener
-                }
+                if (error != null || snapshots == null) return@addSnapshotListener
 
                 val messages = mutableListOf(welcomeMsg)
                 messages.addAll(snapshots.documents.mapNotNull { doc ->
@@ -153,54 +141,63 @@ class ChatActivity : AppCompatActivity() {
 
                 chatAdapter.updateMessages(messages)
 
-                // Scroll ke pesan terakhir
                 if (messages.isNotEmpty()) {
                     binding.rvChat.scrollToPosition(messages.size - 1)
                 }
             }
     }
 
-    private fun getAiSuggestions(): List<String> {
-        val lastMessages = chatAdapter.getMessages().takeLast(3)
-            .filter { it.senderId != auth.currentUser?.uid && it.senderId != "system" }
-            .joinToString(" ") { it.text.lowercase() }
-
-        return when {
-            lastMessages.contains("demam") || lastMessages.contains("panas") -> listOf(
-                getString(R.string.ai_fever_1),
-                getString(R.string.ai_fever_2),
-                getString(R.string.ai_fever_3)
-            )
-            lastMessages.contains("muntah") || lastMessages.contains("mual") -> listOf(
-                getString(R.string.ai_vomit_1),
-                getString(R.string.ai_vomit_2),
-                getString(R.string.ai_vomit_3)
-            )
-            lastMessages.contains("diare") || lastMessages.contains("mencret") -> listOf(
-                getString(R.string.ai_diarrhea_1),
-                getString(R.string.ai_diarrhea_2),
-                getString(R.string.ai_diarrhea_3)
-            )
-            lastMessages.contains("luka") || lastMessages.contains("berdarah") -> listOf(
-                getString(R.string.ai_wound_1),
-                getString(R.string.ai_wound_2),
-                getString(R.string.ai_wound_3)
-            )
-            lastMessages.contains("tidak mau makan") || lastMessages.contains("nafsu makan") -> listOf(
-                getString(R.string.ai_eating_1),
-                getString(R.string.ai_eating_2),
-                getString(R.string.ai_eating_3)
-            )
-            else -> listOf(
-                getString(R.string.ai_suggestion_1),
-                getString(R.string.ai_suggestion_2),
-                getString(R.string.ai_suggestion_3)
-            )
+    private fun showAiSuggestions() {
+        val rawMessages = chatAdapter.getMessages()
+        if (rawMessages.isEmpty()) {
+            Toast.makeText(this, "Belum ada percakapan untuk dianalisis AI", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val conversationHistory = ArrayList<TextMessage>()
+        val lastFive = rawMessages.takeLast(5)
+
+        for (msg in lastFive) {
+            if (msg.senderId == "system") continue
+
+            if (msg.senderId == auth.currentUser?.uid) {
+                conversationHistory.add(TextMessage.createForLocalUser(
+                    msg.text, System.currentTimeMillis()
+                ))
+            } else {
+                conversationHistory.add(TextMessage.createForRemoteUser(
+                    msg.text, System.currentTimeMillis(), msg.senderId
+                ))
+            }
+        }
+
+        val smartReplyClient = SmartReply.getClient()
+        smartReplyClient.suggestReplies(conversationHistory)
+            .addOnSuccessListener { result ->
+                if (result.status == SmartReplySuggestionResult.STATUS_SUCCESS) {
+                    val suggestionsList = mutableListOf<String>()
+                    for (suggestion in result.suggestions) {
+                        suggestionsList.add(suggestion.text)
+                    }
+
+                    while (suggestionsList.size < 3) {
+                        suggestionsList.add("Ada keluhan lain, Dok?")
+                    }
+                    displayBottomSheet(suggestionsList)
+
+                } else {
+                    // Fallback jika bahasa chat terlalu abstrak bagi AI Google
+                    val fallbackSuggestions = listOf("Bisa ceritakan gejalanya?", "Sejak kapan terjadi?", "Apakah sudah diberi obat?")
+                    displayBottomSheet(fallbackSuggestions)
+                }
+            }
+            .addOnFailureListener {
+                val safeSuggestions = listOf("Halo, ada yang bisa dibantu?", "Mohon tunggu sebentar ya.", "Bagaimana kondisi hewan sekarang?")
+                displayBottomSheet(safeSuggestions)
+            }
     }
 
-    private fun showAiSuggestions() {
-        val suggestions = getAiSuggestions()
+    private fun displayBottomSheet(suggestions: List<String>) {
         val dialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_ai_suggest, null)
         dialog.setContentView(view)
@@ -209,9 +206,9 @@ class ChatActivity : AppCompatActivity() {
         val tvSuggest2 = view.findViewById<TextView>(R.id.tv_suggest_2)
         val tvSuggest3 = view.findViewById<TextView>(R.id.tv_suggest_3)
 
-        tvSuggest1.text = suggestions.getOrNull(0) ?: getString(R.string.ai_suggestion_1)
-        tvSuggest2.text = suggestions.getOrNull(1) ?: getString(R.string.ai_suggestion_2)
-        tvSuggest3.text = suggestions.getOrNull(2) ?: getString(R.string.ai_suggestion_3)
+        tvSuggest1.text = suggestions.getOrNull(0)
+        tvSuggest2.text = suggestions.getOrNull(1)
+        tvSuggest3.text = suggestions.getOrNull(2)
 
         val clickListener = View.OnClickListener { v ->
             val text = (v as TextView).text.toString()

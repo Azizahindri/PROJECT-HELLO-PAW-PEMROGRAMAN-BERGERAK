@@ -50,6 +50,19 @@
             android:name=".ui.doctor.AppointmentFragment"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.admin.AdminMainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.admin.ManageUsersActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.user.UserMainActivity"
+            android:exported="false" />
+
+
     </application>
 
 </manifest>

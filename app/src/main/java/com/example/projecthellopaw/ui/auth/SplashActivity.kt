@@ -7,10 +7,11 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.databinding.ActivitySplashBinding
+import com.example.projecthellopaw.ui.admin.AdminMainActivity // Import halaman Admin
 import com.example.projecthellopaw.ui.doctor.DoctorMainActivity
+import com.example.projecthellopaw.ui.user.UserMainActivity // Import halaman User/Owner
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlin.jvm.java
 
 class SplashActivity : AppCompatActivity() {
 
@@ -48,20 +49,29 @@ class SplashActivity : AppCompatActivity() {
                     if (document != null && document.exists()) {
                         val role = document.getString("role")
 
-                        // Alirkan ke halaman utama masing-masing tanpa harus login lagi
-                        if (role == "OWNER") {
-                            Toast.makeText(this, "Selamat datang kembali, Pemilik!", Toast.LENGTH_SHORT).show()
-                            // TODO: Ganti dengan Intent ke MainActivity milik Owner/User kalian nanti
-                            // startActivity(Intent(this, OwnerMainActivity::class.java))
-                            finish()
-                        } else if (role == "DOCTOR") {
-                            Toast.makeText(this, "Selamat datang, Dokter!", Toast.LENGTH_SHORT).show()
-
-                            // Kita arahkan ke DoctorMainActivity asli yang ada di folder proyekmu
-                            val intent = Intent(this, DoctorMainActivity::class.java)
-                            startActivity(intent)
-
-                            finish()
+                        // Menggunakan ketika (when) agar kode lebih rapi dan terbaca jelas
+                        when (role) {
+                            "ADMIN" -> {
+                                Toast.makeText(this, "Selamat datang kembali, Admin!", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, AdminMainActivity::class.java))
+                                finish()
+                            }
+                            "OWNER" -> {
+                                Toast.makeText(this, "Selamat datang kembali, Pemilik!", Toast.LENGTH_SHORT).show()
+                                // FIX: Menambahkan pemanggilan ke UserMainActivity
+                                startActivity(Intent(this, UserMainActivity::class.java))
+                                finish()
+                            }
+                            "DOCTOR" -> {
+                                Toast.makeText(this, "Selamat datang kembali, Dokter!", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, DoctorMainActivity::class.java))
+                                finish()
+                            }
+                            else -> {
+                                // Jika role tidak dikenali, amankan dengan melempar ke halaman Login
+                                Toast.makeText(this, "Role tidak dikenali!", Toast.LENGTH_SHORT).show()
+                                navigateToLogin()
+                            }
                         }
                     } else {
                         // Jika data di firestore tidak ada, lempar ke Login

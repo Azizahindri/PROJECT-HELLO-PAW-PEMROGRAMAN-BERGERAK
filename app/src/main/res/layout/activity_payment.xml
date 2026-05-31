@@ -184,7 +184,7 @@
                 android:id="@+id/ivQrisCode"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                android:src="@drawable/qris_placeholder"
+                android:src="@android:drawable/ic_menu_report_image"
                 android:scaleType="fitCenter"
                 android:contentDescription="Kode QRIS Pembayaran"
                 android:layout_marginTop="12dp" />

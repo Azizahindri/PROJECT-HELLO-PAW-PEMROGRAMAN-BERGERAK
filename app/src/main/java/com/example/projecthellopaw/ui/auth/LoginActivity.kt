@@ -5,7 +5,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.databinding.ActivityLoginBinding
+import com.example.projecthellopaw.ui.admin.AdminMainActivity // Pastikan package ini sesuai projectmu
 import com.example.projecthellopaw.ui.doctor.DoctorMainActivity
+import com.example.projecthellopaw.ui.user.UserMainActivity // Pastikan package ini sesuai projectmu
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -23,11 +25,8 @@ class LoginActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // 1. Tombol login disesuaikan dengan ID: btnLogin
         binding.btnLogin.setOnClickListener {
-            // ID diubah dari etLoginEmail menjadi etEmail sesuai XML Prog 2
             val email = binding.etEmail.text.toString().trim()
-            // ID diubah dari etLoginPassword menjadi etPassword sesuai XML Prog 2
             val password = binding.etPassword.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
@@ -46,33 +45,44 @@ class LoginActivity : AppCompatActivity() {
                             if (document != null && document.exists()) {
                                 val role = document.getString("role")
 
-                                // Arahkan halaman sesuai ROLE
-                                if (role == "OWNER") {
-                                    Toast.makeText(
-                                        this,
-                                        "Login sebagai Pemilik",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    // Todo: Intent ke MainActivity milik User / Owner
-                                    finish()
-                                } else if (role == "DOCTOR") {
-                                        Toast.makeText(this, "Selamat datang, Dokter!", Toast.LENGTH_SHORT).show()
-
-                                        // Kita arahkan ke DoctorMainActivity asli yang ada di folder proyekmu
-                                        val intent = Intent(this, DoctorMainActivity::class.java)
+                                when (role) {
+                                    "ADMIN" -> {
+                                        Toast.makeText(this, "Login Berhasil sebagai Admin!", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, AdminMainActivity::class.java)
                                         startActivity(intent)
-
                                         finish()
                                     }
+                                    "OWNER" -> {
+                                        Toast.makeText(this, "Login Berhasil sebagai Pemilik!", Toast.LENGTH_SHORT).show()
+                                        // FIX: Menambahkan perpindahan ke UserMainActivity
+                                        val intent = Intent(this, UserMainActivity::class.java)
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                    "DOCTOR" -> {
+                                        Toast.makeText(this, "Selamat datang, Dokter!", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, DoctorMainActivity::class.java)
+                                        startActivity(intent)
+                                        finish()
+                                    }
+                                    else -> {
+                                        Toast.makeText(this, "Role tidak dikenali!", Toast.LENGTH_SHORT).show()
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(this, "Data user tidak ditemukan di database!", Toast.LENGTH_SHORT).show()
                             }
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                 }
                 .addOnFailureListener { e ->
+                    // Jika salah password / email belum terdaftar, larinya ke sini
                     Toast.makeText(this, "Login Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }
 
-        // ID diubah dari tvToRegister menjadi tvGoToRegister sesuai XML Prog 2
         binding.tvGoToRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
             finish()

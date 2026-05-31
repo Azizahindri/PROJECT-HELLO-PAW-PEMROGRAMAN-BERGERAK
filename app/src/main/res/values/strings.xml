@@ -73,11 +73,12 @@
     <string name="save_changes">Simpan Perubahan</string>
 
     <!-- AI Bottom Sheet -->
-    <string name="ai_suggest_title">Saran Balasan AI</string>
-    <string name="ai_suggest_tap">Ketuk untuk menggunakan</string>
-    <string name="ai_suggest_1">Saran balasan 1</string>
-    <string name="ai_suggest_2">Saran balasan 2</string>
-    <string name="ai_suggest_3">Saran balasan 3</string>
+    <string name="ai_suggest_title">Rekomendasi Balasan AI</string>
+    <string name="ai_suggest_tap">Ketuk untuk mengirim</string>
+
+    <string name="ai_suggest_1">Bisa ceritakan lebih detail gejalanya?</string>
+    <string name="ai_suggest_2">Sejak kapan hewan mulai lemas?</string>
+    <string name="ai_suggest_3">Baik, mohon tunggu sebentar ya.</string>
 
     <!-- Empty States -->
     <string name="no_data">Belum ada data</string>

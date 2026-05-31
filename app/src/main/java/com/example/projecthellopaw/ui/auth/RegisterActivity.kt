@@ -24,25 +24,25 @@ class RegisterActivity : AppCompatActivity() {
 
         // ID Tombol: btnRegister
         binding.btnRegister.setOnClickListener {
-            // ID disesuaikan menjadi etNama, etRegEmail, dan etRegPassword sesuai XML Prog 2
             val name = binding.etNama.text.toString().trim()
             val email = binding.etRegEmail.text.toString().trim()
             val password = binding.etRegPassword.text.toString().trim()
 
-            // ID Pilihan role disesuaikan menjadi rbPemilikHewan
-            val role = if (binding.rbPemilikHewan.isChecked) "OWNER" else "DOCTOR"
-
+            // 1. Validasi jika ada kolom yang kosong
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Semua kolom wajib diisi!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // 1. Daftarkan ke Firebase Authentication
+            // Otomatis diset ke OWNER karena aplikasi ini murni untuk pendaftaran pemilik hewan
+            val role = "OWNER"
+
+            // 2. Daftarkan ke Firebase Authentication
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener { authResult ->
                     val uid = authResult.user?.uid ?: ""
 
-                    // Buat objek data user
+                    // Buat objek data user untuk disimpan ke Firestore
                     val userMap = hashMapOf(
                         "uid" to uid,
                         "name" to name,
@@ -50,7 +50,7 @@ class RegisterActivity : AppCompatActivity() {
                         "role" to role
                     )
 
-                    // 2. Simpan data pelengkap ke Firestore
+                    // 3. Simpan data pelengkap ke Firestore
                     db.collection("users").document(uid).set(userMap)
                         .addOnSuccessListener {
                             Toast.makeText(this, "Pendaftaran Berhasil!", Toast.LENGTH_SHORT).show()
@@ -66,7 +66,7 @@ class RegisterActivity : AppCompatActivity() {
                 }
         }
 
-        // ID disesuaikan menjadi tvGoToLogin sesuai XML Prog 2
+        // ID Tombol/Teks: tvGoToLogin (Navigasi kembali ke halaman Login)
         binding.tvGoToLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
