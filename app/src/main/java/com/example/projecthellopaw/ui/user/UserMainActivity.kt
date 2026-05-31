@@ -2,18 +2,52 @@ package com.example.projecthellopaw.ui.user
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.projecthellopaw.databinding.ActivityUserMainBinding
+import androidx.fragment.app.Fragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.projecthellopaw.R
 
 class UserMainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityUserMainBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityUserMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_user_main)
 
-        // KODE FRAGMENT DIHAPUS SEMUA AGAR TIDAK ERROR SAAT DI-RUN
-        // Nanti kalau Programmer 1 sudah buat Fragment-nya, baru pasang lagi di sini
+        val bottomNav =
+            findViewById<BottomNavigationView>(R.id.bottomNavigationView)
+
+        // Fragment awal
+        loadFragment(HomeFragment())
+
+        bottomNav.setOnItemSelectedListener {
+
+            when(it.itemId){
+
+                R.id.nav_home -> {
+                    loadFragment(HomeFragment())
+                    true
+                }
+
+                R.id.nav_doctor -> {
+                    loadFragment(DoctorListFragment())
+                    true
+                }
+
+                R.id.nav_history -> {
+                    loadFragment(HistoryFragment())
+                    true
+                }
+
+                else -> false
+            }
+
+        }
+    }
+
+    private fun loadFragment(fragment: Fragment){
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
+
     }
 }
