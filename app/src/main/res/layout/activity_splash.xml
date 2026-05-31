@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E8F5E9">
+    android:background="#f0fcff">
 
     <!-- Logo Ikon Hewan (Placeholder ImageView) -->
     <ImageView
@@ -27,7 +27,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="HelloPaw"
-        android:textColor="#2E7D32"
+        android:textColor="#356187"
         android:textSize="36sp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-medium"
@@ -43,7 +43,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:text="Konsultasi Hewan Peliharaanmu"
-        android:textColor="#66BB6A"
+        android:textColor="#356187"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/progressBarSplash"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="48dp"
-        android:indeterminateTint="#2E7D32"
+        android:indeterminateTint="#356187"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:text="v1.0.0"
-        android:textColor="#A5D6A7"
+        android:textColor="#C6E7FF"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

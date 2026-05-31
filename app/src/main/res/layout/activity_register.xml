@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F9FBF9"
+    android:background="#f0fcff"
     android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,20 +12,21 @@
         android:layout_height="wrap_content"
         android:padding="28dp">
 
-        <!-- Judul Daftar -->
+        <!-- Judul -->
         <TextView
             android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:text="Buat Akun Baru"
-            android:textColor="#1B5E20"
+            android:textColor="#356187"
             android:textSize="26sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
+        <!-- Subtitle -->
         <TextView
             android:id="@+id/tvRegisterSubtitle"
             android:layout_width="wrap_content"
@@ -34,9 +35,9 @@
             android:text="Daftar dan mulai konsultasi hewan kamu"
             android:textColor="#757575"
             android:textSize="13sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRegisterTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRegisterTitle" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <!-- Input Nama -->
         <com.google.android.material.textfield.TextInputLayout
@@ -50,18 +51,19 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxStrokeColor="#66BB6A"
-            app:hintTextColor="#2E7D32"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:boxStrokeColor="#A6AEBF"
+            app:hintTextColor="#89A8B2"
+            app:layout_constraintTop_toBottomOf="@id/tvRegisterSubtitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRegisterSubtitle">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etNama"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Input Email -->
@@ -76,18 +78,19 @@
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxStrokeColor="#66BB6A"
-            app:hintTextColor="#2E7D32"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:boxStrokeColor="#A6AEBF"
+            app:hintTextColor="#89A8B2"
+            app:layout_constraintTop_toBottomOf="@id/tilNama"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tilNama">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etRegEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Input Password -->
@@ -98,93 +101,43 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:hint="Password"
+            app:passwordToggleEnabled="true"
             app:boxCornerRadiusBottomEnd="12dp"
             app:boxCornerRadiusBottomStart="12dp"
             app:boxCornerRadiusTopEnd="12dp"
             app:boxCornerRadiusTopStart="12dp"
-            app:boxStrokeColor="#66BB6A"
-            app:hintTextColor="#2E7D32"
-            app:passwordToggleEnabled="true"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:boxStrokeColor="#A6AEBF"
+            app:hintTextColor="#89A8B2"
+            app:layout_constraintTop_toBottomOf="@id/tilRegEmail"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tilRegEmail">
+            app:layout_constraintEnd_toEndOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etRegPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
-                android:textSize="14sp" />
+                android:textSize="14sp"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Label Pilihan Role -->
-        <TextView
-            android:id="@+id/tvRoleLabel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:text="Daftar sebagai:"
-            android:textColor="#424242"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tilRegPassword" />
-
-        <!-- RadioGroup Pilihan Role -->
-        <RadioGroup
-            android:id="@+id/rgRole"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRoleLabel">
-
-            <RadioButton
-                android:id="@+id/rbPemilikHewan"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="🐾  Pemilik Hewan"
-                android:textColor="#212121"
-                android:textSize="14sp"
-                android:checked="true"
-                android:paddingStart="12dp"
-                android:background="@drawable/bg_radio_option"
-                android:layout_marginBottom="10dp"
-                android:buttonTint="#2E7D32" />
-
-            <RadioButton
-                android:id="@+id/rbDokter"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="🩺  Dokter Hewan"
-                android:textColor="#212121"
-                android:textSize="14sp"
-                android:paddingStart="12dp"
-                android:background="@drawable/bg_radio_option"
-                android:buttonTint="#2E7D32" />
-        </RadioGroup>
-
-        <!-- Tombol Daftar -->
+        <!-- Tombol Register -->
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_marginTop="28dp"
-            android:backgroundTint="#2E7D32"
             android:text="DAFTAR SEKARANG"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
-            android:letterSpacing="0.05"
+            android:backgroundTint="#356187"
             app:cornerRadius="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilRegPassword"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/rgRole" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Teks ke Login -->
+        <!-- Ke Login -->
         <TextView
             android:id="@+id/tvGoToLogin"
             android:layout_width="wrap_content"
@@ -192,15 +145,15 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
             android:text="Sudah punya akun? Masuk"
-            android:textColor="#388E3C"
+            android:textColor="#356187"
             android:textSize="14sp"
-            android:padding="4dp"
             android:clickable="true"
             android:focusable="true"
+            app:layout_constraintTop_toBottomOf="@id/btnRegister"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnRegister" />
+            app:layout_constraintEnd_toEndOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
