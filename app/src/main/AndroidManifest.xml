@@ -62,6 +62,10 @@
             android:name=".ui.user.UserMainActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.user.AddPetActivity"
+            android:exported="false" />
+
 
     </application>
 

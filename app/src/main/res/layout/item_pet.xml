@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/img_item_pet_avatar"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:background="@android:color/white"
+            android:padding="8dp"
+            android:src="@drawable/ic_foto_hewan"
+            android:contentDescription="Pet Avatar" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/img_item_pet_avatar"
+            android:layout_toStartOf="@id/img_item_pet_decor"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_item_pet_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kicau"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#4FA0D0" />
+
+            <TextView
+                android:id="@+id/tv_item_pet_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Burung • Love Bird"
+                android:textSize="14sp"
+                android:textColor="#555555"
+                android:layout_marginTop="2dp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/tv_item_pet_age"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 Tahun 10 Bulan"
+                    android:textSize="12sp"
+                    android:textColor="#777777" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="  |  "
+                    android:textSize="12sp"
+                    android:textColor="#CCCCCC" />
+
+                <TextView
+                    android:id="@+id/tv_item_pet_gender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Betina"
+                    android:textSize="12sp"
+                    android:textStyle="italic"
+                    android:textColor="#777777" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_item_pet_decor"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_paw_print"
+            app:tint="#4FA0D0"
+            android:contentDescription="Decor Paw" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

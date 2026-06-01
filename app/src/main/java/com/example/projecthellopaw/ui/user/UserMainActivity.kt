@@ -32,6 +32,11 @@ class UserMainActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.nav_pet -> {
+                    loadFragment(PetListFragment())
+                    true
+                }
+
                 R.id.nav_history -> {
                     loadFragment(HistoryFragment())
                     true
