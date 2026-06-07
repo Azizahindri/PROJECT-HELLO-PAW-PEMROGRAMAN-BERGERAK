@@ -1,101 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://tools.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0fcff">
+    android:background="@color/background">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-        <!-- Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="#356187"
-            android:padding="20dp">
+            android:paddingBottom="24dp">
 
-            <TextView
-                android:id="@+id/tvGreeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Hello User!"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#FFFFFF"/>
-
-            <TextView
-                android:id="@+id/tvEmail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="user@gmail.com"
-                android:textColor="#C8E0F5"/>
-
-            <!-- Search -->
-            <com.google.android.material.textfield.TextInputLayout
+            <!-- HEADER SECTION (Warna Biru Utama) -->
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="Apa yang kamu butuhkan?"
-                app:boxBackgroundColor="#FFFFFF"
-                app:boxCornerRadiusBottomEnd="24dp"
-                app:boxCornerRadiusBottomStart="24dp"
-                app:boxCornerRadiusTopEnd="24dp"
-                app:boxCornerRadiusTopStart="24dp">
+                android:background="#356187"
+                android:padding="20dp">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                <!-- Informasi Nama & Email Pengguna -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/ivLogoutHome">
 
-            </com.google.android.material.textfield.TextInputLayout>
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Hello User!"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF"/>
 
-        </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="user@gmail.com"
+                        android:textSize="14sp"
+                        android:textColor="#C8E0F5"
+                        android:layout_marginTop="4dp"/>
+                </LinearLayout>
 
-        <!-- Artikel -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Baca artikel seputar kesehatan hewan"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#356187"
-            android:layout_margin="16dp"/>
-
-        <!-- Card Artikel -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
+                <!-- TOMBOL LOGOUT (Ikon Power/Keluar di Pojok Kanan Atas) -->
                 <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="180dp"
-                    android:scaleType="centerCrop"
-                    android:src="@mipmap/ic_launcher"/>
+                    android:id="@+id/ivLogoutHome"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:padding="6dp"
+                    android:src="@android:drawable/ic_lock_power_off"
+                    android:contentDescription="Tombol Logout"
+                    app:tint="#FFFFFF" />
 
-                <TextView
+                <!-- Kolom Input Pencarian (Search Bar) -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/searchLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="7 Penyebab Kucing Jadi Pendiam"
-                    android:textStyle="bold"
-                    android:padding="12dp"/>
+                    android:layout_marginTop="85dp"
+                    android:hint="Apa yang kamu butuhkan?"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxCornerRadiusBottomEnd="24dp"
+                    app:boxCornerRadiusBottomStart="24dp"
+                    app:boxCornerRadiusTopEnd="24dp"
+                    app:boxCornerRadiusTopStart="24dp"
+                    app:hintTextColor="#356187">
 
-            </LinearLayout>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLines="1"/>
+                </com.google.android.material.textfield.TextInputLayout>
 
-        </androidx.cardview.widget.CardView>
+            </RelativeLayout>
 
-    </LinearLayout>
+            <!-- KONTEN UTAMA: Bagian Artikel -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="Artikel Seputar Kesehatan Hewan"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-</ScrollView>
+            <!-- Tempat List Artikel Ditampilkan (Dinamis) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_articles"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:clipToPadding="false"
+                tools:listitem="@layout/item_article" />
+
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

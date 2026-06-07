@@ -5,13 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.data.model.Message
 import com.example.projecthellopaw.databinding.ActivityChatBinding
+import com.example.projecthellopaw.ui.chat.ChatAdapter // Sesuaikan path ini jika beda
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
@@ -33,6 +36,7 @@ class ChatActivity : AppCompatActivity() {
     private var ownerName = ""
     private var petName = ""
     private var doctorId = ""
+    private var doctorName = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,23 +45,73 @@ class ChatActivity : AppCompatActivity() {
 
         chatRoomId = intent.getStringExtra("CHAT_ROOM_ID") ?: ""
         ownerId = intent.getStringExtra("OWNER_ID") ?: ""
-        ownerName = intent.getStringExtra("OWNER_NAME") ?: getString(R.string.default_owner_name)
-        petName = intent.getStringExtra("PET_NAME") ?: ""
-        doctorId = intent.getStringExtra("DOCTOR_ID") ?: auth.currentUser?.uid ?: ""
+        ownerName = intent.getStringExtra("OWNER_NAME") ?: ""
+        petName = intent.getStringExtra("PET_NAME") ?: "Anabul"
+        doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
+        doctorName = intent.getStringExtra("DOCTOR_NAME") ?: "Dokter"
+
+        val currentUid = auth.currentUser?.uid ?: ""
+        if (currentUid != doctorId && ownerName.isEmpty()) {
+            db.collection("users").document(currentUid).get()
+                .addOnSuccessListener { doc ->
+                    ownerName = doc.getString("name") ?: "Pemilik Hewan"
+                }
+        }
 
         setupToolbar()
         setupChat()
         setupInputArea()
         listenToMessages()
+        setupEndButton() // Inisialisasi tombol selesaikan sesi
+    }
+
+    private fun setupEndButton() {
+        val currentUid = auth.currentUser?.uid ?: ""
+        val btnEnd = binding.btnEndConsultation
+
+        // Tombol hanya tampil untuk dokter
+        if (currentUid == doctorId) {
+            btnEnd.visibility = View.VISIBLE
+            btnEnd.setOnClickListener {
+                AlertDialog.Builder(this)
+                    .setTitle("Selesaikan Konsultasi")
+                    .setMessage("Yakin ingin mengakhiri sesi? Pasien akan diminta memberi rating.")
+                    .setPositiveButton("Ya") { _, _ -> completeConsultation() }
+                    .setNegativeButton("Tidak", null)
+                    .show()
+            }
+        } else {
+            btnEnd.visibility = View.GONE
+        }
+    }
+
+    private fun completeConsultation() {
+        db.collection("chat_rooms").document(chatRoomId)
+            .update("chatStatus", "completed")
+            .addOnSuccessListener {
+                Toast.makeText(this, "Konsultasi selesai!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Gagal mengakhiri sesi", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun setupToolbar() {
         binding.ivBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        binding.tvChatName.text = ownerName
-        if (petName.isNotEmpty()) {
-            val consultationText = getString(R.string.consultation)
-            binding.tvChatSubtitle.text = "$consultationText · $petName"
+
+        // 🔄 PERBAIKAN: Sesuaikan judul nama di atas toolbar chat
+        val currentUid = auth.currentUser?.uid ?: ""
+        if (currentUid == doctorId) {
+            // Jika dokter yang buka, tampilkan nama Owner
+            binding.tvChatName.text = ownerName.ifEmpty { "Pemilik Hewan" }
+            binding.tvChatSubtitle.text = "Konsultasi · $petName"
+        } else {
+            // Jika Owner/User yang buka, tampilkan nama Dokter di atas toolbar
+            binding.tvChatName.text = "drh. $doctorName"
+            binding.tvChatSubtitle.text = "Konsultasi Sedang Berlangsung"
         }
+
         binding.ivMenuDots.setOnClickListener { /* show options menu jika perlu */ }
     }
 
@@ -86,7 +140,9 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage(text: String, isAi: Boolean = false) {
         val uid = auth.currentUser?.uid ?: return
-        val senderName = if (uid == doctorId) "Dokter" else ownerName
+
+        // 🔄 PERBAIKAN: Menentukan nama pengirim secara akurat di Firestore
+        val senderName = if (uid == doctorId) "drh. $doctorName" else ownerName
 
         val message = hashMapOf(
             "senderId" to uid,
@@ -186,7 +242,6 @@ class ChatActivity : AppCompatActivity() {
                     displayBottomSheet(suggestionsList)
 
                 } else {
-                    // Fallback jika bahasa chat terlalu abstrak bagi AI Google
                     val fallbackSuggestions = listOf("Bisa ceritakan gejalanya?", "Sejak kapan terjadi?", "Apakah sudah diberi obat?")
                     displayBottomSheet(fallbackSuggestions)
                 }

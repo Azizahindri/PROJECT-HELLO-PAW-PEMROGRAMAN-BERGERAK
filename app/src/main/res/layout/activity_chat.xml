@@ -5,6 +5,17 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
+    <Button
+        android:id="@+id/btnEndConsultation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selesaikan Konsultasi"
+        android:backgroundTint="#D32F2F"
+        android:textColor="@android:color/white"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/input_area" />
+
     <!-- Header - Biru Muda -->
     <LinearLayout
         android:id="@+id/header_layout"

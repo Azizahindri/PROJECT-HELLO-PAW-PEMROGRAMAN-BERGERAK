@@ -8,6 +8,7 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide // ◄── TAMBAHKAN INI
 import com.example.projecthellopaw.R
 
 class DoctorAdapter(
@@ -42,6 +43,27 @@ class DoctorAdapter(
         holder.tvFee.text = "Rp ${String.format("%,d", doctor.fee).replace(',', '.')},00"
         holder.ratingBar.rating = doctor.rating
         holder.tvRatingCount.text = String.format("%.1f", doctor.rating)
+
+        // ◄── TAMBAHAN LOGIKA STATUS ONLINE / OFFLINE DOKTER
+        if (doctor.isOnline) {
+            holder.tvStatus.text = "Online"
+            holder.tvStatus.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.holo_green_dark))
+        } else {
+            holder.tvStatus.text = "Offline"
+            holder.tvStatus.setTextColor(ContextCompat.getColor(holder.itemView.context, android.R.color.darker_gray))
+        }
+
+        // ◄── TAMBAHAN LOAD AVATAR DOKTER DENGAN GLIDE
+        // 🔍 CEK DI DOCTORADAPTER.KT
+        if (doctor.avatarUrl.isNotEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(doctor.avatarUrl)
+                .placeholder(R.drawable.ic_doctor_placeholder) // Gambar default jika loading
+                .circleCrop()
+                .into(holder.ivDoctorAvatar)
+        } else {
+            holder.ivDoctorAvatar.setImageResource(R.drawable.ic_doctor_placeholder) // Gambar default jika kosong
+        }
 
         // Klik seluruh card
         holder.itemView.setOnClickListener { onItemClick(doctor) }

@@ -21,7 +21,6 @@
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
-            <!-- Header Section - Lebih Kecil -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,7 +46,6 @@
                     android:layout_marginStart="12dp"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="@id/iv_doctor_photo"
-                    app:layout_constraintEnd_toStartOf="@id/iv_notification_bell"
                     app:layout_constraintStart_toEndOf="@id/iv_doctor_photo"
                     app:layout_constraintTop_toTopOf="@id/iv_doctor_photo">
 
@@ -70,20 +68,20 @@
 
                 </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/iv_notification_bell"
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
+\                <ImageView
+                    android:id="@+id/iv_doctor_logout"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:padding="4dp"
-                    android:src="@drawable/ic_bell"
-                    app:tint="@color/primary"
+                    android:src="@android:drawable/ic_lock_power_off"
+                    app:tint="@android:color/holo_red_dark"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:contentDescription="Logout Dokter" /> />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Hello Dokter! - Besar -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,7 +92,6 @@
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <!-- Grid Menu - Minimalis dengan padding 8dp -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,7 +101,6 @@
                 android:layout_marginTop="20dp"
                 android:useDefaultMargins="false">
 
-                <!-- Notification -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menu_notification"
                     android:layout_width="0dp"
@@ -139,7 +135,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Schedule -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menu_schedule"
                     android:layout_width="0dp"
@@ -174,7 +169,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Article -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menu_article"
                     android:layout_width="0dp"
@@ -209,7 +203,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Pet Stuff (Optional - Hapus jika tidak mau) -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/menu_pet_stuff"
                     android:layout_width="0dp"
@@ -247,7 +240,6 @@
 
             </GridLayout>
 
-            <!-- Artikel Section -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -259,7 +251,6 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <!-- RecyclerView Vertical -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_articles"
                 android:layout_width="match_parent"
@@ -269,16 +260,18 @@
                 android:clipToPadding="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-            <!-- Fragment Container -->
-            <FrameLayout
-                android:id="@+id/fragment_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
         </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="0dp"

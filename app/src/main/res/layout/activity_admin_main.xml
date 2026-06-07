@@ -11,7 +11,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Header Profil Admin -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +36,6 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
-            <!-- Foto Admin Bulat Sebelah Kanan -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/img_admin_avatar"
                 android:layout_width="45dp"
@@ -49,7 +47,6 @@
                 app:strokeWidth="1dp" />
         </RelativeLayout>
 
-        <!-- Search Bar Mockup -->
         <EditText
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -62,7 +59,6 @@
             android:focusable="false"
             android:clickable="true"/>
 
-        <!-- CARD 1: PENGGUNA (Warna Merah) -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_users"
             android:layout_width="match_parent"
@@ -112,12 +108,11 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- CARD 2: DOKTER (Warna Hijau) -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_doctors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="16dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
 
@@ -162,7 +157,54 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tombol Tambahan: Logout -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_add_article"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp">
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@android:drawable/ic_menu_agenda"
+                        android:layout_centerVertical="true"
+                        app:tint="#00838F"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tulis"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:layout_alignParentRight="true"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Artikel Baru"
+                        android:textSize="14sp"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="28dp"/>
+                </RelativeLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:background="#00838F"
+                    android:text="Buka Form Input"
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <Button
             android:id="@+id/btn_admin_logout"
             android:layout_width="wrap_content"

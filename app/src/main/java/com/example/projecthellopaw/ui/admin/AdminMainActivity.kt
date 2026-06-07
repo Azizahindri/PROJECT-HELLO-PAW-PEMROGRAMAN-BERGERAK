@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.databinding.ActivityAdminMainBinding
+import com.example.projecthellopaw.ui.article.AddArticleActivity // ◄── IMPORT: Halaman input artikel
 import com.example.projecthellopaw.ui.auth.LoginActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -40,6 +41,13 @@ class AdminMainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // ◄── PERBAIKAN: Tambahkan aksi klik untuk menginput Artikel Baru bagi Admin
+        // Pastikan di file activity_admin_main.xml Programmer 2 sudah menambahkan ID: cardAddArticle atau btnAddArticleAdmin
+        binding.cardAddArticle.setOnClickListener {
+            val intent = Intent(this, AddArticleActivity::class.java)
+            startActivity(intent)
+        }
+
         // Tombol Logout Admin
         binding.btnAdminLogout.setOnClickListener {
             auth.signOut()
@@ -70,5 +78,14 @@ class AdminMainActivity : AppCompatActivity() {
             .addOnSuccessListener { snapshots ->
                 binding.tvCountDoctors.text = snapshots.size().toString()
             }
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Gagal memuat count dokter: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    // Refresh otomatis jumlah counter di dashboard saat Admin kembali ke halaman ini
+    override fun onResume() {
+        super.onResume()
+        fetchDashboardCounts()
     }
 }
