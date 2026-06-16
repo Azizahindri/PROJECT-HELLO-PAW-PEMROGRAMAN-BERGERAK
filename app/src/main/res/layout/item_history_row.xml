@@ -15,10 +15,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Baris Atas: Nama Dokter + Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/tvHistoryDocName"
@@ -39,26 +41,51 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- Nama Hewan -->
+        <TextView
+            android:id="@+id/tvHistoryPetName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Hewan: Anabul"
+            android:textSize="13sp"
+            android:textColor="#757575" />
+
+        <!-- Pesan Terakhir -->
         <TextView
             android:id="@+id/tvHistoryLastMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="4dp"
             android:text="Pesan terakhir..."
             android:textSize="13sp"
             android:textColor="#757575"
             android:maxLines="1"
             android:ellipsize="end" />
 
+        <!-- Durasi -->
+        <TextView
+            android:id="@+id/tvHistoryDuration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Durasi: 15 menit"
+            android:textSize="12sp"
+            android:textColor="#757575"
+            android:visibility="gone" />
+
+        <!-- Tombol Review -->
         <Button
             android:id="@+id/btnRate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Beri Rating"
+            android:text="⭐ Beri Review"
             android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#356187"
             android:visibility="gone"
-            android:backgroundTint="#356187" />
+            app:cornerRadius="8dp" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

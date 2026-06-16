@@ -9,12 +9,14 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.R
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 class AddPetActivity : AppCompatActivity() {
 
     private val db = Firebase.firestore
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,29 +44,39 @@ class AddPetActivity : AppCompatActivity() {
 
             if (category.isEmpty() || type.isEmpty() || name.isEmpty() || age.isEmpty() || selectedGenderId == -1) {
                 Toast.makeText(this, "Mohon lengkapi semua data hewan ya!", Toast.LENGTH_SHORT).show()
-            } else {
-                val radioButton = findViewById<RadioButton>(selectedGenderId)
-                val gender = radioButton.text.toString()
-
-                val petData = hashMapOf(
-                    "category" to category,
-                    "type" to type,
-                    "name" to name,
-                    "age" to age,
-                    "gender" to gender,
-                    "createdAt" to com.google.firebase.Timestamp.now()
-                )
-
-                db.collection("pets")
-                    .add(petData)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Data $name berhasil disimpan!", Toast.LENGTH_LONG).show()
-                        finish()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(this, "Gagal menyimpan data: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
+                return@setOnClickListener
             }
+
+            val radioButton = findViewById<RadioButton>(selectedGenderId)
+            val gender = radioButton.text.toString()
+
+            // ✅ AMBIL USER ID
+            val userId = auth.currentUser?.uid
+            if (userId == null) {
+                Toast.makeText(this, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // ✅ TAMBAHKAN ownerId KE DATA
+            val petData = hashMapOf(
+                "ownerId" to userId,  // ← INI YANG PALING PENTING!
+                "category" to category,
+                "type" to type,
+                "name" to name,
+                "age" to age,
+                "gender" to gender,
+                "createdAt" to com.google.firebase.Timestamp.now()
+            )
+
+            db.collection("pets")
+                .add(petData)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Data $name berhasil disimpan!", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Gagal menyimpan data: ${e.message}", Toast.LENGTH_LONG).show()
+                }
         }
     }
 }

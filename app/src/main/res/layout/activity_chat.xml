@@ -5,17 +5,6 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <Button
-        android:id="@+id/btnEndConsultation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Selesaikan Konsultasi"
-        android:backgroundTint="#D32F2F"
-        android:textColor="@android:color/white"
-        android:layout_margin="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/input_area" />
-
     <!-- Header - Biru Muda -->
     <LinearLayout
         android:id="@+id/header_layout"
@@ -49,7 +38,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/tv_chat_name"
+                android:id="@+id/tvChatName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Drh. Kaziya"
@@ -58,7 +47,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_chat_subtitle"
+                android:id="@+id/tvChatSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Wednesday 13:30"
@@ -66,6 +55,17 @@
                 android:textSize="12sp" />
 
         </LinearLayout>
+
+        <!-- TIMER -->
+        <TextView
+            android:id="@+id/tvTimer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30:00"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#FFEB3B"
+            android:layout_marginEnd="8dp" />
 
         <ImageView
             android:id="@+id/iv_menu_dots"
@@ -88,12 +88,41 @@
         android:clipToPadding="false"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@id/input_area"
+        app:layout_constraintBottom_toTopOf="@id/btnEndConsultation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_layout" />
 
-    <!-- Input Area - Capsule Besar Radius 32dp -->
+    <!-- Tombol Selesaikan Konsultasi (untuk dokter) -->
+    <Button
+        android:id="@+id/btnEndConsultation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Selesaikan Konsultasi"
+        android:backgroundTint="#D32F2F"
+        android:textColor="@android:color/white"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toTopOf="@id/btnViewReview" />
+
+    <!-- Tombol Review (muncul setelah sesi selesai) -->
+    <Button
+        android:id="@+id/btnViewReview"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Beri Review"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#356187"
+        android:visibility="gone"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toTopOf="@id/input_area" />
+
+    <!-- Input Area -->
     <LinearLayout
         android:id="@+id/input_area"
         android:layout_width="0dp"

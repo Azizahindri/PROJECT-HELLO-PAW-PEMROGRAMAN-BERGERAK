@@ -8,5 +8,6 @@ data class Message(
     val senderName: String = "",
     val text: String = "",
     val timestamp: Date? = null,
-    val isAiGenerated: Boolean = false
+    val isAiGenerated: Boolean = false,
+    val isSystemMessage: Boolean = false
 )

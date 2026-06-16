@@ -168,4 +168,82 @@
     <string name="logo">Logo HelloPaw</string>
     <string name="ai_icon">Icon AI</string>
     <string name="empty_state">Ilustrasi Kosong</string>
+     <!-- Default values -->
+        <string name="default_pet_name">Anabul</string>
+        <string name="default_doctor_name">Dokter</string>
+
+        <!-- Chat titles -->
+        <string name="chat_subtitle_doctor">Konsultasi · %s</string>
+        <string name="chat_name_doctor">drh. %s</string>
+        <string name="chat_subtitle_patient">Konsultasi Sedang Berlangsung</string>
+
+        <!-- AI System Instruction -->
+        <string name="ai_system_instruction">Kamu adalah asisten AI pintar khusus dokter hewan. Tugasmu memberikan 3 saran balasan singkat, ramah, dan profesional berdasarkan riwayat chat medis yang diberikan. Berikan output langsung berupa 3 kalimat rekomendasi yang dipisahkan oleh tanda titik koma (;). Jangan berikan teks pembuka atau penutup lain.</string>
+
+        <!-- AI Prompts -->
+        <string name="ai_prompt_template">Anda adalah asisten AI untuk dokter hewan. Berikut adalah riwayat percakapan medis:\n\n%s\n\nBerdasarkan obrolan di atas, berikan 3 saran balasan alternatif yang singkat, jelas, ramah, profesional, dan relevan secara medis. Format output: 3 kalimat dipisahkan titik koma (;). Jangan gunakan nomor atau teks pembuka/penutup.</string>
+
+        <!-- Welcome message -->
+        <!-- Error messages -->
+        <string name="error_api_key_not_found">API Key tidak ditemukan. Fitur AI tidak tersedia.</string>
+        <string name="error_api_key_invalid">API Key tidak valid. Fitur AI tidak tersedia.</string>
+        <string name="error_ai_init">Gagal inisialisasi AI: %s</string>
+        <string name="error_fetch_config">Gagal mengambil konfigurasi AI</string>
+        <string name="error_ai_not_ready">AI sedang bersiap atau tidak tersedia. Mohon coba lagi nanti.</string>
+        <string name="error_ai_empty_response">Respon AI kosong. Silakan coba lagi.</string>
+        <string name="error_model_not_found">Model AI tidak ditemukan. Silakan hubungi pengembang.</string>
+        <string name="error_quota_exceeded">Kuota API telah habis. Silakan coba lagi nanti.</string>
+        <string name="error_permission_denied">Izin akses ditolak. Periksa konfigurasi API.</string>
+        <string name="error_ai_generic">Gagal memuat AI: %s</string>
+        <string name="error_send_message">Gagal mengirim pesan</string>
+        <string name="error_load_messages">Gagal memuat pesan: %s</string>
+        <string name="error_end_consultation">Gagal mengakhiri sesi</string>
+        <string name="error_suggestion_invalid">Saran tidak valid</string>
+        <string name="error_display_suggestions">Gagal menampilkan saran</string>
+
+        <!-- Success messages -->
+        <string name="ai_ready">AI siap digunakan!</string>
+        <string name="consultation_completed">Konsultasi selesai!</string>
+        <string name="ai_analyzing">AI sedang menganalisis pesan...</string>
+
+        <!-- Dialog -->
+        <string name="dialog_end_title">Selesaikan Konsultasi</string>
+        <string name="dialog_end_message">Yakin ingin mengakhiri sesi? Pasien akan diminta memberi rating.</string>
+        <string name="dialog_yes">Ya</string>
+        <string name="dialog_no">Tidak</string>
+
+        <!-- Suggestions -->
+        <string name="suggestion_welcome_1">Halo! Ada yang bisa saya bantu dengan anabul Anda?</string>
+        <string name="suggestion_welcome_2">Selamat siang, bagaimana kondisi hewan peliharaan Anda hari ini?</string>
+        <string name="suggestion_welcome_3">Halo, silakan ceritakan keluhan gejalanya ya.</string>
+        <string name="suggestion_fallback">Apakah ada keluhan lain yang ingin disampaikan?</string>
+
+        <!-- Symptom questions (fallback) -->
+        <string name="symptom_question_1">Bisa ceritakan lebih detail tentang gejala yang dialami anabul?</string>
+        <string name="symptom_question_2">Sudah berapa lama anabul mengalami keluhan ini?</string>
+        <string name="symptom_question_3">Apakah nafsu makan dan minum anabul masih baik?</string>
+
+        <!-- Default suggestions -->
+        <string name="default_suggestion_1">Bisa ceritakan detail gejalanya?</string>
+        <string name="default_suggestion_2">Sudah berapa lama ini terjadi?</string>
+        <string name="default_suggestion_3">Apakah nafsu makan masih baik?</string>
+
+        <!-- Roles -->
+        <string name="role_doctor">Dokter</string>
+        <string name="role_owner">Pemilik Hewan</string>
+
+    <string name="rating_very_bad">Sangat Buruk</string>
+    <string name="rating_bad">Buruk</string>
+    <string name="rating_ok">Cukup</string>
+    <string name="rating_good">Baik</string>
+    <string name="rating_very_good">Sangat Baik</string>
+
+    <!-- Payment Activity -->
+    <string name="consultation_online">Konsultasi Online</string>
+    <string name="doctor_name_prefix">drh. %s</string>
+    <string name="verifying">Memverifikasi...</string>
+    <string name="payment_confirmed">✓ Pembayaran Dikonfirmasi</string>
+    <string name="pay_button">SAYA SUDAH BAYAR</string>
+    <string name="payment_failed">Verifikasi gagal: %s</string>
+
 </resources>

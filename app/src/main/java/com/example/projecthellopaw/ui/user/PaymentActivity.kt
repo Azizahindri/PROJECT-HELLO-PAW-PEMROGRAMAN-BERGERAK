@@ -1,18 +1,20 @@
 package com.example.projecthellopaw.ui.user
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import com.example.projecthellopaw.R
-import com.example.projecthellopaw.ui.chat.ChatActivity // ◄── TAMBAH IMPORT
+import com.example.projecthellopaw.ui.chat.ChatActivity
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import java.text.NumberFormat
 import java.util.Locale
 
 class PaymentActivity : AppCompatActivity() {
@@ -20,51 +22,47 @@ class PaymentActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // Variabel global untuk menyimpan data yang dikirim dari halaman detail
     private var doctorId = ""
     private var doctorName = ""
     private var consultationFee = 50000
     private var currentUserName = ""
+    private var petName = "Anabul"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_payment)
 
-        // 🔄 FIX KUNCI: Menyamakan key intent dengan DoctorDetailActivity.kt
+        // Ambil data dari intent
         doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
         doctorName = intent.getStringExtra("DOCTOR_NAME") ?: "Dokter"
         consultationFee = intent.getIntExtra("FEE", 50000)
+        petName = intent.getStringExtra("PET_NAME") ?: "Anabul"
 
-        // Toolbar back button
+        // Toolbar
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbarPayment)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Pembayaran"
 
-        // Update teks nama dokter di ringkasan
-        // 1. Update nama layanan (Biarkan statis atau isi jenis layanan)
+        // Update UI
         val tvServiceName = findViewById<TextView>(R.id.tvServiceName)
-        tvServiceName.text = "Konsultasi Online"
+        tvServiceName.text = getString(R.string.consultation_online)
 
-// 2. 🔄 UPDATE: Isi nama dokter ke tempat yang benar di XML
         val tvDoctorNamePayment = findViewById<TextView>(R.id.tvDoctorNamePayment)
-        if (tvDoctorNamePayment != null) {
-            tvDoctorNamePayment.text = "drh. $doctorName"
-        }
+        tvDoctorNamePayment.text = getString(R.string.doctor_name_prefix, doctorName)
 
-// 3. 🔄 FIX ERROR: Ganti tvTotalPayment menjadi tvTotalAmount sesuai XML
+        // ❌ HAPUS ATAU COMMENT INI KARENA TIDAK ADA DI LAYOUT
+        // val tvPetNamePayment = findViewById<TextView>(R.id.tvPetNamePayment)
+        // tvPetNamePayment.text = "Hewan: $petName"
+
         val tvTotalAmount = findViewById<TextView>(R.id.tvTotalAmount)
-        if (tvTotalAmount != null) {
-            // Format menjadi Rupiah yang rapi
-            tvTotalAmount.text = "Rp ${String.format("%,d", consultationFee).replace(',', '.')}"
-        }
+        tvTotalAmount.text = String.format(Locale.getDefault(), "Rp %s", String.format("%,d", consultationFee).replace(',', '.'))
 
-        // Ambil nama user aktif terlebih dahulu untuk modal chat_rooms nanti
+        // Ambil nama user
         loadCurrentUserInfo()
 
         val btnConfirmPayment = findViewById<MaterialButton>(R.id.btnConfirmPayment)
 
-        // Klik tombol "SAYA SUDAH BAYAR"
         btnConfirmPayment.setOnClickListener {
             verifyAndCreateChatRoom()
         }
@@ -74,11 +72,10 @@ class PaymentActivity : AppCompatActivity() {
         val uid = auth.currentUser?.uid ?: return
         db.collection("users").document(uid).get()
             .addOnSuccessListener { doc ->
-                currentUserName = doc.getString("name") ?: "Pemilik Hewan"
+                currentUserName = doc.getString("name") ?: getString(R.string.default_owner_name)
             }
     }
 
-    // 🚀 TUGAS PROGRAMMER 4: Membuat data room chat asli di Cloud Firestore
     private fun verifyAndCreateChatRoom() {
         val progressBar = findViewById<ProgressBar>(R.id.progressBarPayment)
         val btnConfirmPayment = findViewById<MaterialButton>(R.id.btnConfirmPayment)
@@ -86,39 +83,33 @@ class PaymentActivity : AppCompatActivity() {
 
         progressBar.visibility = View.VISIBLE
         btnConfirmPayment.isEnabled = false
-        btnConfirmPayment.text = "Memverifikasi..."
+        btnConfirmPayment.text = getString(R.string.verifying)
 
-        // Membuat ID unik untuk room chat (Gabungan UID User dan UID Dokter)
-        val chatRoomId = "${currentUserId}_${doctorId}"
+        // Buat CHAT ROOM ID BARU
+        val chatRoomId = db.collection("chat_rooms").document().id
 
-        // Struktur data yang WAJIB sama dengan bacaan di AppointmentFragment milik Dokter
         val chatRoomData = hashMapOf(
-                "chatRoomId" to chatRoomId,
-        "ownerId" to currentUserId,
-        "ownerName" to currentUserName,
-        "doctorId" to doctorId,
-        "doctorName" to doctorName,
-        "petName" to "Anabul",
-        "petType" to "Kucing/Anjing",
-        "paymentStatus" to "success",
-        "chatStatus" to "active",
-
-        // --- TAMBAHKAN DUA BARIS INI ---
-        "startTime" to System.currentTimeMillis(), // Waktu mulai sesi (dalam milidetik)
-        "durationMinutes" to 2,                   // Durasi sesi 30 menit
-        // -------------------------------
-
-        "lastMessageTime" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            "chatRoomId" to chatRoomId,
+            "ownerId" to currentUserId,
+            "ownerName" to currentUserName,
+            "doctorId" to doctorId,
+            "doctorName" to doctorName,
+            "petName" to petName,
+            "paymentStatus" to "SUCCESS",
+            "chatStatus" to "active",
+            "createdAt" to FieldValue.serverTimestamp(),
+            "lastMessage" to "",
+            "hasReview" to false,
+            "duration" to 0
         )
 
-        // Simpan ke Firestore
         db.collection("chat_rooms").document(chatRoomId)
-            .set(chatRoomData, com.google.firebase.firestore.SetOptions.merge())
+            .set(chatRoomData)
             .addOnSuccessListener {
                 onPaymentVerified(chatRoomId)
             }
-            .addOnFailureListener {
-                onPaymentFailed()
+            .addOnFailureListener { e ->
+                onPaymentFailed(e.message)
             }
     }
 
@@ -127,32 +118,39 @@ class PaymentActivity : AppCompatActivity() {
         val btnConfirmPayment = findViewById<MaterialButton>(R.id.btnConfirmPayment)
 
         progressBar.visibility = View.GONE
-        btnConfirmPayment.text = "✓ Pembayaran Dikonfirmasi"
+        btnConfirmPayment.text = getString(R.string.payment_confirmed)
         btnConfirmPayment.backgroundTintList = android.content.res.ColorStateList.valueOf(
-            android.graphics.Color.parseColor("#1B5E20")
+            "#1B5E20".toColorInt()
         )
 
-        Toast.makeText(this, "Pembayaran berhasil! Konsultasi dimulai.", Toast.LENGTH_LONG).show()
+        Toast.makeText(this, R.string.payment_success, Toast.LENGTH_LONG).show()
 
-        // 🔄 SELESAI: Langsung arahkan User masuk ke halaman ChatActivity
+        // Kirim result ke DoctorDetailActivity
+        val resultIntent = Intent()
+        resultIntent.putExtra("PAYMENT_SUCCESS", true)
+        setResult(RESULT_OK, resultIntent)
+
+        // Langsung ke ChatActivity
         val intent = Intent(this, ChatActivity::class.java).apply {
             putExtra("CHAT_ROOM_ID", chatRoomId)
             putExtra("DOCTOR_ID", doctorId)
             putExtra("DOCTOR_NAME", doctorName)
+            putExtra("OWNER_ID", auth.currentUser?.uid ?: "")
+            putExtra("PET_NAME", petName)
         }
         startActivity(intent)
-        finish() // Tutup halaman payment agar jika di-back tidak kembali ke form bayar
+        finish()
     }
 
-    private fun onPaymentFailed() {
+    private fun onPaymentFailed(errorMessage: String?) {
         val progressBar = findViewById<ProgressBar>(R.id.progressBarPayment)
         val btnConfirmPayment = findViewById<MaterialButton>(R.id.btnConfirmPayment)
 
         progressBar.visibility = View.GONE
         btnConfirmPayment.isEnabled = true
-        btnConfirmPayment.text = "SAYA SUDAH BAYAR"
+        btnConfirmPayment.text = getString(R.string.pay_button)
 
-        Toast.makeText(this, "Verifikasi gagal. Coba lagi.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.payment_failed, errorMessage ?: "Coba lagi"), Toast.LENGTH_SHORT).show()
     }
 
     override fun onSupportNavigateUp(): Boolean {

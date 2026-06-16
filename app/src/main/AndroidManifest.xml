@@ -78,7 +78,9 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".ui.user.ReviewActivity" />
+        <activity
+            android:name=".ui.user.ReviewActivity"
+            android:exported="false" />
 
 
     </application>
