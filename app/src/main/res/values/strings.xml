@@ -246,4 +246,16 @@
     <string name="pay_button">SAYA SUDAH BAYAR</string>
     <string name="payment_failed">Verifikasi gagal: %s</string>
 
+    <!-- Doctor Detail Activity -->
+    <string name="bio_not_available">Informasi bio belum tersedia.</string>
+    <string name="practice_hours">Senin – Jumat: 08.00 – 20.00 WIB\nSabtu: 08.00 – 14.00 WIB</string>
+    <string name="start_consultation">Mulai Konsultasi</string>
+    <string name="doctor_offline">Dokter Sedang Offline</string>
+    <string name="doctor_offline_message">Dokter sedang offline, coba lagi nanti</string>
+    <string name="login_required">Silakan login terlebih dahulu</string>
+    <string name="add_pet_first">Silakan tambahkan hewan peliharaan terlebih dahulu</string>
+    <string name="error_get_pet">Gagal mengambil data hewan: %s</string>
+    <string name="select_pet">Pilih Hewan Peliharaan</string>
+    <string name="consultation_started">Konsultasi dimulai!</string>
+
 </resources>

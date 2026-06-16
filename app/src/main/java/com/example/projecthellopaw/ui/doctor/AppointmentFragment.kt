@@ -2,25 +2,31 @@ package com.example.projecthellopaw.ui.doctor
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.databinding.FragmentAppointmentBinding
 import com.example.projecthellopaw.ui.chat.ChatActivity
+import com.example.projecthellopaw.ui.user.ReviewActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
+// ============================================================
+// 1. DATA CLASS AppointmentItem
+// ============================================================
 data class AppointmentItem(
     val chatRoomId: String = "",
     val ownerId: String = "",
@@ -29,7 +35,11 @@ data class AppointmentItem(
     val petType: String = "",
     val lastMessageTime: Date? = null,
     val chatStatus: String = "active",
-    val doctorId: String = ""
+    val doctorId: String = "",
+    val doctorName: String = "",
+    val paymentStatus: String = "",
+    val hasReview: Boolean = false,
+    val duration: Int = 0
 )
 
 class AppointmentAdapter(
@@ -42,6 +52,7 @@ class AppointmentAdapter(
         val tvPetInfo: TextView = itemView.findViewById(R.id.tv_pet_info)
         val tvTimestamp: TextView = itemView.findViewById(R.id.tv_timestamp)
         val tvStatusBadge: TextView = itemView.findViewById(R.id.tv_status_badge)
+        val btnViewReview: Button = itemView.findViewById(R.id.btn_view_review)
         val cardRoot: CardView = itemView.findViewById(R.id.card_appointment)
     }
 
@@ -57,21 +68,57 @@ class AppointmentAdapter(
         holder.tvPetInfo.text = "${item.petName} · ${item.petType}"
         holder.tvTimestamp.text = formatTimestamp(item.lastMessageTime)
 
-        if (item.chatStatus == "active") {
-            holder.tvStatusBadge.text = "Sedang Berlangsung"
-            holder.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
-            holder.tvStatusBadge.setTextColor(
-                holder.itemView.context.getColor(R.color.badge_active_text)
-            )
-        } else {
-            holder.tvStatusBadge.text = "Menunggu"
-            holder.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_pending)
-            holder.tvStatusBadge.setTextColor(
-                holder.itemView.context.getColor(R.color.badge_pending_text)
-            )
+        when (item.chatStatus) {
+            "active" -> {
+                holder.tvStatusBadge.text = "🟢 Sedang Berlangsung"
+                holder.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_active)
+                holder.tvStatusBadge.setTextColor(
+                    holder.itemView.context.getColor(R.color.badge_active_text)
+                )
+                // ✅ SEMBUNYIKAN TOMBOL REVIEW SAAT AKTIF
+                holder.btnViewReview.visibility = View.GONE
+            }
+            "completed" -> {
+                holder.tvStatusBadge.text = "⚫ Selesai"
+                holder.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_pending)
+                holder.tvStatusBadge.setTextColor(
+                    holder.itemView.context.getColor(R.color.badge_pending_text)
+                )
+
+                // ✅ DOKTER HANYA BISA LIHAT REVIEW
+                if (item.hasReview) {
+                    holder.btnViewReview.visibility = View.VISIBLE
+                    holder.btnViewReview.text = "📋 Lihat Review"
+                    holder.btnViewReview.setOnClickListener {
+                        val intent = Intent(holder.itemView.context, ReviewActivity::class.java).apply {
+                            putExtra("CHAT_ROOM_ID", item.chatRoomId)
+                            putExtra("DOCTOR_ID", item.doctorId)
+                            putExtra("DOCTOR_NAME", item.doctorName)
+                            putExtra("OWNER_ID", item.ownerId)
+                            putExtra("PET_NAME", item.petName)
+                            putExtra("DURATION", item.duration)
+                            putExtra("IS_READ_ONLY", true)  // ← DOKTER HANYA LIHAT
+                        }
+                        holder.itemView.context.startActivity(intent)
+                    }
+                } else {
+                    // ❌ DOKTER TIDAK BISA MEMBERI REVIEW
+                    holder.btnViewReview.visibility = View.GONE
+                }
+            }
+            else -> {
+                holder.tvStatusBadge.text = "⏳ Menunggu"
+                holder.tvStatusBadge.setBackgroundResource(R.drawable.bg_badge_pending)
+                holder.tvStatusBadge.setTextColor(
+                    holder.itemView.context.getColor(R.color.badge_pending_text)
+                )
+                holder.btnViewReview.visibility = View.GONE
+            }
         }
 
-        holder.cardRoot.setOnClickListener { onItemClick(item) }
+        holder.cardRoot.setOnClickListener {
+            onItemClick(item)
+        }
     }
 
     override fun getItemCount() = items.size
@@ -104,6 +151,9 @@ class AppointmentAdapter(
     }
 }
 
+// ============================================================
+// 3. APPOINTMENT FRAGMENT
+// ============================================================
 class AppointmentFragment : Fragment() {
 
     private var _binding: FragmentAppointmentBinding? = null
@@ -136,6 +186,7 @@ class AppointmentFragment : Fragment() {
                 putExtra("OWNER_NAME", item.ownerName)
                 putExtra("PET_NAME", item.petName)
                 putExtra("DOCTOR_ID", item.doctorId)
+                putExtra("DOCTOR_NAME", item.doctorName)
             }
             startActivity(intent)
         }
@@ -152,37 +203,52 @@ class AppointmentFragment : Fragment() {
 
     private fun listenToAppointments() {
         val doctorId = auth.currentUser?.uid ?: return
+
         binding.progressBar.visibility = View.VISIBLE
         binding.tvEmpty.visibility = View.GONE
 
         listenerReg?.remove()
-        listenerReg = db.collection("chat_rooms")
+
+        db.collection("chat_rooms")
             .whereEqualTo("doctorId", doctorId)
-            .whereEqualTo("paymentStatus", "success")
             .addSnapshotListener { snapshots, error ->
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
 
-                if (error != null || snapshots == null) {
+                if (error != null || snapshots == null || snapshots.isEmpty) {
                     showEmpty()
                     return@addSnapshotListener
                 }
 
-                if (snapshots.isEmpty) {
+                val filteredDocs = snapshots.documents.filter { doc ->
+                    val paymentStatus = doc.getString("paymentStatus") ?: ""
+                    paymentStatus.equals("success", ignoreCase = true) ||
+                            paymentStatus.equals("SUCCESS", ignoreCase = true)
+                }
+
+                if (filteredDocs.isEmpty()) {
                     showEmpty()
                     return@addSnapshotListener
                 }
 
-                val items = snapshots.documents.map { doc ->
+                val sortedDocs = filteredDocs.sortedByDescending {
+                    it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+                }
+
+                val items = sortedDocs.map { doc ->
                     AppointmentItem(
-                        chatRoomId = doc.id,
+                        chatRoomId = doc.getString("chatRoomId") ?: doc.id,
                         ownerId = doc.getString("ownerId") ?: "",
-                        ownerName = doc.getString("ownerName") ?: "",
-                        petName = doc.getString("petName") ?: "",
-                        petType = doc.getString("petType") ?: "",
+                        ownerName = doc.getString("ownerName") ?: "Pemilik",
+                        petName = doc.getString("petName") ?: "Anabul",
+                        petType = doc.getString("petType") ?: "Hewan",
                         lastMessageTime = doc.getDate("lastMessageTime"),
                         chatStatus = doc.getString("chatStatus") ?: "active",
-                        doctorId = doctorId
+                        doctorId = doctorId,
+                        doctorName = doc.getString("doctorName") ?: "",
+                        paymentStatus = doc.getString("paymentStatus") ?: "",
+                        hasReview = doc.getBoolean("hasReview") ?: false,
+                        duration = doc.getLong("duration")?.toInt() ?: 0
                     )
                 }
 

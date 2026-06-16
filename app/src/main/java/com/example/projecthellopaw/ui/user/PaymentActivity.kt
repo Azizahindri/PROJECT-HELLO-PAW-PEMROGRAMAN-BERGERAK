@@ -88,13 +88,15 @@ class PaymentActivity : AppCompatActivity() {
         // Buat CHAT ROOM ID BARU
         val chatRoomId = db.collection("chat_rooms").document().id
 
+        // Di PaymentActivity.kt, tambahkan petType
         val chatRoomData = hashMapOf(
             "chatRoomId" to chatRoomId,
             "ownerId" to currentUserId,
-            "ownerName" to currentUserName,
+            "ownerName" to currentUserName.ifEmpty { "Pemilik" },
             "doctorId" to doctorId,
             "doctorName" to doctorName,
-            "petName" to petName,
+            "petName" to petName.ifEmpty { "Anabul" },
+            "petType" to "Hewan",  // ← TAMBAHKAN
             "paymentStatus" to "SUCCESS",
             "chatStatus" to "active",
             "createdAt" to FieldValue.serverTimestamp(),

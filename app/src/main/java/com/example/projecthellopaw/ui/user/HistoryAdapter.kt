@@ -86,11 +86,21 @@ class HistoryAdapter(
                 tvStatus.text = "⚫ Selesai"
                 tvStatus.setTextColor(Color.parseColor("#757575"))
 
+                // ✅ TOMBOL REVIEW UNTUK PASIEN
                 if (item.hasReview) {
                     btnRate.text = "📋 Lihat Review"
                     btnRate.visibility = View.VISIBLE
                     btnRate.setOnClickListener {
-                        Toast.makeText(itemView.context, "Review sudah diberikan", Toast.LENGTH_SHORT).show()
+                        val intent = Intent(itemView.context, ReviewActivity::class.java).apply {
+                            putExtra("CHAT_ROOM_ID", item.chatRoomId)
+                            putExtra("DOCTOR_ID", item.doctorId)
+                            putExtra("DOCTOR_NAME", item.doctorName)
+                            putExtra("OWNER_ID", item.ownerId)
+                            putExtra("PET_NAME", item.petName)
+                            putExtra("DURATION", item.duration)
+                            putExtra("IS_READ_ONLY", true)
+                        }
+                        itemView.context.startActivity(intent)
                     }
                 } else {
                     btnRate.text = "⭐ Beri Review"
@@ -103,6 +113,7 @@ class HistoryAdapter(
                             putExtra("OWNER_ID", item.ownerId)
                             putExtra("PET_NAME", item.petName)
                             putExtra("DURATION", item.duration)
+                            putExtra("IS_READ_ONLY", false)
                         }
                         itemView.context.startActivity(intent)
                     }
