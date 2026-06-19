@@ -15,11 +15,54 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#356187"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- 1. RECYCLERVIEW: Tempat list riwayat konsultasi muncul -->
+    <!-- ========================================== -->
+    <!-- SEARCH BAR                                -->
+    <!-- ========================================== -->
+    <LinearLayout
+        android:id="@+id/llSearchHistory"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_search_input_home"
+        android:padding="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleHistory">
+
+        <EditText
+            android:id="@+id/etSearchHistory"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:hint="Cari riwayat..."
+            android:background="@android:color/transparent"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:inputType="text"
+            android:textColor="@color/text_primary"
+            android:textColorHint="#9CA3AF" />
+
+        <ImageView
+            android:id="@+id/ivClearSearchHistory"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_close"
+            android:padding="8dp"
+            android:contentDescription="Clear"
+            android:tint="#757575"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
         android:layout_width="0dp"
@@ -27,12 +70,12 @@
         android:layout_marginTop="12dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvTitleHistory"
+        app:layout_constraintTop_toBottomOf="@id/llSearchHistory"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 2. TEXTVIEW EMPTY STATE: Muncul HANYA jika data di Firebase kosong -->
+    <!-- Empty State -->
     <TextView
         android:id="@+id/tvEmptyHistory"
         android:layout_width="wrap_content"
@@ -47,7 +90,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- 3. PROGRESSBAR: Efek loading berputar saat aplikasi menarik data dari internet -->
+    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/progressBarHistory"
         android:layout_width="wrap_content"

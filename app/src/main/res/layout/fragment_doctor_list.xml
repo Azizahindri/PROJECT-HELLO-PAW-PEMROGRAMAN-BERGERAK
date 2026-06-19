@@ -36,6 +36,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDoctorListTitle" />
 
+    <!-- ========================================== -->
+    <!-- SEARCH BAR                                -->
+    <!-- ========================================== -->
+    <LinearLayout
+        android:id="@+id/llSearchDoctor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_search_input_home"
+        android:padding="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvDoctorOnlineLabel">
+
+        <EditText
+            android:id="@+id/etSearchDoctor"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:hint="Cari dokter..."
+            android:background="@android:color/transparent"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:inputType="text"
+            android:textColor="@color/text_primary"
+            android:textColorHint="#9CA3AF" />
+
+        <ImageView
+            android:id="@+id/ivClearSearchDoctor"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_close"
+            android:padding="8dp"
+            android:contentDescription="Clear"
+            android:tint="#757575"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
     <!-- RecyclerView daftar dokter -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDoctorList"
@@ -47,9 +89,9 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDoctorOnlineLabel" />
+        app:layout_constraintTop_toBottomOf="@+id/llSearchDoctor" />
 
-    <!-- Empty State (ditampilkan saat list kosong) -->
+    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/layoutEmptyState"
         android:layout_width="wrap_content"
@@ -75,6 +117,17 @@
             android:text="Belum ada dokter online"
             android:textColor="#9E9E9E"
             android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/tvEmptySearchDoctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text=""
+            android:textColor="#9E9E9E"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

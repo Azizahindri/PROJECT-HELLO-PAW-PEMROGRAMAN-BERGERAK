@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
@@ -21,8 +21,6 @@
             android:id="@+id/ivDoctorAvatar"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            app:civ_border_width="2dp"
-            app:civ_border_color="#C8E0F5"
             android:src="@mipmap/ic_launcher"
             android:padding="8dp"
             android:scaleType="centerCrop" />
@@ -42,7 +40,6 @@
                 android:text="drh. Nama Dokter"
                 android:textColor="#1A2D4E"
                 android:textSize="14sp"
-                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
@@ -82,7 +79,6 @@
                     android:textSize="11sp"
                     android:layout_marginStart="4dp" />
 
-                <!-- Bullet separator -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -113,8 +109,7 @@
                     android:layout_height="wrap_content"
                     android:text="Rp 50.000,00"
                     android:textColor="#356187"
-                    android:textSize="12sp"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tvStatus"
@@ -132,12 +127,12 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Tombol Konsultasi Kecil -->
+        <!-- Tombol Konsultasi -->
         <ImageView
             android:id="@+id/ivConsultBtn"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@mipmap/ic_launcher"
+            android:src="@drawable/ic_consult"
             android:background="@drawable/bg_btn_consult_circle"
             android:padding="8dp"
             android:layout_marginStart="8dp" />

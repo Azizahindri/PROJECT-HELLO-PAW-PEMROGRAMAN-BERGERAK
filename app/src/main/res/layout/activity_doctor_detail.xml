@@ -24,7 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Foto Dokter besar (bulat) -->
+            <!-- Foto Dokter -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivDoctorDetailPhoto"
                 android:layout_width="100dp"
@@ -44,7 +44,7 @@
                 android:textColor="#FFFFFF"
                 android:layout_marginTop="10dp" />
 
-            <!-- Spesialisasi chip -->
+            <!-- Spesialisasi -->
             <TextView
                 android:id="@+id/tvDetailSpecialization"
                 android:layout_width="wrap_content"
@@ -54,21 +54,38 @@
                 android:textColor="#C8E0F5"
                 android:layout_marginTop="4dp" />
 
-            <!-- Rating -->
-            <RatingBar
-                android:id="@+id/ratingBarDetail"
-                style="@style/Widget.AppCompat.RatingBar.Small"
+            <!-- Rating Bar + Jumlah Ulasan -->
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:numStars="5"
-                android:rating="4.5"
-                android:stepSize="0.5"
-                android:isIndicator="true"
-                android:progressTint="#FFC107"
-                android:layout_marginTop="8dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <RatingBar
+                    android:id="@+id/ratingBarDetail"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:rating="4.5"
+                    android:stepSize="0.5"
+                    android:isIndicator="true"
+                    android:progressTint="#FFC107" />
+
+                <!-- ✅ TAMBAHKAN INI -->
+                <TextView
+                    android:id="@+id/tvRatingCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(0 ulasan)"
+                    android:textSize="12sp"
+                    android:textColor="#C8E0F5"
+                    android:layout_marginStart="6dp" />
+            </LinearLayout>
         </LinearLayout>
 
-        <!-- Card info cepat: pengalaman, tarif, ulasan -->
+        <!-- Card Quick Info -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardQuickInfo"
             android:layout_width="0dp"
@@ -97,6 +114,7 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
+                        android:id="@+id/tvExperience"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="8 Tahun"
@@ -154,9 +172,10 @@
                     android:orientation="vertical"
                     android:gravity="center">
                     <TextView
+                        android:id="@+id/tvTotalReviews"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="5"
+                        android:text="0"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#356187" />
@@ -170,7 +189,7 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Biodata / Tentang -->
+        <!-- Card Biodata -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardBio"
             android:layout_width="0dp"
@@ -202,7 +221,7 @@
                     android:id="@+id/tvBio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="drh. Susianti adalah dokter hewan berpengalaman dengan lebih dari 8 tahun praktik klinis. Lulusan Fakultas Kedokteran Hewan, berpengalaman menangani berbagai kasus penyakit hewan kecil dan eksotis."
+                    android:text="drh. Susianti adalah dokter hewan berpengalaman..."
                     android:textSize="13sp"
                     android:textColor="#7A9EC0"
                     android:lineSpacingExtra="4dp"
@@ -248,7 +267,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginHorizontal="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="20dp" />
+
+        <!-- Tombol Lihat Review (untuk dokter) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewReviews"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:text="📋 Lihat Review"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#757575"
+            app:cornerRadius="14dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/btnStartConsultation"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="8dp"
             android:layout_marginBottom="36dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

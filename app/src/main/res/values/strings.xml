@@ -258,4 +258,22 @@
     <string name="select_pet">Pilih Hewan Peliharaan</string>
     <string name="consultation_started">Konsultasi dimulai!</string>
 
+    <string name="review_title">Review</string>
+    <string name="no_review_yet">Belum ada review</string>
+    <string name="review_for_doctor">Review untuk drh. %s</string>
+    <string name="failed_load_review">Gagal memuat review</string>
+    <string name="anonymous">🕵️ Anonim</string>
+    <string name="pet_with_anonymous">Hewan: %s (Pasien Anonim)</string>
+
+    <string name="change_password">Ganti Password</string>
+    <string name="current_password">Password Saat Ini</string>
+    <string name="new_password">Password Baru</string>
+    <string name="confirm_password">Konfirmasi Password</string>
+    <string name="password_min_6">Password minimal 6 karakter</string>
+    <string name="password_not_match">Password tidak sama</string>
+    <string name="password_changed">✅ Password berhasil diubah!</string>
+    <string name="password_wrong">❌ Password saat ini salah!</string>
+    <string name="reset_password_email">Lupa password? Reset via email</string>
+    <string name="reset_email_sent">📧 Email reset password telah dikirim</string>
+
 </resources>

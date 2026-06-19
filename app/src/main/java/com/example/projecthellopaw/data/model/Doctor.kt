@@ -1,13 +1,12 @@
-package com.example.projecthellopaw.model
-
-data class Doctor(
-    val uid: String = "",
-    val name: String = "",
-    val email: String = "",
-    val photoUrl: String = "",
-    val specialization: String = "Dokter Hewan",
-    val clinicName: String = "",
-    val consultationFee: Long = 50000L,
-    val isOnline: Boolean = false,
-    val avatarUrl: String = ""
+data class DoctorItem(
+    val id: String,
+    val name: String,
+    val specialization: String,
+    val fee: Int,
+    val rating: Float,
+    val experience: Int,
+    val bio: String,
+    val isOnline: Boolean,
+    val avatarUrl: String = "",
+    val totalReviews: Int = 0  // ← TAMBAHKAN
 )

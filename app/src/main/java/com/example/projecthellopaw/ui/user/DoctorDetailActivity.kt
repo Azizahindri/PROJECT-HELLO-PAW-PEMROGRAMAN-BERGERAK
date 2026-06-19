@@ -25,12 +25,13 @@ class DoctorDetailActivity : AppCompatActivity() {
     private var doctorName = ""
     private var fee = 0
     private var petName = ""
+    private var doctorRating = 0f
+    private var totalReviews = 0
 
     companion object {
         private const val TAG = "DoctorDetailActivity"
     }
 
-    // ✅ GANTI startActivityForResult dengan Activity Result API
     private val paymentLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -49,115 +50,161 @@ class DoctorDetailActivity : AppCompatActivity() {
 
         Log.d(TAG, "=== DOCTOR DETAIL ACTIVITY STARTED ===")
 
-        // Ambil data dari Intent
         doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
         doctorName = intent.getStringExtra("DOCTOR_NAME") ?: ""
         val specialization = intent.getStringExtra("DOCTOR_SPECIALIZATION") ?: ""
         fee = intent.getIntExtra("DOCTOR_FEE", 50000)
-        val rating = intent.getFloatExtra("DOCTOR_RATING", 0f)
+        doctorRating = intent.getFloatExtra("DOCTOR_RATING", 0f)
         val bio = intent.getStringExtra("DOCTOR_BIO") ?: ""
         val isOnline = intent.getBooleanExtra("DOCTOR_STATUS", false)
 
         Log.d(TAG, "doctorId: $doctorId")
         Log.d(TAG, "doctorName: $doctorName")
-        Log.d(TAG, "fee: $fee")
-        Log.d(TAG, "isOnline: $isOnline")
 
         // Bind View
         val tvName = findViewById<TextView>(R.id.tvDetailDoctorName)
         val tvSpec = findViewById<TextView>(R.id.tvDetailSpecialization)
         val ratingBar = findViewById<RatingBar>(R.id.ratingBarDetail)
+        val tvRatingCount = findViewById<TextView>(R.id.tvRatingCount)
         val tvFee = findViewById<TextView>(R.id.tvTarifAmount)
         val tvBio = findViewById<TextView>(R.id.tvBio)
         val tvPraktik = findViewById<TextView>(R.id.tvPraktikTime)
         val btnConsult = findViewById<MaterialButton>(R.id.btnStartConsultation)
+        val btnViewReviews = findViewById<MaterialButton>(R.id.btnViewReviews)
+        val tvTotalReviews = findViewById<TextView>(R.id.tvTotalReviews)
+        val tvExperience = findViewById<TextView>(R.id.tvExperience)
 
-        // Isi Data
-        tvName.text = getString(R.string.doctor_name_prefix, doctorName)
+        tvName.text = "drh. $doctorName"
         tvSpec.text = specialization
-        ratingBar.rating = rating
-        tvFee.text = String.format(Locale.getDefault(), "Rp %s", String.format("%,d", fee).replace(',', '.'))
-        tvBio.text = if (bio.isNotEmpty()) bio else getString(R.string.bio_not_available)
-        tvPraktik.text = getString(R.string.practice_hours)
+        ratingBar.rating = 0f
+        tvRatingCount.text = "Belum ada ulasan"
+        tvFee.text = "Rp ${String.format("%,d", fee).replace(',', '.')}"
+        tvBio.text = if (bio.isNotEmpty()) bio else "Informasi bio belum tersedia."
+
+        // ✅ Cek role user untuk tombol Lihat Review
+        val currentUserId = auth.currentUser?.uid ?: ""
+        db.collection("users").document(currentUserId).get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val doc = task.result
+                    if (doc != null && doc.exists()) {
+                        val role = doc.getString("role") ?: "OWNER"
+                        if (role == "DOCTOR") {
+                            btnViewReviews.visibility = View.VISIBLE
+                            btnViewReviews.setOnClickListener {
+                                val intent = Intent(this, ReviewListActivity::class.java)
+                                intent.putExtra("DOCTOR_ID", doctorId)
+                                intent.putExtra("DOCTOR_NAME", doctorName)
+                                startActivity(intent)
+                            }
+                        }
+                    }
+                }
+            }
 
         if (isOnline) {
-            btnConsult.text = getString(R.string.start_consultation)
+            btnConsult.text = "Mulai Konsultasi"
             btnConsult.alpha = 1f
         } else {
-            btnConsult.text = getString(R.string.doctor_offline)
+            btnConsult.text = "Dokter Sedang Offline"
             btnConsult.alpha = 0.5f
         }
 
         btnConsult.setOnClickListener {
-            Log.d(TAG, "=== BUTTON CLICKED ===")
-
             if (!isOnline) {
-                Toast.makeText(this, getString(R.string.doctor_offline_message), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Dokter sedang offline, coba lagi nanti", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val currentUser = auth.currentUser
             if (currentUser == null) {
-                Toast.makeText(this, getString(R.string.login_required), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            Log.d(TAG, "User ID: ${currentUser.uid}")
             checkAndSelectPet(currentUser.uid)
         }
+
+        loadDoctorReviews(tvRatingCount, ratingBar, tvTotalReviews, tvExperience)
+    }
+
+    private fun loadDoctorReviews(
+        tvRatingCount: TextView,
+        ratingBar: RatingBar,
+        tvTotalReviews: TextView,
+        tvExperience: TextView
+    ) {
+        db.collection("reviews")
+            .whereEqualTo("doctorId", doctorId)
+            .get()
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "Failed to load reviews", task.exception)
+                    tvRatingCount.text = "Gagal memuat rating"
+                    return@addOnCompleteListener
+                }
+
+                val documents = task.result
+                totalReviews = documents?.size() ?: 0
+                var totalRating = 0.0
+                if (documents != null) {
+                    for (doc in documents) {
+                        totalRating += doc.getDouble("rating") ?: 0.0
+                    }
+                }
+                val averageRating = if (totalReviews > 0) totalRating / totalReviews else 0.0
+
+                if (totalReviews > 0) {
+                    tvRatingCount.text = String.format("%.1f", averageRating)
+                    ratingBar.rating = averageRating.toFloat()
+                } else {
+                    tvRatingCount.text = "Belum ada ulasan"
+                    ratingBar.rating = 0f
+                }
+
+                tvTotalReviews.text = totalReviews.toString()
+            }
     }
 
     private fun checkAndSelectPet(userId: String) {
-        Log.d(TAG, "=== checkAndSelectPet ===")
-        Log.d(TAG, "userId: $userId")
-
         db.collection("pets")
             .whereEqualTo("ownerId", userId)
             .get()
-            .addOnSuccessListener { documents ->
-                Log.d(TAG, "Pets found: ${documents.size()}")
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "Failed to get pet data", task.exception)
+                    Toast.makeText(this, "Gagal mengambil data hewan", Toast.LENGTH_SHORT).show()
+                    return@addOnCompleteListener
+                }
 
-                // ✅ PAKAI IF BIASA TANPA RETURN
-                if (documents.isEmpty) {
-                    Log.d(TAG, "NO PET, navigate to AddPetActivity")
-                    Toast.makeText(this, getString(R.string.add_pet_first), Toast.LENGTH_LONG).show()
+                val documents = task.result
+                if (documents == null || documents.isEmpty) {
+                    Toast.makeText(this, "Silakan tambahkan hewan peliharaan terlebih dahulu", Toast.LENGTH_LONG).show()
                     val intent = Intent(this, AddPetActivity::class.java)
                     startActivity(intent)
-                    // ✅ TIDAK PAKAI return, LANGSUNG CLOSE LAMBDA
                 } else if (documents.size() > 1) {
-                    Log.d(TAG, "Multiple pets, show dialog")
                     showPetSelectionDialog(documents)
                 } else {
-                    val petName = documents.documents[0].getString("name") ?: getString(R.string.default_pet_name)
-                    Log.d(TAG, "Pet found: $petName")
+                    val petName = documents.documents[0].getString("name") ?: "Hewan"
                     goToPayment(petName)
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to get pet data: ${e.message}", e)
-                Toast.makeText(this, getString(R.string.error_get_pet, e.message), Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun showPetSelectionDialog(documents: com.google.firebase.firestore.QuerySnapshot) {
-        val petNames = documents.map { it.getString("name") ?: getString(R.string.default_pet_name) }
+        val petNames = documents.map { it.getString("name") ?: "Hewan" }
 
         AlertDialog.Builder(this)
-            .setTitle(getString(R.string.select_pet))
+            .setTitle("Pilih Hewan Peliharaan")
             .setItems(petNames.toTypedArray()) { _, which ->
-                val selectedPetName = petNames[which]
-                Log.d(TAG, "Selected pet: $selectedPetName")
-                goToPayment(selectedPetName)
+                goToPayment(petNames[which])
             }
-            .setNegativeButton(getString(R.string.cancel), null)
+            .setNegativeButton("Batal", null)
             .show()
     }
 
     private fun goToPayment(petName: String) {
         this.petName = petName
-        Log.d(TAG, "=== goToPayment ===")
-        Log.d(TAG, "petName: $petName")
-
         val intent = Intent(this, PaymentActivity::class.java).apply {
             putExtra("DOCTOR_ID", doctorId)
             putExtra("DOCTOR_NAME", doctorName)
@@ -165,8 +212,6 @@ class DoctorDetailActivity : AppCompatActivity() {
             putExtra("USER_ID", auth.currentUser?.uid ?: "")
             putExtra("PET_NAME", petName)
         }
-
-        // ✅ PAKAI LAUNCHER BARU
         paymentLauncher.launch(intent)
     }
 }

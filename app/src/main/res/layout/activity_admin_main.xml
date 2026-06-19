@@ -3,215 +3,290 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_admin_gradient">
+    android:background="#F5F7FA">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="16dp">
 
+        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="24dp">
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="20dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:layout_alignParentStart="true">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello,"
-                    android:textColor="@android:color/black"
-                    android:textSize="14sp" />
+                    android:text="Selamat Pagi,"
+                    android:textColor="#757575"
+                    android:textSize="13sp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="ADMIN HELLOPAW"
-                    android:textColor="@android:color/black"
+                    android:text="Admin HelloPaw"
+                    android:textColor="#1A1A2E"
                     android:textStyle="bold"
-                    android:textSize="18sp" />
+                    android:textSize="20sp" />
             </LinearLayout>
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/img_admin_avatar"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:layout_alignParentRight="true"
-                android:src="@android:drawable/sym_def_app_icon"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
-                app:strokeColor="@android:color/white"
-                app:strokeWidth="1dp" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:gravity="center_vertical">
+
+                <Button
+                    android:id="@+id/btn_admin_logout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Keluar"
+                    android:backgroundTint="#E53935"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:layout_marginEnd="10dp"
+                    app:cornerRadius="6dp"/>
+
+                <ImageView
+                    android:id="@+id/img_admin_avatar"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@android:drawable/sym_def_app_icon"
+                    android:background="@drawable/bg_avatar_circle"
+                    android:padding="4dp"/>
+            </LinearLayout>
         </RelativeLayout>
 
-        <EditText
+        <!-- Search Bar -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@android:color/white"
-            android:hint="contoh: Mutia"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:textSize="14sp"
-            android:layout_marginBottom="24dp"
-            android:focusable="false"
-            android:clickable="true"/>
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp">
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@android:color/white"
+                android:hint="Cari pengguna, dokter..."
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:textSize="14sp"
+                android:drawableStart="@android:drawable/ic_menu_search"
+                android:drawablePadding="10dp"
+                android:focusable="false"
+                android:clickable="true"/>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Card Pengguna -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_users"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <RelativeLayout
+                android:orientation="vertical"
+                android:background="#FFFFFF">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:src="@android:drawable/ic_menu_myplaces"
-                        android:layout_centerVertical="true"
-                        app:tint="#D32F2F"/>
-                    <TextView
-                        android:id="@+id/tv_count_users"
-                        android:layout_width="wrap_content"
+                        android:background="@drawable/bg_icon_red"
+                        android:padding="10dp"
+                        android:layout_marginEnd="14dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:layout_alignParentRight="true"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="pengguna"
-                        android:textSize="14sp"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@id/tv_count_users"/>
-                </RelativeLayout>
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tv_count_users"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#1A1A2E"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Pengguna"
+                            android:textColor="#757575"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <!-- GANTI: pakai ic_chevron_right -->
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:alpha="0.3"/>
+                </LinearLayout>
+
                 <TextView
+                    android:id="@+id/btn_view_users"
                     android:layout_width="match_parent"
-                    android:layout_height="24dp"
+                    android:layout_height="40dp"
                     android:background="#D32F2F"
-                    android:text="View Details"
+                    android:text="Lihat Detail Pengguna"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Card Dokter -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_doctors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <RelativeLayout
+                android:orientation="vertical"
+                android:background="#FFFFFF">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
                     <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
                         android:src="@android:drawable/ic_menu_compass"
-                        android:layout_centerVertical="true"
-                        app:tint="#388E3C"/>
-                    <TextView
-                        android:id="@+id/tv_count_doctors"
-                        android:layout_width="wrap_content"
+                        android:background="@drawable/bg_icon_green"
+                        android:padding="10dp"
+                        android:layout_marginEnd="14dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="28sp"
-                        android:textStyle="bold"
-                        android:layout_alignParentRight="true"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Dokter"
-                        android:textSize="14sp"
-                        android:layout_alignParentRight="true"
-                        android:layout_below="@id/tv_count_doctors"/>
-                </RelativeLayout>
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:id="@+id/tv_count_doctors"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textColor="#1A1A2E"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Total Dokter"
+                            android:textColor="#757575"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <!-- GANTI: pakai ic_chevron_right -->
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        android:alpha="0.3"/>
+                </LinearLayout>
+
                 <TextView
+                    android:id="@+id/btn_view_doctors"
                     android:layout_width="match_parent"
-                    android:layout_height="24dp"
+                    android:layout_height="40dp"
                     android:background="#388E3C"
-                    android:text="View Details"
+                    android:text="Lihat Detail Dokter"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:focusable="true"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Card Tulis Artikel -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_add_article"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:background="#FFFFFF"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@android:drawable/ic_menu_agenda"
+                    android:background="@drawable/bg_icon_cyan"
+                    android:padding="10dp"
+                    android:layout_marginEnd="14dp"/>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="16dp">
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@android:drawable/ic_menu_agenda"
-                        android:layout_centerVertical="true"
-                        app:tint="#00838F"/>
+                    android:layout_weight="1"
+                    android:orientation="vertical">
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tulis"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:layout_alignParentRight="true"/>
+                        android:text="Tulis Artikel Baru"
+                        android:textColor="#1A1A2E"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Artikel Baru"
-                        android:textSize="14sp"
-                        android:layout_alignParentRight="true"
-                        android:layout_marginTop="28dp"/>
-                </RelativeLayout>
-                <TextView
-                    android:layout_width="match_parent"
+                        android:text="Buat artikel baru untuk aplikasi"
+                        android:textColor="#757575"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="24dp"
                     android:layout_height="24dp"
-                    android:background="#00838F"
-                    android:text="Buka Form Input"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp"
-                    android:gravity="center"/>
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:alpha="0.3"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
-        <Button
-            android:id="@+id/btn_admin_logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout"
-            android:layout_gravity="center_horizontal"
-            android:backgroundTint="@android:color/holo_red_dark"/>
 
     </LinearLayout>
 </ScrollView>

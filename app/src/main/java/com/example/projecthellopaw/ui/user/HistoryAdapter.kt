@@ -87,6 +87,7 @@ class HistoryAdapter(
                 tvStatus.setTextColor(Color.parseColor("#757575"))
 
                 // ✅ TOMBOL REVIEW UNTUK PASIEN
+                // Di HistoryAdapter.kt - bagian bind()
                 if (item.hasReview) {
                     btnRate.text = "📋 Lihat Review"
                     btnRate.visibility = View.VISIBLE

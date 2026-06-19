@@ -47,10 +47,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.doctor.AppointmentFragment"
-            android:exported="false" />
-
-        <activity
             android:name=".ui.admin.AdminMainActivity"
             android:exported="false" />
 
@@ -80,6 +76,22 @@
 
         <activity
             android:name=".ui.user.ReviewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.user.SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.user.ProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.user.ReviewListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.user.ChangePasswordActivity"
             android:exported="false" />
 
 

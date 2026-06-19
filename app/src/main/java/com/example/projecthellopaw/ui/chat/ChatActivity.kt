@@ -55,6 +55,7 @@ class ChatActivity : AppCompatActivity() {
     private var isConsultationCompleted = false
     private var isChatReadOnly = false
     private var hasReview = false
+    private var userRole: String = "OWNER"
 
     companion object {
         private const val TAG = "ChatActivity"
@@ -80,12 +81,16 @@ class ChatActivity : AppCompatActivity() {
         val currentUid = auth.currentUser?.uid ?: ""
         if (currentUid != doctorId && ownerName.isEmpty()) {
             db.collection("users").document(currentUid).get()
-                .addOnSuccessListener { doc ->
-                    ownerName = doc.getString("name") ?: getString(R.string.default_owner_name)
-                    setupToolbar()
-                }
-                .addOnFailureListener {
-                    ownerName = getString(R.string.default_owner_name)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val doc = task.result
+                        if (doc != null && doc.exists()) {
+                            ownerName = doc.getString("name") ?: getString(R.string.default_owner_name)
+                            setupToolbar()
+                        }
+                    } else {
+                        ownerName = getString(R.string.default_owner_name)
+                    }
                 }
         }
 
@@ -95,38 +100,61 @@ class ChatActivity : AppCompatActivity() {
         listenToMessages()
         setupEndButton()
         fetchGeminiApiKey()
-
-        // ✅ CEK STATUS CHAT + SISA WAKTU
+        getUserRole()
         checkChatStatusAndTime()
     }
 
+    private fun getUserRole() {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("users").document(uid).get()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val doc = task.result
+                    if (doc != null && doc.exists()) {
+                        userRole = doc.getString("role") ?: "OWNER"
+                        Log.d(TAG, "User role: $userRole")
+                    }
+                }
+            }
+    }
+
     private fun checkChatStatusAndTime() {
-        db.collection("chat_rooms").document(chatRoomId)
-            .get()
-            .addOnSuccessListener { document ->
+        db.collection("chat_rooms").document(chatRoomId).get()
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "Failed to check session time", task.exception)
+                    sessionStartTime = System.currentTimeMillis()
+                    startSessionTimer()
+                    return@addOnCompleteListener
+                }
+
+                val document = task.result
+                if (document == null || !document.exists()) {
+                    sessionStartTime = System.currentTimeMillis()
+                    startSessionTimer()
+                    return@addOnCompleteListener
+                }
+
                 val chatStatus = document.getString("chatStatus")
                 hasReview = document.getBoolean("hasReview") ?: false
 
-                // ✅ JIKA CHAT SUDAH SELESAI
                 if (chatStatus == "completed") {
                     Log.d(TAG, "=== CHAT SUDAH SELESAI ===")
                     timer?.cancel()
                     binding.tvTimer.visibility = View.GONE
                     setChatReadOnly()
-                    return@addOnSuccessListener
+                    return@addOnCompleteListener
                 }
 
-                // ✅ JIKA CHAT MASIH AKTIF
                 val createdAt = document.getTimestamp("createdAt")
 
                 if (createdAt == null) {
+                    val updates = hashMapOf<String, Any>(
+                        "createdAt" to FieldValue.serverTimestamp()
+                    )
                     db.collection("chat_rooms").document(chatRoomId)
-                        .update("createdAt", FieldValue.serverTimestamp())
-                        .addOnSuccessListener {
-                            sessionStartTime = System.currentTimeMillis()
-                            startSessionTimer()
-                        }
-                        .addOnFailureListener {
+                        .update(updates)
+                        .addOnCompleteListener {
                             sessionStartTime = System.currentTimeMillis()
                             startSessionTimer()
                         }
@@ -148,34 +176,22 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to check session time", e)
-                sessionStartTime = System.currentTimeMillis()
-                startSessionTimer()
-            }
     }
 
     private fun setChatReadOnly() {
         isChatReadOnly = true
         isConsultationCompleted = true
 
-        // ✅ HENTIKAN TIMER
         timer?.cancel()
-
-        // ✅ SEMBUNYIKAN TIMER
         binding.tvTimer.visibility = View.GONE
 
-        // Nonaktifkan input
         binding.etMessage.isEnabled = false
         binding.btnSend.isEnabled = false
         binding.btnSend.alpha = 0.5f
         binding.etMessage.hint = "Konsultasi telah selesai"
         binding.btnAiSuggest.visibility = View.GONE
-
-        // Sembunyikan tombol end consultation
         binding.btnEndConsultation.visibility = View.GONE
 
-        // Tampilkan tombol review
         binding.btnViewReview.visibility = View.VISIBLE
         if (hasReview) {
             binding.btnViewReview.text = "Lihat Review"
@@ -247,12 +263,13 @@ class ChatActivity : AppCompatActivity() {
         sessionStartTime = System.currentTimeMillis()
         isSessionEnding = false
 
+        val updates = hashMapOf<String, Any>(
+            "createdAt" to FieldValue.serverTimestamp()
+        )
+
         db.collection("chat_rooms").document(chatRoomId)
-            .update("createdAt", FieldValue.serverTimestamp())
-            .addOnSuccessListener {
-                startSessionTimer()
-            }
-            .addOnFailureListener {
+            .update(updates)
+            .addOnCompleteListener {
                 startSessionTimer()
             }
     }
@@ -280,13 +297,32 @@ class ChatActivity : AppCompatActivity() {
 
     private fun fetchGeminiApiKey() {
         db.collection("app_config").document("gemini").get()
-            .addOnSuccessListener { document ->
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "Failed to fetch API key", task.exception)
+                    Toast.makeText(
+                        this,
+                        R.string.error_fetch_config,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@addOnCompleteListener
+                }
+
+                val document = task.result
+                if (document == null || !document.exists()) {
+                    Toast.makeText(
+                        this,
+                        R.string.error_api_key_not_found,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnCompleteListener
+                }
+
                 apiKey = document.getString("apiKey") ?: ""
 
                 if (apiKey.isNotEmpty() && apiKey.length >= 20) {
                     geminiService = GeminiApiService(apiKey)
                     Log.d(TAG, "Gemini API Service initialized successfully")
-                    // ✅ HAPUS TOAST DI SINI
                 } else {
                     Toast.makeText(
                         this,
@@ -294,14 +330,6 @@ class ChatActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Failed to fetch API key", e)
-                Toast.makeText(
-                    this,
-                    R.string.error_fetch_config,
-                    Toast.LENGTH_SHORT
-                ).show()
             }
     }
 
@@ -338,77 +366,115 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        if (sessionStartTime == 0L) {
+            Log.d(TAG, "=== sessionStartTime 0, ambil dari Firestore ===")
+            db.collection("chat_rooms").document(chatRoomId).get()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val doc = task.result
+                        if (doc != null) {
+                            val createdAt = doc.getTimestamp("createdAt")
+                            if (createdAt != null) {
+                                sessionStartTime = createdAt.toDate().time
+                                Log.d(TAG, "sessionStartTime dari Firestore: $sessionStartTime")
+                            } else {
+                                sessionStartTime = System.currentTimeMillis()
+                                Log.d(TAG, "sessionStartTime fallback: $sessionStartTime")
+                            }
+                        } else {
+                            sessionStartTime = System.currentTimeMillis()
+                            Log.d(TAG, "sessionStartTime fallback: $sessionStartTime")
+                        }
+                    } else {
+                        sessionStartTime = System.currentTimeMillis()
+                        Log.d(TAG, "sessionStartTime fallback: $sessionStartTime")
+                    }
+                    completeConsultation()
+                }
+            return
+        }
+
         isConsultationCompleted = true
         isSessionEnding = true
         timer?.cancel()
         Log.d(TAG, "=== Timer dibatalkan ===")
 
         val endTime = System.currentTimeMillis()
-        val durationInMinutes = ((endTime - sessionStartTime) / 1000 / 60).toInt()
+        val durationInMillis = endTime - sessionStartTime
+        val durationInMinutes = (durationInMillis / 1000 / 60).toInt()
+
+        val finalDuration = if (durationInMinutes < 1) {
+            val seconds = (durationInMillis / 1000).toInt()
+            if (seconds < 60) 1 else (seconds / 60)
+        } else {
+            durationInMinutes
+        }
 
         Log.d(TAG, "endTime: $endTime")
+        Log.d(TAG, "sessionStartTime: $sessionStartTime")
+        Log.d(TAG, "durationInMillis: $durationInMillis")
         Log.d(TAG, "durationInMinutes: $durationInMinutes")
+        Log.d(TAG, "finalDuration: $finalDuration")
 
-        val updates = hashMapOf(
+        val updates = hashMapOf<String, Any>(
             "chatStatus" to "completed",
             "endedAt" to FieldValue.serverTimestamp(),
-            "duration" to durationInMinutes.toLong()
+            "duration" to finalDuration.toLong()
         )
 
         Log.d(TAG, "=== UPDATING FIRESTORE ===")
         Log.d(TAG, "updates: $updates")
 
         db.collection("chat_rooms").document(chatRoomId)
-            .update(updates as Map<String, Any>)
-            .addOnSuccessListener {
+            .update(updates)
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.e(TAG, "=== UPDATE FAILED ===")
+                    Log.e(TAG, "Failed to end consultation: ${task.exception?.message}", task.exception)
+                    Toast.makeText(
+                        this,
+                        "Gagal mengakhiri sesi: ${task.exception?.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    isConsultationCompleted = false
+                    isSessionEnding = false
+                    return@addOnCompleteListener
+                }
+
                 Log.d(TAG, "=== UPDATE SUCCESS ===")
 
                 Toast.makeText(
                     this,
-                    "Konsultasi selesai! Durasi: ${durationInMinutes} menit",
+                    "Konsultasi selesai! Durasi: $finalDuration menit",
                     Toast.LENGTH_SHORT
                 ).show()
 
-                // ✅ SET CHAT READ-ONLY
                 setChatReadOnly()
 
-                // ✅ UPDATE hasReview
-                db.collection("chat_rooms").document(chatRoomId)
-                    .get()
-                    .addOnSuccessListener { doc ->
-                        hasReview = doc.getBoolean("hasReview") ?: false
-                        if (hasReview) {
-                            binding.btnViewReview.text = "Lihat Review"
-                        } else {
-                            binding.btnViewReview.text = "Beri Review"
-                            binding.btnViewReview.setOnClickListener {
-                                val intent = Intent(this, ReviewActivity::class.java)
-                                intent.putExtra("CHAT_ROOM_ID", chatRoomId)
-                                intent.putExtra("DOCTOR_ID", doctorId)
-                                intent.putExtra("DOCTOR_NAME", doctorName)
-                                intent.putExtra("OWNER_ID", ownerId)
-                                intent.putExtra("PET_NAME", petName)
-                                intent.putExtra("DURATION", durationInMinutes)
-                                startActivity(intent)
+                db.collection("chat_rooms").document(chatRoomId).get()
+                    .addOnCompleteListener { reviewTask ->
+                        if (reviewTask.isSuccessful) {
+                            val doc = reviewTask.result
+                            if (doc != null) {
+                                hasReview = doc.getBoolean("hasReview") ?: false
+                                if (hasReview) {
+                                    binding.btnViewReview.text = "Lihat Review"
+                                } else {
+                                    binding.btnViewReview.text = "Beri Review"
+                                    binding.btnViewReview.setOnClickListener {
+                                        val intent = Intent(this, ReviewActivity::class.java)
+                                        intent.putExtra("CHAT_ROOM_ID", chatRoomId)
+                                        intent.putExtra("DOCTOR_ID", doctorId)
+                                        intent.putExtra("DOCTOR_NAME", doctorName)
+                                        intent.putExtra("OWNER_ID", ownerId)
+                                        intent.putExtra("PET_NAME", petName)
+                                        intent.putExtra("DURATION", finalDuration)
+                                        startActivity(intent)
+                                    }
+                                }
                             }
                         }
                     }
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "=== UPDATE FAILED ===")
-                Log.e(TAG, "Failed to end consultation: ${e.message}", e)
-
-                Toast.makeText(
-                    this,
-                    "Gagal mengakhiri sesi: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-
-                isConsultationCompleted = false
-                isSessionEnding = false
-                Log.d(TAG, "=== FLAG DI-RESET ===")
-                Log.d(TAG, "isConsultationCompleted: $isConsultationCompleted")
-                Log.d(TAG, "isSessionEnding: $isSessionEnding")
             }
     }
 
@@ -449,7 +515,6 @@ class ChatActivity : AppCompatActivity() {
     }
 
     private fun sendMessage(text: String, isAi: Boolean = false) {
-        // ✅ CEK APAKAH READ-ONLY
         if (isChatReadOnly) {
             Toast.makeText(this, "Konsultasi sudah selesai, tidak dapat mengirim pesan", Toast.LENGTH_SHORT).show()
             return
@@ -462,7 +527,7 @@ class ChatActivity : AppCompatActivity() {
             ownerName
         }
 
-        val message = hashMapOf(
+        val message = hashMapOf<String, Any>(
             "senderId" to uid,
             "senderName" to senderName,
             "text" to text,
@@ -482,11 +547,13 @@ class ChatActivity : AppCompatActivity() {
                 ).show()
             }
 
+        val updateMap = hashMapOf<String, Any>(
+            "lastMessage" to text,
+            "lastMessageTime" to FieldValue.serverTimestamp()
+        )
+
         db.collection("chat_rooms").document(chatRoomId)
-            .update(
-                "lastMessage", text,
-                "lastMessageTime", FieldValue.serverTimestamp()
-            )
+            .update(updateMap)
             .addOnFailureListener { e ->
                 Log.e(TAG, "Failed to update last message", e)
             }
@@ -565,11 +632,19 @@ class ChatActivity : AppCompatActivity() {
         val realChatMessages = rawMessages.filter { it.senderId != "system" }
 
         if (realChatMessages.isEmpty()) {
-            val welcomeSuggestions = listOf(
-                getString(R.string.suggestion_welcome_1),
-                getString(R.string.suggestion_welcome_2),
-                getString(R.string.suggestion_welcome_3)
-            )
+            val welcomeSuggestions = if (userRole == "DOCTOR") {
+                listOf(
+                    "Halo! Ada yang bisa saya bantu dengan anabul Anda?",
+                    "Selamat siang, bagaimana kondisi hewan peliharaan Anda hari ini?",
+                    "Halo, silakan ceritakan keluhan gejalanya ya."
+                )
+            } else {
+                listOf(
+                    "Halo dok, saya mau konsultasi tentang hewan saya",
+                    "Selamat siang dok, hewan saya sedang sakit",
+                    "Halo dok, saya butuh bantuan untuk anabul saya"
+                )
+            }
             displayBottomSheet(welcomeSuggestions)
             return
         }
@@ -578,28 +653,26 @@ class ChatActivity : AppCompatActivity() {
         val conversationHistory = StringBuilder()
 
         for (msg in lastMessages) {
-            val role = if (msg.senderId == doctorId) {
-                getString(R.string.role_doctor)
-            } else {
-                getString(R.string.role_owner)
-            }
+            val role = if (msg.senderId == doctorId) "Dokter" else "Pemilik Hewan"
             conversationHistory.append("$role: ${msg.text}\n")
         }
 
-        val finalPrompt = """
-        Anda adalah asisten AI untuk dokter hewan. Berikut riwayat percakapan:
-        
-        $conversationHistory
-        
-        Berikan 3 saran balasan untuk dokter. Format: "saran1; saran2; saran3"
-        Hanya output 3 kalimat, tanpa teks lain.
-        """.trimIndent()
+        val isFollowUp = detectFollowUp(realChatMessages)
+        val intentType = detectIntent(realChatMessages.last().text)
+
+        val finalPrompt = buildPrompt(
+            conversationHistory = conversationHistory.toString(),
+            userRole = userRole,
+            isFollowUp = isFollowUp,
+            intentType = intentType,
+            petName = petName
+        )
 
         lifecycleScope.launch {
             try {
                 Toast.makeText(
                     this@ChatActivity,
-                    R.string.ai_analyzing,
+                    "AI sedang menganalisis...",
                     Toast.LENGTH_SHORT
                 ).show()
 
@@ -622,7 +695,13 @@ class ChatActivity : AppCompatActivity() {
                         .toMutableList()
 
                     while (suggestionsList.size < 3) {
-                        suggestionsList.add(getString(R.string.suggestion_fallback))
+                        suggestionsList.add(
+                            if (userRole == "DOCTOR") {
+                                "Apakah ada keluhan lain yang dirasakan?"
+                            } else {
+                                "Dok, apa yang harus saya lakukan selanjutnya?"
+                            }
+                        )
                     }
 
                     val finalSuggestions = suggestionsList.take(3)
@@ -632,15 +711,114 @@ class ChatActivity : AppCompatActivity() {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        showFallbackSuggestions(getString(R.string.error_ai_empty_response))
+                        showFallbackSuggestions("Respon AI kosong, silakan coba lagi")
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error generating AI suggestions: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    showFallbackSuggestions(getString(R.string.error_ai_generic, e.localizedMessage ?: "Unknown error"))
+                    showFallbackSuggestions("Gagal memuat AI: ${e.localizedMessage}")
                 }
             }
+        }
+    }
+
+    private fun detectFollowUp(messages: List<Message>): Boolean {
+        if (messages.size < 3) return false
+
+        val lastSender = messages.last().senderId
+        if (lastSender == doctorId) return false
+
+        val lastThreeMessages = messages.takeLast(3)
+        val hasQuestion = lastThreeMessages.any { it.text.contains("?") }
+        val hasShortAnswer = lastThreeMessages.last().text.split(" ").size < 5
+
+        return hasQuestion && hasShortAnswer
+    }
+
+    private fun detectIntent(text: String): String {
+        val lowerText = text.lowercase()
+        return when {
+            lowerText.contains("makan") || lowerText.contains("minum") -> "FOOD_DRINK"
+            lowerText.contains("demam") || lowerText.contains("panas") -> "FEVER"
+            lowerText.contains("muntah") || lowerText.contains("diare") -> "VOMIT_DIARRHEA"
+            lowerText.contains("luka") || lowerText.contains("berdarah") -> "WOUND"
+            lowerText.contains("gatal") || lowerText.contains("kudis") -> "ITCHING"
+            lowerText.contains("batuk") || lowerText.contains("bersin") -> "COUGH_SNEEZE"
+            lowerText.contains("lemas") || lowerText.contains("malas") -> "LETHARGY"
+            lowerText.contains("obat") || lowerText.contains("vitamin") -> "MEDICATION"
+            lowerText.contains("vaksin") -> "VACCINE"
+            else -> "GENERAL"
+        }
+    }
+
+    private fun buildPrompt(
+        conversationHistory: String,
+        userRole: String,
+        isFollowUp: Boolean,
+        intentType: String,
+        petName: String
+    ): String {
+        val followUpInstruction = if (isFollowUp) {
+            "Ini adalah percakapan lanjutan. User telah memberikan informasi tambahan. " +
+                    "Berikan saran yang lebih spesifik dan mendalam berdasarkan jawaban sebelumnya."
+        } else {
+            "Ini adalah percakapan awal. Berikan saran umum yang baik untuk memulai."
+        }
+
+        val intentInstruction = when (intentType) {
+            "FOOD_DRINK" -> "Fokus pada masalah makan dan minum hewan."
+            "FEVER" -> "Fokus pada demam dan suhu tubuh hewan."
+            "VOMIT_DIARRHEA" -> "Fokus pada masalah pencernaan."
+            "WOUND" -> "Fokus pada luka dan perawatan."
+            "ITCHING" -> "Fokus pada masalah kulit dan gatal."
+            "COUGH_SNEEZE" -> "Fokus pada masalah pernapasan."
+            "LETHARGY" -> "Fokus pada kondisi lemas dan kurang energi."
+            "MEDICATION" -> "Fokus pada obat dan vitamin."
+            "VACCINE" -> "Fokus pada vaksinasi."
+            else -> "Berikan saran umum yang sesuai."
+        }
+
+        return if (userRole == "DOCTOR") {
+            """
+            Anda adalah asisten AI untuk dokter hewan. Hewan yang dikonsultasikan adalah $petName.
+            
+            Berikut riwayat percakapan:
+            $conversationHistory
+            
+            $followUpInstruction
+            $intentInstruction
+            
+            Berikan 3 saran balasan untuk DIPAKAI OLEH DOKTER saat merespons pasien.
+            Saran harus:
+            1. Profesional dan medis
+            2. Ramah dan empati
+            3. Memberikan solusi atau saran medis
+            4. Spesifik sesuai dengan kondisi yang dibicarakan
+            
+            Format: "saran1; saran2; saran3"
+            Hanya output 3 kalimat, tanpa teks lain.
+            """.trimIndent()
+        } else {
+            """
+            Anda adalah asisten AI untuk pemilik hewan. Hewan yang dikonsultasikan adalah $petName.
+            
+            Berikut riwayat percakapan:
+            $conversationHistory
+            
+            $followUpInstruction
+            $intentInstruction
+            
+            Berikan 3 saran pertanyaan untuk DIAJUKAN OLEH PASIEN ke dokter.
+            Saran harus:
+            1. Pertanyaan tentang kondisi hewan
+            2. Pertanyaan tentang perawatan
+            3. Pertanyaan tentang gejala
+            4. Spesifik sesuai dengan kondisi yang dibicarakan
+            
+            Format: "pertanyaan1; pertanyaan2; pertanyaan3"
+            Hanya output 3 kalimat, tanpa teks lain.
+            """.trimIndent()
         }
     }
 
@@ -650,11 +828,19 @@ class ChatActivity : AppCompatActivity() {
             Log.e(TAG, "Fallback suggestions triggered: $errorMessage")
         }
 
-        val fallback = listOf(
-            getString(R.string.symptom_question_1),
-            getString(R.string.symptom_question_2),
-            getString(R.string.symptom_question_3)
-        )
+        val fallback = if (userRole == "DOCTOR") {
+            listOf(
+                "Bisa ceritakan lebih detail tentang gejala yang dialami?",
+                "Sudah berapa lama anabul mengalami keluhan ini?",
+                "Apakah nafsu makan dan minum anabul masih baik?"
+            )
+        } else {
+            listOf(
+                "Dok, bagaimana kondisi anabul saya?",
+                "Apa yang harus saya lakukan selanjutnya dok?",
+                "Apakah perlu dibawa ke klinik dok?"
+            )
+        }
         displayBottomSheet(fallback)
     }
 

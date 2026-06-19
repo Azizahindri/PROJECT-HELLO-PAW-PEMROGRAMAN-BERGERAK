@@ -1,76 +1,101 @@
 package com.example.projecthellopaw.ui.admin
 
 import android.os.Bundle
-import android.view.View
-import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.projecthellopaw.data.model.UserAdminModel
+import com.example.projecthellopaw.R
+import com.example.projecthellopaw.adapters.UsersAdapter
+import com.example.projecthellopaw.data.model.User
 import com.example.projecthellopaw.databinding.ActivityManageUsersBinding
-import com.google.firebase.firestore.FirebaseFirestore
 
 class ManageUsersActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityManageUsersBinding
-    private lateinit var db: FirebaseFirestore
-    private val usersList = ArrayList<UserAdminModel>()
-    private lateinit var usersAdapter: UsersAdapter
+    private lateinit var adapter: UsersAdapter
+    private var userList = mutableListOf<User>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityManageUsersBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = FirebaseFirestore.getInstance()
+        // Get role dari intent
+        val role = intent.getStringExtra("role") ?: "USER"
+        val title = if (role == "DOCTOR") "Daftar Dokter" else "Daftar Pengguna"
 
-        // 1. Ambil data penanda role yang dikirim dari AdminMainActivity
-        val roleType = intent.getStringExtra("ROLE_TYPE") ?: "OWNER"
+        // Set title ke toolbar
+        binding.toolbarTitle.text = title
 
-        // 2. Set Judul Halaman di XML secara dinamis biar mirip mockup Figma
-        if (roleType == "DOCTOR") {
-            binding.tvListTitle.text = "Dokter"
-        } else {
-            binding.tvListTitle.text = "Pengguna"
+        // Setup RecyclerView
+        adapter = UsersAdapter(userList) { user ->
+            showUserDetail(user)
         }
 
-        // 3. Setup RecyclerView & Adapter-nya
-        setupRecyclerView(roleType)
+        binding.rvUsers.layoutManager = LinearLayoutManager(this)
+        binding.rvUsers.adapter = adapter
 
-        // 4. Tarik data dari Firestore sesuai role
-        loadUsersFromFirestore(roleType)
+        // Load data dummy
+        loadData(role)
+
+        // Back button
+        binding.ivBack.setOnClickListener {
+            finish()
+        }
+
+        // Search
+        binding.etSearchUser.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterUsers(s.toString())
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
     }
 
-    private fun setupRecyclerView(roleType: String) {
-        binding.rvUsersList.layoutManager = LinearLayoutManager(this)
-        usersAdapter = UsersAdapter(usersList, roleType)
-        binding.rvUsersList.adapter = usersAdapter
+    private fun loadData(role: String) {
+        // Data dummy
+        val allUsers = listOf(
+            User(uid = "1", name = "Andi Pratama", email = "andi@email.com", role = "OWNER"),
+            User(uid = "2", name = "Budi Santoso", email = "budi@email.com", role = "OWNER"),
+            User(uid = "3", name = "dr. Citra Dewi", email = "citra@klinik.com", role = "DOCTOR"),
+            User(uid = "4", name = "dr. Dedi Kurniawan", email = "dedi@klinik.com", role = "DOCTOR"),
+            User(uid = "5", name = "Eka Fitriani", email = "eka@email.com", role = "OWNER"),
+            User(uid = "6", name = "dr. Fajar Hermawan", email = "fajar@klinik.com", role = "DOCTOR")
+        )
+
+        userList.clear()
+        if (role == "DOCTOR") {
+            userList.addAll(allUsers.filter { it.role == "DOCTOR" })
+        } else {
+            userList.addAll(allUsers.filter { it.role != "DOCTOR" })
+        }
+        adapter.updateData(userList)
     }
 
-    private fun loadUsersFromFirestore(role: String) {
-        usersList.clear() // Bersihkan list agar tidak duplikat saat reload
+    private fun filterUsers(query: String) {
+        if (query.isEmpty()) {
+            adapter.updateData(userList)
+        } else {
+            val filtered = userList.filter {
+                it.name.contains(query, ignoreCase = true) ||
+                        it.email.contains(query, ignoreCase = true)
+            }
+            adapter.updateData(filtered)
+        }
+    }
 
-        db.collection("users")
-            .whereEqualTo("role", role)
-            .get()
-            .addOnSuccessListener { snapshots ->
-                if (!snapshots.isEmpty) {
-                    for (document in snapshots) {
-                        val user = UserAdminModel(
-                            id = document.id,
-                            name = document.getString("name") ?: "Tanpa Nama",
-                            email = document.getString("email") ?: "",
-                            role = document.getString("role") ?: ""
-                        )
-                        usersList.add(user)
-                    }
-                    // Kasih tahu adapter kalau data dari Firebase sudah masuk semua
-                    usersAdapter.notifyDataSetChanged()
-                } else {
-                    Toast.makeText(this, "Tidak ada data $role yang terdaftar", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(this, "Gagal mengambil data: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+    private fun showUserDetail(user: User) {
+        AlertDialog.Builder(this)
+            .setTitle("Detail Pengguna")
+            .setMessage("""
+                Nama: ${user.name}
+                Email: ${user.email}
+                Role: ${if (user.role == "DOCTOR") "Dokter" else "Pengguna"}
+                Username: ${user.username}
+                No HP: ${user.phoneNumber}
+            """.trimIndent())
+            .setPositiveButton("Tutup", null)
+            .show()
     }
 }

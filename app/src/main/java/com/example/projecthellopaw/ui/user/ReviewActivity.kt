@@ -25,6 +25,7 @@ class ReviewActivity : AppCompatActivity() {
     private var petName = ""
     private var duration = 0
     private var hasReview = false
+    private var isReadOnly = false
 
     companion object {
         private const val TAG = "ReviewActivity"
@@ -34,20 +35,18 @@ class ReviewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_review)
 
-        // Ambil data dari intent
         chatRoomId = intent.getStringExtra("CHAT_ROOM_ID") ?: ""
         doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
         doctorName = intent.getStringExtra("DOCTOR_NAME") ?: "Dokter"
         ownerId = intent.getStringExtra("OWNER_ID") ?: ""
         petName = intent.getStringExtra("PET_NAME") ?: "Anabul"
         duration = intent.getIntExtra("DURATION", 0)
+        isReadOnly = intent.getBooleanExtra("IS_READ_ONLY", false)
 
-        Log.d(TAG, "=== DATA DITERIMA ===")
+        Log.d(TAG, "=== REVIEW ACTIVITY ===")
         Log.d(TAG, "chatRoomId: $chatRoomId")
-        Log.d(TAG, "doctorName: $doctorName")
-        Log.d(TAG, "duration: $duration")
+        Log.d(TAG, "isReadOnly: $isReadOnly")
 
-        // Inisialisasi view
         val tvDoctorName = findViewById<TextView>(R.id.tvDoctorName)
         val tvPetName = findViewById<TextView>(R.id.tvPetName)
         val tvDuration = findViewById<TextView>(R.id.tvDuration)
@@ -56,15 +55,40 @@ class ReviewActivity : AppCompatActivity() {
         val etComment = findViewById<EditText>(R.id.etReviewComment)
         val btnSubmit = findViewById<Button>(R.id.btnSubmitReview)
 
-        // Set data
         tvDoctorName.text = "drh. $doctorName"
         tvPetName.text = "Konsultasi untuk: $petName"
         tvDuration.text = "Durasi: ${duration} menit"
 
-        // ✅ CEK APAKAH SUDAH PERNAH REVIEW
-        checkIfAlreadyReviewed(rbRating, etComment, btnSubmit)
+        if (isReadOnly) {
+            Log.d(TAG, "Read-only mode (dari intent)")
+            setReadOnlyMode(rbRating, etComment, btnSubmit)
+            return
+        }
 
-        // Rating change listener
+        // ✅ CEK ROLE USER DI FIRESTORE
+        val currentUserId = auth.currentUser?.uid ?: ""
+        Log.d(TAG, "currentUserId: $currentUserId")
+
+        db.collection("users").document(currentUserId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val role = document.getString("role") ?: "OWNER"
+                    Log.d(TAG, "User role: $role")
+
+                    if (role == "DOCTOR") {
+                        Log.d(TAG, "User is DOCTOR, set read-only mode")
+                        Toast.makeText(this, "Dokter tidak bisa memberi review", Toast.LENGTH_SHORT).show()
+                        setReadOnlyMode(rbRating, etComment, btnSubmit)
+                        return@addOnSuccessListener
+                    }
+                }
+                checkIfAlreadyReviewed(rbRating, etComment, btnSubmit)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to get user role", e)
+                checkIfAlreadyReviewed(rbRating, etComment, btnSubmit)
+            }
+
         rbRating.setOnRatingBarChangeListener { _, rating, _ ->
             tvRatingLabel.text = when (rating) {
                 0f -> ""
@@ -77,7 +101,6 @@ class ReviewActivity : AppCompatActivity() {
             }
         }
 
-        // Submit button
         btnSubmit.setOnClickListener {
             val rating = rbRating.rating
             if (rating == 0f) {
@@ -95,21 +118,32 @@ class ReviewActivity : AppCompatActivity() {
         }
     }
 
+    private fun setReadOnlyMode(rbRating: RatingBar, etComment: EditText, btnSubmit: Button) {
+        Log.d(TAG, "=== SET READ-ONLY MODE ===")
+        rbRating.isEnabled = false
+        rbRating.rating = 0f
+        etComment.isEnabled = false
+        etComment.hint = "Anda hanya bisa melihat review"
+        btnSubmit.isEnabled = false
+        btnSubmit.text = "Lihat Review"
+        btnSubmit.alpha = 0.5f
+        loadExistingReview()
+    }
+
     private fun checkIfAlreadyReviewed(
         rbRating: RatingBar,
         etComment: EditText,
         btnSubmit: Button
     ) {
+        Log.d(TAG, "=== checkIfAlreadyReviewed ===")
         db.collection("chat_rooms").document(chatRoomId)
             .get()
             .addOnSuccessListener { document ->
                 hasReview = document.getBoolean("hasReview") ?: false
+                Log.d(TAG, "hasReview: $hasReview")
 
                 if (hasReview) {
-                    Log.d(TAG, "=== SUDAH PERNAH REVIEW ===")
                     Toast.makeText(this, "Anda sudah memberi review", Toast.LENGTH_SHORT).show()
-
-                    // Nonaktifkan semua form
                     rbRating.isEnabled = false
                     rbRating.rating = 0f
                     etComment.isEnabled = false
@@ -117,11 +151,7 @@ class ReviewActivity : AppCompatActivity() {
                     btnSubmit.isEnabled = false
                     btnSubmit.text = "Sudah Review"
                     btnSubmit.alpha = 0.5f
-
-                    // Tampilkan review yang sudah diberikan (opsional)
                     loadExistingReview()
-                } else {
-                    Log.d(TAG, "=== BELUM PERNAH REVIEW ===")
                 }
             }
             .addOnFailureListener { e ->
@@ -130,7 +160,7 @@ class ReviewActivity : AppCompatActivity() {
     }
 
     private fun loadExistingReview() {
-        // Ambil review yang sudah ada untuk ditampilkan
+        Log.d(TAG, "=== loadExistingReview ===")
         db.collection("reviews")
             .whereEqualTo("chatRoomId", chatRoomId)
             .get()
@@ -146,7 +176,7 @@ class ReviewActivity : AppCompatActivity() {
 
                     rbRating.rating = rating.toFloat()
                     etComment.setText(comment)
-                    etComment.hint = "Review Anda"
+                    etComment.hint = if (isReadOnly) "Review dari pasien" else "Review Anda"
 
                     tvRatingLabel.text = when (rating) {
                         1.0 -> "Sangat Buruk"
@@ -164,7 +194,30 @@ class ReviewActivity : AppCompatActivity() {
     }
 
     private fun submitReview(rating: Float, comment: String, btnSubmit: Button) {
-        // ✅ CEK LAGI APAKAH SUDAH PERNAH REVIEW
+        Log.d(TAG, "=== submitReview ===")
+
+        // ✅ CEGAH DOKTER REVIEW
+        val currentUserId = auth.currentUser?.uid ?: ""
+        db.collection("users").document(currentUserId).get()
+            .addOnSuccessListener { document ->
+                if (document != null && document.exists()) {
+                    val role = document.getString("role") ?: "OWNER"
+                    if (role == "DOCTOR") {
+                        Toast.makeText(this, "Dokter tidak bisa memberi review", Toast.LENGTH_SHORT).show()
+                        btnSubmit.isEnabled = true
+                        btnSubmit.text = "Kirim Ulasan"
+                        return@addOnSuccessListener
+                    }
+                }
+                executeSubmitReview(rating, comment, btnSubmit)
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to check role", e)
+                executeSubmitReview(rating, comment, btnSubmit)
+            }
+    }
+
+    private fun executeSubmitReview(rating: Float, comment: String, btnSubmit: Button) {
         if (hasReview) {
             Toast.makeText(this, "Anda sudah memberi review", Toast.LENGTH_SHORT).show()
             return
@@ -185,22 +238,17 @@ class ReviewActivity : AppCompatActivity() {
             "timestamp" to FieldValue.serverTimestamp()
         )
 
-        // Disable button agar tidak double click
         btnSubmit.isEnabled = false
         btnSubmit.text = "Mengirim..."
 
-        Log.d(TAG, "=== SUBMITTING REVIEW ===")
-        Log.d(TAG, "reviewData: $reviewData")
-
         db.collection("reviews").add(reviewData)
             .addOnSuccessListener { documentReference ->
-                Log.d(TAG, "=== REVIEW ADDED: ${documentReference.id} ===")
+                Log.d(TAG, "Review added: ${documentReference.id}")
 
-                // ✅ UPDATE hasReview = true
                 db.collection("chat_rooms").document(chatRoomId)
                     .update("hasReview", true)
                     .addOnSuccessListener {
-                        Log.d(TAG, "=== HAS REVIEW UPDATED ===")
+                        updateDoctorRating()
                         Toast.makeText(this, "Terima kasih atas ulasannya!", Toast.LENGTH_LONG).show()
                         hasReview = true
                         finish()
@@ -217,6 +265,40 @@ class ReviewActivity : AppCompatActivity() {
                 Toast.makeText(this, "Gagal mengirim ulasan: ${e.message}", Toast.LENGTH_SHORT).show()
                 btnSubmit.isEnabled = true
                 btnSubmit.text = "Kirim Ulasan"
+            }
+    }
+
+    private fun updateDoctorRating() {
+        db.collection("reviews")
+            .whereEqualTo("doctorId", doctorId)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (documents.isEmpty) return@addOnSuccessListener
+
+                var totalRating = 0.0
+                var count = 0
+                for (doc in documents) {
+                    val rating = doc.getDouble("rating") ?: 0.0
+                    totalRating += rating
+                    count++
+                }
+
+                val averageRating = if (count > 0) totalRating / count else 0.0
+
+                db.collection("doctor_profiles").document(doctorId)
+                    .update(
+                        "averageRating", averageRating,
+                        "totalReviews", count
+                    )
+                    .addOnSuccessListener {
+                        Log.d(TAG, "Doctor rating updated to $averageRating")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e(TAG, "Failed to update doctor rating", e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Failed to get reviews for rating", e)
             }
     }
 }

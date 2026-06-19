@@ -96,10 +96,10 @@ class PaymentActivity : AppCompatActivity() {
             "doctorId" to doctorId,
             "doctorName" to doctorName,
             "petName" to petName.ifEmpty { "Anabul" },
-            "petType" to "Hewan",  // ← TAMBAHKAN
+            "petType" to "Hewan",
             "paymentStatus" to "SUCCESS",
             "chatStatus" to "active",
-            "createdAt" to FieldValue.serverTimestamp(),
+            "createdAt" to FieldValue.serverTimestamp(),  // ← PASTIKAN INI ADA
             "lastMessage" to "",
             "hasReview" to false,
             "duration" to 0

@@ -1,89 +1,83 @@
 package com.example.projecthellopaw.ui.user
 
-import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView // ◄── TAMBAHKAN INI
-import android.widget.TextView
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.model.Article
-import com.example.projecthellopaw.ui.auth.LoginActivity // ◄── TAMBAHKAN INI
+import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeFragment : Fragment() {
 
-    private lateinit var tvGreeting: TextView
-    private lateinit var tvEmail: TextView
-    private lateinit var ivLogoutHome: ImageView // ◄── TAMBAHKAN INI
     private lateinit var rvArticles: RecyclerView
+    private lateinit var etSearch: EditText
+    private lateinit var ivClear: ImageView
     private lateinit var db: FirebaseFirestore
+    private lateinit var adapter: ArticleAdapter
+    private val articleList = mutableListOf<Article>()
+    private val filteredList = mutableListOf<Article>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
-        // Inisialisasi View Komponen
-        tvGreeting = view.findViewById(R.id.tvGreeting)
-        tvEmail = view.findViewById(R.id.tvEmail)
-        ivLogoutHome = view.findViewById(R.id.ivLogoutHome) // ◄── TAMBAHKAN INI
-
-        // RecyclerView Artikel Dinamis
         rvArticles = view.findViewById(R.id.rv_articles)
-        rvArticles.layoutManager = LinearLayoutManager(context)
+        etSearch = view.findViewById(R.id.etSearchHome)
+        ivClear = view.findViewById(R.id.ivClearSearchHome)
 
         db = FirebaseFirestore.getInstance()
 
-        // ◄── LOGIKA LOGOUT USER
-        ivLogoutHome.setOnClickListener {
-            // Hapus sesi login akun dari Firebase Auth
-            FirebaseAuth.getInstance().signOut()
+        setupRecyclerView()
+        loadArticles()
 
-            Toast.makeText(context, "Logout Berhasil", Toast.LENGTH_SHORT).show()
+        // Search Listener
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            // Tendang balik ke halaman Login dan bersihkan history/stack page
-            val intent = Intent(activity, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().trim()
+                if (query.isEmpty()) {
+                    ivClear.visibility = View.GONE
+                    filterArticles("")
+                } else {
+                    ivClear.visibility = View.VISIBLE
+                    filterArticles(query)
+                }
+            }
 
-            // Tutup UserMainActivity
-            activity?.finish()
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        // Clear Button
+        ivClear.setOnClickListener {
+            etSearch.setText("")
+            ivClear.visibility = View.GONE
+            filterArticles("")
         }
-
-        // Ambil data dari Firestore
-        loadUserData()
-        loadArticlesData()
 
         return view
     }
 
-    private fun loadUserData() {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document != null && document.exists()) {
-                    val name = document.getString("name")
-                    val email = document.getString("email")
-
-                    tvGreeting.text = "Hello ${name ?: "User"}!"
-                    tvEmail.text = email ?: "email@kosong.com"
-                }
-            }
+    private fun setupRecyclerView() {
+        adapter = ArticleAdapter(filteredList)
+        rvArticles.layoutManager = LinearLayoutManager(context)
+        rvArticles.adapter = adapter
     }
 
-    private fun loadArticlesData() {
-        val articleList = mutableListOf<Article>()
+    private fun loadArticles() {
         db.collection("articles").get()
             .addOnSuccessListener { documents ->
                 articleList.clear()
@@ -91,11 +85,29 @@ class HomeFragment : Fragment() {
                     val article = document.toObject(Article::class.java)
                     articleList.add(article)
                 }
-                val adapter = ArticleAdapter(articleList)
-                rvArticles.adapter = adapter
+                filteredList.clear()
+                filteredList.addAll(articleList)
+                adapter.updateData(filteredList)
             }
             .addOnFailureListener { e ->
                 Log.e("HOME_FRAGMENT", "Gagal memuat artikel", e)
+                Toast.makeText(context, "Gagal memuat artikel", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    // 🔍 FILTER ARTIKEL BERDASARKAN JUDUL
+    private fun filterArticles(query: String) {
+        filteredList.clear()
+        if (query.isEmpty()) {
+            filteredList.addAll(articleList)
+        } else {
+            val lowerQuery = query.lowercase()
+            val filtered = articleList.filter { article ->
+                article.title.lowercase().contains(lowerQuery) ||
+                        article.description.lowercase().contains(lowerQuery)
+            }
+            filteredList.addAll(filtered)
+        }
+        adapter.updateData(filteredList)
     }
 }

@@ -2,12 +2,15 @@ package com.example.projecthellopaw.ui.user
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,25 +18,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.projecthellopaw.R
 import com.google.firebase.firestore.FirebaseFirestore
 
-data class DoctorItem(
-    val id: String,
-    val name: String,
-    val specialization: String,
-    val fee: Int,
-    val rating: Float,
-    val experience: Int,
-    val bio: String,
-    val isOnline: Boolean,
-    val avatarUrl: String = "" // Tambahan opsional untuk Glide di adapter
-)
-
 class DoctorListFragment : Fragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var layoutEmptyState: LinearLayout
+    private lateinit var etSearch: EditText
+    private lateinit var ivClear: ImageView
     private lateinit var adapter: DoctorAdapter
     private val db = FirebaseFirestore.getInstance()
     private val doctorList = mutableListOf<DoctorItem>()
+    private val filteredList = mutableListOf<DoctorItem>()
+
+    companion object {
+        private const val TAG = "DoctorListFragment"
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,107 +39,190 @@ class DoctorListFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_doctor_list, container, false)
 
-        // ── Bind View ──────────────────────────────────────────────────────────
-        recyclerView     = view.findViewById(R.id.rvDoctorList)
+        recyclerView = view.findViewById(R.id.rvDoctorList)
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState)
+        etSearch = view.findViewById(R.id.etSearchDoctor)
+        ivClear = view.findViewById(R.id.ivClearSearchDoctor)
 
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-
-        adapter = DoctorAdapter(doctorList) { doctor ->
-            val intent = Intent(requireContext(), DoctorDetailActivity::class.java)
-            intent.putExtra("DOCTOR_ID",           doctor.id)
-            intent.putExtra("DOCTOR_NAME",         doctor.name)
-            intent.putExtra("DOCTOR_SPECIALIZATION", doctor.specialization)
-            intent.putExtra("DOCTOR_FEE",          doctor.fee)
-            intent.putExtra("DOCTOR_RATING",       doctor.rating)
-            intent.putExtra("DOCTOR_EXPERIENCE",   doctor.experience)
-            intent.putExtra("DOCTOR_BIO",          doctor.bio)
-            intent.putExtra("DOCTOR_STATUS",       doctor.isOnline)
-            startActivity(intent)
-        }
-
-        recyclerView.adapter = adapter
+        setupRecyclerView()
         loadDoctors()
+
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s.toString().trim()
+                if (query.isEmpty()) {
+                    ivClear.visibility = View.GONE
+                    filterDoctors("")
+                } else {
+                    ivClear.visibility = View.VISIBLE
+                    filterDoctors(query)
+                }
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
+        ivClear.setOnClickListener {
+            etSearch.setText("")
+            ivClear.visibility = View.GONE
+            filterDoctors("")
+        }
 
         return view
     }
 
-    // 🔄 PERBAIKAN LOGIKA: Menggabungkan koleksi 'users' dan 'doctor_profiles'
+    private fun setupRecyclerView() {
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = DoctorAdapter(filteredList) { doctor ->
+            val intent = Intent(requireContext(), DoctorDetailActivity::class.java)
+            intent.putExtra("DOCTOR_ID", doctor.id)
+            intent.putExtra("DOCTOR_NAME", doctor.name)
+            intent.putExtra("DOCTOR_SPECIALIZATION", doctor.specialization)
+            intent.putExtra("DOCTOR_FEE", doctor.fee)
+            intent.putExtra("DOCTOR_RATING", doctor.rating)
+            intent.putExtra("DOCTOR_EXPERIENCE", doctor.experience)
+            intent.putExtra("DOCTOR_BIO", doctor.bio)
+            intent.putExtra("DOCTOR_STATUS", doctor.isOnline)
+            startActivity(intent)
+        }
+        recyclerView.adapter = adapter
+    }
+
     private fun loadDoctors() {
-        // Langkah 1: Cari user yang memiliki role "dokter"
+        Log.d(TAG, "=== LOAD DOCTORS START ===")
+
         db.collection("users")
             .whereEqualTo("role", "DOCTOR")
             .get()
-            .addOnSuccessListener { userSnapshots ->
-                doctorList.clear()
-                val totalDoctors = userSnapshots.size()
-
-                // Jika di Firestore tidak ada user dengan role 'dokter'
-                if (totalDoctors == 0) {
+            .addOnCompleteListener { userTask ->
+                if (!userTask.isSuccessful) {
+                    Log.e(TAG, "Failed to load users: ${userTask.exception?.message}")
+                    Toast.makeText(requireContext(), "Gagal memuat data dokter", Toast.LENGTH_SHORT).show()
                     updateUIState()
-                    return@addOnSuccessListener
+                    return@addOnCompleteListener
+                }
+
+                val userSnapshots = userTask.result
+                Log.d(TAG, "Total users with role DOCTOR: ${userSnapshots?.size() ?: 0}")
+
+                doctorList.clear()
+                if (userSnapshots == null || userSnapshots.isEmpty) {
+                    Log.d(TAG, "No doctors found!")
+                    updateUIState()
+                    return@addOnCompleteListener
                 }
 
                 var processedCount = 0
+                val totalDoctors = userSnapshots.size()
+
                 for (userDoc in userSnapshots.documents) {
                     val uid = userDoc.id
                     val name = userDoc.getString("name") ?: "Dokter Hewan"
                     val basePhoto = userDoc.getString("photoUrl") ?: ""
 
-                    // Langkah 2: Cari detail tarif, bio, dll di koleksi 'doctor_profiles' berdasarkan UID
+                    Log.d(TAG, "Processing doctor: $name ($uid)")
+
                     db.collection("doctor_profiles").document(uid).get()
-                        .addOnSuccessListener { profileDoc ->
+                        .addOnCompleteListener { profileTask ->
+                            if (!profileTask.isSuccessful) {
+                                Log.e(TAG, "Failed to load profile for $uid", profileTask.exception)
+                                processedCount++
+                                if (processedCount == totalDoctors) {
+                                    updateUIState()
+                                }
+                                return@addOnCompleteListener
+                            }
+
+                            val profileDoc = profileTask.result
+                            if (profileDoc == null || !profileDoc.exists()) {
+                                Log.e(TAG, "Profile not found for $uid")
+                                processedCount++
+                                if (processedCount == totalDoctors) {
+                                    updateUIState()
+                                }
+                                return@addOnCompleteListener
+                            }
+
                             val spec = profileDoc.getString("specialization") ?: "Dokter Hewan"
-                            val bio = profileDoc.getString("bio") ?: "Halo, saya siap membantu berkonsultasi mengenai kesehatan hewan peliharaan Anda."
+                            val bio = profileDoc.getString("bio") ?: "Halo, saya siap membantu."
                             val fee = profileDoc.getLong("consultationFee")?.toInt() ?: 50000
                             val exp = profileDoc.getLong("yearsOfExperience")?.toInt() ?: 0
                             val online = profileDoc.getBoolean("isOnline") ?: false
                             val profilePhoto = profileDoc.getString("photoUrl") ?: ""
 
-                            // Bungkus menjadi satu data DoctorItem utuh
-                            val doctor = DoctorItem(
-                                id = uid,
-                                name = name,
-                                specialization = spec,
-                                fee = fee,
-                                rating = 4.8f, // Hardcode rating default agar tidak 0.0 kosong saat demo
-                                experience = exp,
-                                bio = bio,
-                                isOnline = online,
-                                avatarUrl = profilePhoto.ifEmpty { basePhoto }
-                            )
-                            doctorList.add(doctor)
-                            processedCount++
+                            Log.d(TAG, "Doctor $name isOnline: $online")
 
-                            // Jika seluruh proses penggabungan data selesai, refresh tampilan
-                            if (processedCount == totalDoctors) {
-                                updateUIState()
-                            }
-                        }
-                        .addOnFailureListener {
-                            processedCount++
-                            if (processedCount == totalDoctors) {
-                                updateUIState()
-                            }
+                            db.collection("reviews")
+                                .whereEqualTo("doctorId", uid)
+                                .get()
+                                .addOnCompleteListener { reviewTask ->
+                                    var totalRating = 0.0
+                                    var count = 0
+
+                                    if (reviewTask.isSuccessful) {
+                                        val reviewDocs = reviewTask.result
+                                        if (reviewDocs != null) {
+                                            for (doc in reviewDocs) {
+                                                totalRating += doc.getDouble("rating") ?: 0.0
+                                                count++
+                                            }
+                                        }
+                                    }
+
+                                    val avgRating = if (count > 0) totalRating / count else 0.0
+
+                                    val doctor = DoctorItem(
+                                        id = uid,
+                                        name = name,
+                                        specialization = spec,
+                                        fee = fee,
+                                        rating = avgRating.toFloat(),
+                                        experience = exp,
+                                        bio = bio,
+                                        isOnline = online,
+                                        avatarUrl = profilePhoto.ifEmpty { basePhoto },
+                                        totalReviews = count
+                                    )
+                                    doctorList.add(doctor)
+                                    processedCount++
+
+                                    if (processedCount == totalDoctors) {
+                                        doctorList.sortByDescending { it.rating }
+                                        filteredList.clear()
+                                        filteredList.addAll(doctorList)
+                                        updateUIState()
+                                    }
+                                }
                         }
                 }
             }
-            .addOnFailureListener { e ->
-                Log.e("DOCTOR_LIST", "Gagal load data", e)
-                Toast.makeText(requireContext(), "Gagal memuat data dokter", Toast.LENGTH_SHORT).show()
-                updateUIState()
-            }
     }
 
-    // Fungsi bantu untuk memunculkan atau menyembunyikan Empty State secara rapi
+    private fun filterDoctors(query: String) {
+        filteredList.clear()
+        if (query.isEmpty()) {
+            filteredList.addAll(doctorList)
+        } else {
+            val lowerQuery = query.lowercase()
+            val filtered = doctorList.filter { doctor ->
+                doctor.name.lowercase().contains(lowerQuery) ||
+                        doctor.specialization.lowercase().contains(lowerQuery)
+            }
+            filteredList.addAll(filtered)
+        }
+        updateUIState()
+    }
+
     private fun updateUIState() {
         adapter.notifyDataSetChanged()
-        if (doctorList.isEmpty()) {
+        if (filteredList.isEmpty()) {
             layoutEmptyState.visibility = View.VISIBLE
-            recyclerView.visibility     = View.GONE
+            recyclerView.visibility = View.GONE
         } else {
             layoutEmptyState.visibility = View.GONE
-            recyclerView.visibility     = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
         }
     }
 }

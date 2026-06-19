@@ -24,9 +24,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-// ============================================================
-// 1. DATA CLASS AppointmentItem
-// ============================================================
 data class AppointmentItem(
     val chatRoomId: String = "",
     val ownerId: String = "",
@@ -75,8 +72,9 @@ class AppointmentAdapter(
                 holder.tvStatusBadge.setTextColor(
                     holder.itemView.context.getColor(R.color.badge_active_text)
                 )
-                // ✅ SEMBUNYIKAN TOMBOL REVIEW SAAT AKTIF
+                // ✅ SEMBUNYIKAN TOMBOL REVIEW
                 holder.btnViewReview.visibility = View.GONE
+                holder.btnViewReview.isEnabled = false
             }
             "completed" -> {
                 holder.tvStatusBadge.text = "⚫ Selesai"
@@ -85,9 +83,11 @@ class AppointmentAdapter(
                     holder.itemView.context.getColor(R.color.badge_pending_text)
                 )
 
-                // ✅ DOKTER HANYA BISA LIHAT REVIEW
+                // ✅ PERBAIKAN: HANYA TAMPILKAN JIKA SUDAH ADA REVIEW
                 if (item.hasReview) {
+                    // ✅ SUDAH REVIEW → TAMPILKAN "Lihat Review"
                     holder.btnViewReview.visibility = View.VISIBLE
+                    holder.btnViewReview.isEnabled = true
                     holder.btnViewReview.text = "📋 Lihat Review"
                     holder.btnViewReview.setOnClickListener {
                         val intent = Intent(holder.itemView.context, ReviewActivity::class.java).apply {
@@ -97,13 +97,15 @@ class AppointmentAdapter(
                             putExtra("OWNER_ID", item.ownerId)
                             putExtra("PET_NAME", item.petName)
                             putExtra("DURATION", item.duration)
-                            putExtra("IS_READ_ONLY", true)  // ← DOKTER HANYA LIHAT
+                            putExtra("IS_READ_ONLY", true)
                         }
                         holder.itemView.context.startActivity(intent)
                     }
                 } else {
-                    // ❌ DOKTER TIDAK BISA MEMBERI REVIEW
+                    // ❌ BELUM REVIEW → TOMBOL TIDAK MUNCUL
                     holder.btnViewReview.visibility = View.GONE
+                    holder.btnViewReview.isEnabled = false
+                    // ✅ JANGAN TAMPILKAN "Beri Review" UNTUK DOKTER
                 }
             }
             else -> {
@@ -113,9 +115,11 @@ class AppointmentAdapter(
                     holder.itemView.context.getColor(R.color.badge_pending_text)
                 )
                 holder.btnViewReview.visibility = View.GONE
+                holder.btnViewReview.isEnabled = false
             }
         }
 
+        // ✅ KLIK CARD UNTUK BUKA CHAT
         holder.cardRoot.setOnClickListener {
             onItemClick(item)
         }
@@ -163,6 +167,10 @@ class AppointmentFragment : Fragment() {
     private var listenerReg: ListenerRegistration? = null
     private lateinit var adapter: AppointmentAdapter
 
+    companion object {
+        private const val TAG = "AppointmentFragment"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -180,6 +188,12 @@ class AppointmentFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = AppointmentAdapter(emptyList()) { item ->
+            Log.d(TAG, "=== ITEM CLICKED ===")
+            Log.d(TAG, "chatRoomId: ${item.chatRoomId}")
+            Log.d(TAG, "ownerName: ${item.ownerName}")
+            Log.d(TAG, "chatStatus: ${item.chatStatus}")
+
+            // ✅ PASTIKAN INTENT KE CHAT ACTIVITY
             val intent = Intent(requireContext(), ChatActivity::class.java).apply {
                 putExtra("CHAT_ROOM_ID", item.chatRoomId)
                 putExtra("OWNER_ID", item.ownerId)
@@ -204,33 +218,52 @@ class AppointmentFragment : Fragment() {
     private fun listenToAppointments() {
         val doctorId = auth.currentUser?.uid ?: return
 
+        Log.d(TAG, "=== LISTEN TO APPOINTMENTS ===")
+        Log.d(TAG, "doctorId: $doctorId")
+
         binding.progressBar.visibility = View.VISIBLE
         binding.tvEmpty.visibility = View.GONE
 
         listenerReg?.remove()
 
+        // ✅ AMBIL SEMUA CHAT ROOM DENGAN DOCTOR ID (TANPA FILTER PAYMENT STATUS)
         db.collection("chat_rooms")
             .whereEqualTo("doctorId", doctorId)
             .addSnapshotListener { snapshots, error ->
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
 
-                if (error != null || snapshots == null || snapshots.isEmpty) {
+                if (error != null) {
+                    Log.e(TAG, "Error: ${error.message}", error)
                     showEmpty()
                     return@addSnapshotListener
                 }
 
+                if (snapshots == null || snapshots.isEmpty) {
+                    Log.d(TAG, "No appointments found")
+                    showEmpty()
+                    return@addSnapshotListener
+                }
+
+                Log.d(TAG, "Total documents: ${snapshots.size()}")
+
+                // ✅ FILTER MANUAL UNTUK PAYMENT STATUS
                 val filteredDocs = snapshots.documents.filter { doc ->
                     val paymentStatus = doc.getString("paymentStatus") ?: ""
-                    paymentStatus.equals("success", ignoreCase = true) ||
+                    val isSuccess = paymentStatus.equals("success", ignoreCase = true) ||
                             paymentStatus.equals("SUCCESS", ignoreCase = true)
+                    Log.d(TAG, "Doc ${doc.id}: paymentStatus=$paymentStatus, isSuccess=$isSuccess")
+                    isSuccess
                 }
+
+                Log.d(TAG, "Filtered documents: ${filteredDocs.size}")
 
                 if (filteredDocs.isEmpty()) {
                     showEmpty()
                     return@addSnapshotListener
                 }
 
+                // ✅ SORTIR MANUAL (terbaru di atas)
                 val sortedDocs = filteredDocs.sortedByDescending {
                     it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
                 }
@@ -250,6 +283,11 @@ class AppointmentFragment : Fragment() {
                         hasReview = doc.getBoolean("hasReview") ?: false,
                         duration = doc.getLong("duration")?.toInt() ?: 0
                     )
+                }
+
+                Log.d(TAG, "Items count: ${items.size}")
+                for (item in items) {
+                    Log.d(TAG, "Item: ${item.ownerName}, status: ${item.chatStatus}, roomId: ${item.chatRoomId}")
                 }
 
                 binding.tvEmpty.visibility = View.GONE
