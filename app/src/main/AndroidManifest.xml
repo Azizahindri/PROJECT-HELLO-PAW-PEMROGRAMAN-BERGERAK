@@ -61,6 +61,7 @@
         <activity
             android:name=".ui.user.AddPetActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.article.AddArticleActivity"
             android:exported="false" />
@@ -94,6 +95,9 @@
             android:name=".ui.user.ChangePasswordActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.user.PetListActivity"
+            android:exported="false" />
 
     </application>
 

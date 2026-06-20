@@ -26,7 +26,7 @@ class SettingsActivity : AppCompatActivity() {
 
         // Menu Settings
         setupMenuClick(R.id.llAccount, "Akun", ProfileActivity::class.java)
-        setupMenuClick(R.id.llPetProfile, "Profile Hewan")
+        setupMenuClickActivity(R.id.llPetProfile, PetListActivity::class.java)
         setupMenuClick(R.id.llHealthHistory, "Riwayat Kesehatan")
         setupMenuClick(R.id.llTransactionHistory, "Riwayat Transaksi")
         setupMenuClick(R.id.llInviteFriend, "Ajak Teman Pakai HelloPaw")
@@ -59,6 +59,13 @@ class SettingsActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Buka: $menuName", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    private fun setupMenuClickActivity(menuId: Int, targetClass: Class<*>) {
+        val menu = findViewById<LinearLayout>(menuId)
+        menu.setOnClickListener {
+            startActivity(Intent(this, targetClass))
         }
     }
 }

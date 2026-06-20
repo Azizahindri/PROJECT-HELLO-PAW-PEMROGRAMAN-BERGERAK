@@ -23,6 +23,7 @@ class PetListFragment : Fragment() {
     private var listHewan: ArrayList<PetModel> = ArrayList()
 
     private val db = Firebase.firestore
+    private val auth = com.google.firebase.auth.FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +53,14 @@ class PetListFragment : Fragment() {
     private fun ambilDataDariFirebase(view: View) {
         val layoutEmpty = view.findViewById<LinearLayout>(R.id.layout_empty_state)
 
+        val currentUserId = auth.currentUser?.uid
+        if (currentUserId == null) {
+            Toast.makeText(context, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         db.collection("pets")
+            .whereEqualTo("ownerId", currentUserId)
             .addSnapshotListener { value, error ->
                 if (error != null) {
                     Toast.makeText(context, "Gagal memuat data: ${error.message}", Toast.LENGTH_SHORT).show()
