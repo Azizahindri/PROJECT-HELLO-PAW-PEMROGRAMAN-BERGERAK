@@ -20,28 +20,18 @@ class UserMainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_main)
 
-        // ==========================================
-        // HEADER PROFILE
-        // ==========================================
         val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val tvEmail = findViewById<TextView>(R.id.tvEmail)
         val ivSettings = findViewById<ImageView>(R.id.ivSettings)
 
-        // Load data user ke header
         loadUserData(tvGreeting, tvEmail)
 
-        // Tombol Settings -> buka SettingsActivity
         ivSettings.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
-
-        // ==========================================
-        // BOTTOM NAVIGATION
-        // ==========================================
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigationView)
 
-        // Fragment awal
         loadFragment(HomeFragment())
 
         bottomNav.setOnItemSelectedListener { menuItem ->
@@ -89,9 +79,6 @@ class UserMainActivity : AppCompatActivity() {
             }
     }
 
-    // ==========================================
-    // FUNGSI UNTUK REFRESH DATA (DIPANGGIL DARI FRAGMENT)
-    // ==========================================
     fun refreshUserData() {
         val tvGreeting = findViewById<TextView>(R.id.tvGreeting)
         val tvEmail = findViewById<TextView>(R.id.tvEmail)

@@ -19,7 +19,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Baris Atas: Avatar + Nama + Status -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,7 +98,6 @@
 
         </LinearLayout>
 
-        <!-- ✅ TOMBOL LIHAT REVIEW UNTUK DOKTER -->
         <Button
             android:id="@+id/btn_view_review"
             android:layout_width="wrap_content"

@@ -3,61 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="#F5F8FA">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/headerDoctorNotification"
-        android:layout_width="0dp"
+    <include
+        android:id="@+id/headerDoctor"
+        layout="@layout/include_doctor_header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:paddingStart="16dp"
-        android:paddingTop="18dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="14dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/ivBackDoctorNotification"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="Kembali"
-            android:padding="6dp"
-            android:src="@drawable/ic_arrow_back"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/text_primary" />
-
-        <TextView
-            android:id="@+id/tvDoctorNotificationTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="Notifikasi Dokter"
-            android:textColor="@color/text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/ivBackDoctorNotification"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ivBackDoctorNotification"
-            app:layout_constraintTop_toTopOf="@id/ivBackDoctorNotification" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvEmptyDoctorNotification"
+        android:id="@+id/tvPageTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Belum ada notifikasi pasien."
-        android:textColor="@color/text_secondary"
-        android:textSize="14sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="12dp"
+        android:text="🔔 Notifikasi"
+        android:textColor="#1A2332"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerDoctorNotification" />
+        app:layout_constraintTop_toBottomOf="@id/headerDoctor" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDoctorNotifications"
@@ -65,9 +33,23 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="16dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerDoctorNotification" />
+        app:layout_constraintTop_toBottomOf="@id/tvPageTitle" />
+
+    <TextView
+        android:id="@+id/tvEmptyDoctorNotification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="📭 Belum ada notifikasi pasien."
+        android:textColor="#7F8C8D"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerDoctor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

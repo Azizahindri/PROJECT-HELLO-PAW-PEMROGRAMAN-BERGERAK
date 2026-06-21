@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="#f0fcff">
 
-    <!-- Header Judul Halaman -->
     <TextView
         android:id="@+id/tvTitleHistory"
         android:layout_width="wrap_content"
@@ -20,9 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
-    <!-- ========================================== -->
-    <!-- SEARCH BAR                                -->
-    <!-- ========================================== -->
     <LinearLayout
         android:id="@+id/llSearchHistory"
         android:layout_width="0dp"
@@ -62,7 +58,6 @@
 
     </LinearLayout>
 
-    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvHistory"
         android:layout_width="0dp"
@@ -75,7 +70,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Empty State -->
     <TextView
         android:id="@+id/tvEmptyHistory"
         android:layout_width="wrap_content"
@@ -90,7 +84,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/progressBarHistory"
         android:layout_width="wrap_content"

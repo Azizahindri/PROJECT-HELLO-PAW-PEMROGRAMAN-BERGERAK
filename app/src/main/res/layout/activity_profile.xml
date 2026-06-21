@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -36,7 +35,6 @@
 
     </LinearLayout>
 
-    <!-- Form -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -48,7 +46,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <!-- Nama Lengkap -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -66,7 +63,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Username -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -84,7 +80,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Password -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -103,7 +98,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Tanggal Lahir -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -122,7 +116,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Jenis Kelamin -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -153,7 +146,6 @@
 
             </RadioGroup>
 
-            <!-- Nomor Telepon -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -172,7 +164,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Email -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -191,7 +182,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Alamat -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -210,7 +200,6 @@
                 android:padding="12dp"
                 android:layout_marginTop="4dp" />
 
-            <!-- Tombol Simpan -->
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"

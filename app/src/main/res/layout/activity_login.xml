@@ -7,19 +7,17 @@
     android:background="#f7fdff"
     android:padding="28dp">
 
-    <!-- Logo Kecil -->
     <ImageView
         android:id="@+id/ivLoginLogo"
         android:layout_width="72dp"
         android:layout_height="72dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/ic_paw_print"
         android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="48dp" />
 
-    <!-- Judul Selamat Datang -->
     <TextView
         android:id="@+id/tvWelcome"
         android:layout_width="wrap_content"
@@ -45,7 +43,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvWelcome" />
 
-    <!-- Input Email -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilEmail"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -73,7 +70,6 @@
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Input Password -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilPassword"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -102,7 +98,6 @@
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Tombol Masuk -->
     <Button
         android:id="@+id/btnLogin"
         android:layout_width="0dp"
@@ -119,7 +114,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tilPassword" />
 
-    <!-- Teks Daftar -->
     <TextView
         android:id="@+id/tvGoToRegister"
         android:layout_width="wrap_content"

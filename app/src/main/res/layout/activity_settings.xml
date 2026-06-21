@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar Settings -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -36,7 +34,6 @@
 
     </LinearLayout>
 
-    <!-- Menu Settings -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -48,7 +45,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Account -->
             <LinearLayout
                 android:id="@+id/llAccount"
                 android:layout_width="match_parent"
@@ -74,7 +70,6 @@
 
             </LinearLayout>
 
-            <!-- Pet Profile -->
             <LinearLayout
                 android:id="@+id/llPetProfile"
                 android:layout_width="match_parent"
@@ -100,7 +95,6 @@
 
             </LinearLayout>
 
-            <!-- Health History -->
             <LinearLayout
                 android:id="@+id/llHealthHistory"
                 android:layout_width="match_parent"
@@ -126,7 +120,6 @@
 
             </LinearLayout>
 
-            <!-- Transaction History -->
             <LinearLayout
                 android:id="@+id/llTransactionHistory"
                 android:layout_width="match_parent"
@@ -152,7 +145,6 @@
 
             </LinearLayout>
 
-            <!-- Invite Friend -->
             <LinearLayout
                 android:id="@+id/llInviteFriend"
                 android:layout_width="match_parent"
@@ -178,7 +170,6 @@
 
             </LinearLayout>
 
-            <!-- Help Center -->
             <LinearLayout
                 android:id="@+id/llHelpCenter"
                 android:layout_width="match_parent"
@@ -204,7 +195,6 @@
 
             </LinearLayout>
 
-            <!-- Security / Change Password -->
             <LinearLayout
                 android:id="@+id/llSecurity"
                 android:layout_width="match_parent"
@@ -230,7 +220,6 @@
 
             </LinearLayout>
 
-            <!-- Privacy Policy -->
             <LinearLayout
                 android:id="@+id/llPrivacy"
                 android:layout_width="match_parent"
@@ -256,7 +245,6 @@
 
             </LinearLayout>
 
-            <!-- Download -->
             <LinearLayout
                 android:id="@+id/llDownload"
                 android:layout_width="match_parent"
@@ -282,7 +270,6 @@
 
             </LinearLayout>
 
-            <!-- Rating -->
             <LinearLayout
                 android:id="@+id/llRating"
                 android:layout_width="match_parent"
@@ -308,7 +295,6 @@
 
             </LinearLayout>
 
-            <!-- Payment Method -->
             <LinearLayout
                 android:id="@+id/llPaymentMethod"
                 android:layout_width="match_parent"
@@ -334,14 +320,12 @@
 
             </LinearLayout>
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
                 android:background="#E0E0E0" />
 
-            <!-- Logout -->
             <LinearLayout
                 android:id="@+id/llLogout"
                 android:layout_width="match_parent"
@@ -361,8 +345,6 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
-
-
 
         </LinearLayout>
 

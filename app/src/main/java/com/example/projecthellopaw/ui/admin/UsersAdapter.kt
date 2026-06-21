@@ -36,15 +36,12 @@ class UsersAdapter(
 
         fun bind(user: User) {
             binding.apply {
-                // Set nama & email
                 tvUserName.text = user.name.ifEmpty { "Tidak Ada Nama" }
                 tvUserEmail.text = user.email.ifEmpty { "Tidak Ada Email" }
 
-                // Set initial (huruf pertama)
                 val initial = if (user.name.isNotEmpty()) user.name.first().toString() else "?"
                 tvUserInitial.text = initial.uppercase()
 
-                // Set warna berdasarkan role
                 when (user.role) {
                     "DOCTOR" -> {
                         tvUserInitial.setBackgroundResource(R.drawable.bg_avatar_green)
@@ -60,7 +57,6 @@ class UsersAdapter(
                     }
                 }
 
-                // Event klik
                 root.setOnClickListener {
                     onItemClick(user)
                 }

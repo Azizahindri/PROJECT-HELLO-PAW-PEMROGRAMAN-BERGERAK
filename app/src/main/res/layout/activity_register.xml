@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:padding="28dp">
 
-        <!-- Judul -->
         <TextView
             android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
@@ -26,7 +25,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Subtitle -->
         <TextView
             android:id="@+id/tvRegisterSubtitle"
             android:layout_width="wrap_content"
@@ -39,7 +37,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Input Nama -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilNama"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -66,7 +63,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Input Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRegEmail"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -93,7 +89,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Input Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRegPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -121,7 +116,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Tombol Register -->
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="0dp"
@@ -137,7 +131,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Ke Login -->
         <TextView
             android:id="@+id/tvGoToLogin"
             android:layout_width="wrap_content"

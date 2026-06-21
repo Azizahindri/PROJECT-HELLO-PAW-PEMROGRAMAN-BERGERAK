@@ -2,6 +2,7 @@ package com.example.projecthellopaw.ui.doctor
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -26,135 +27,210 @@ class DoctorMainActivity : AppCompatActivity() {
     private val articleList = mutableListOf<Article>()
     private lateinit var articleAdapter: ArticleAdapter
 
+    companion object {
+        private const val TAG = "DoctorMainActivity"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityDoctorMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        try {
+            binding = ActivityDoctorMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        setupArticlesRecyclerView()
-        setupMenuGrid()
-        setupBackHandler()
-        loadDoctorProfile()
-        loadArticlesFromFirestore()
+            setupArticlesRecyclerView()
+            setupMenuGrid()
+            setupBackHandler()
+            loadDoctorProfile()
+            loadArticlesFromFirestore()
 
-        if (intent.getBooleanExtra("OPEN_APPOINTMENT", false)) {
-            showAppointmentPage()
-        } else {
-            showHomePage()
+            if (intent.getBooleanExtra("OPEN_APPOINTMENT", false)) {
+                showAppointmentPage()
+                highlightMenu(binding.menuSchedule)
+            } else {
+                showHomePage()
+                highlightMenu(binding.menuHome)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in onCreate: ${e.message}", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun loadDoctorProfile() {
-        val uid = auth.currentUser?.uid ?: return
+        try {
+            val uid = auth.currentUser?.uid ?: return
 
-        binding.tvDoctorEmail.text = auth.currentUser?.email ?: ""
+            val tvName = binding.headerDoctor.tvDoctorName
+            val tvEmail = binding.headerDoctor.tvDoctorEmail
+            val ivPhoto = binding.headerDoctor.ivDoctorPhoto
+            val ivSettings = binding.headerDoctor.ivDoctorSettings
 
-        db.collection("users")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { userDoc ->
-                val name = userDoc.getString("name") ?: "Dokter Hewan"
-                val photoUrl = userDoc.getString("photoUrl") ?: ""
+            tvEmail.text = auth.currentUser?.email ?: ""
 
-                binding.tvDoctorName.text = name
+            db.collection("users")
+                .document(uid)
+                .get()
+                .addOnSuccessListener { userDoc ->
+                    val name = userDoc.getString("name") ?: "Dokter Hewan"
+                    val photoUrl = userDoc.getString("photoUrl") ?: ""
 
-                if (photoUrl.isNotEmpty()) {
-                    Glide.with(this)
-                        .load(photoUrl)
-                        .placeholder(R.drawable.ic_doctor_placeholder)
-                        .circleCrop()
-                        .into(binding.ivDoctorPhoto)
-                } else {
-                    binding.ivDoctorPhoto.setImageResource(R.drawable.ic_doctor_placeholder)
+                    tvName.text = name
+
+                    if (photoUrl.isNotEmpty()) {
+                        Glide.with(this)
+                            .load(photoUrl)
+                            .placeholder(R.drawable.ic_doctor_placeholder)
+                            .circleCrop()
+                            .into(ivPhoto)
+                    } else {
+                        ivPhoto.setImageResource(R.drawable.ic_doctor_placeholder)
+                    }
                 }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Gagal memuat profil dokter", Toast.LENGTH_SHORT).show()
+                }
+
+            ivSettings.setOnClickListener {
+                startActivity(Intent(this, DoctorSettingsActivity::class.java))
             }
-            .addOnFailureListener {
-                Toast.makeText(
-                    this,
-                    "Gagal memuat profil dokter",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error loading doctor profile: ${e.message}", e)
+        }
     }
 
     private fun setupArticlesRecyclerView() {
-        binding.rvArticles.layoutManager = LinearLayoutManager(this)
-        articleAdapter = ArticleAdapter(articleList)
-        binding.rvArticles.adapter = articleAdapter
+        try {
+            binding.rvArticles.layoutManager = LinearLayoutManager(this)
+            articleAdapter = ArticleAdapter(articleList)
+            binding.rvArticles.adapter = articleAdapter
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up recyclerview: ${e.message}", e)
+        }
     }
 
     private fun loadArticlesFromFirestore() {
-        db.collection("articles")
-            .get()
-            .addOnSuccessListener { documents ->
-                articleList.clear()
+        try {
+            db.collection("articles")
+                .get()
+                .addOnSuccessListener { documents ->
+                    articleList.clear()
 
-                for (document in documents) {
-                    val article = document.toObject(Article::class.java)
-                    articleList.add(article)
+                    if (documents.isEmpty) {
+                        Log.d(TAG, "No articles found")
+                        articleAdapter.notifyDataSetChanged()
+                        return@addOnSuccessListener
+                    }
+
+                    for (document in documents) {
+                        try {
+                            val id = document.id
+                            val title = document.getString("title") ?: ""
+                            val description = document.getString("description") ?: ""
+                            val thumbnail = document.getString("thumbnail") ?: ""
+                            val url = document.getString("url") ?: ""
+                            val doctorId = document.getString("doctorId") ?: ""
+                            val createdAt = document.getLong("createdAt") ?: System.currentTimeMillis()
+
+                            val article = Article(
+                                id = id,
+                                title = title,
+                                description = description,
+                                thumbnail = thumbnail,
+                                url = url,
+                                doctorId = doctorId,
+                                createdAt = createdAt
+                            )
+                            articleList.add(article)
+
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error parsing article: ${e.message}", e)
+                        }
+                    }
+
+                    Log.d(TAG, "Articles loaded: ${articleList.size}")
+                    articleAdapter.notifyDataSetChanged()
                 }
-
-                articleAdapter.notifyDataSetChanged()
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(
-                    this,
-                    "Gagal memuat artikel: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Failed to load articles: ${e.message}", e)
+                    Toast.makeText(
+                        this,
+                        "Gagal memuat artikel: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in loadArticlesFromFirestore: ${e.message}", e)
+        }
     }
 
     private fun setupMenuGrid() {
-        binding.menuNotification.setOnClickListener {
-            startActivity(
-                Intent(this, DoctorNotificationActivity::class.java)
-            )
-        }
+        try {
+            binding.menuHome.setOnClickListener {
+                showHomePage()
+                highlightMenu(binding.menuHome)
+            }
 
-        binding.menuSchedule.setOnClickListener {
-            showAppointmentPage()
-        }
+            binding.menuNotification.setOnClickListener {
+                startActivity(Intent(this, DoctorNotificationActivity::class.java))
+                highlightMenu(binding.menuNotification)
+            }
 
-        binding.menuArticle.setOnClickListener {
-            startActivity(
-                Intent(this, AddArticleActivity::class.java)
-            )
-        }
+            binding.menuSchedule.setOnClickListener {
+                showAppointmentPage()
+                highlightMenu(binding.menuSchedule)
+            }
 
-        binding.menuPetStuff.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Menu Pet Stuff belum tersedia",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+            binding.menuArticle.setOnClickListener {
+                startActivity(Intent(this, AddArticleActivity::class.java))
+                highlightMenu(binding.menuArticle)
+            }
 
-        binding.ivDoctorSettings.setOnClickListener {
-            startActivity(
-                Intent(this, DoctorSettingsActivity::class.java)
-            )
+            binding.menuPetStuff.setOnClickListener {
+                Toast.makeText(this, "Menu Pet Stuff belum tersedia", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error setting up menu: ${e.message}", e)
+        }
+    }
+
+    private fun highlightMenu(selectedMenu: View) {
+        try {
+            binding.menuHome.isSelected = false
+            binding.menuNotification.isSelected = false
+            binding.menuSchedule.isSelected = false
+            binding.menuArticle.isSelected = false
+            selectedMenu.isSelected = true
+        } catch (e: Exception) {
+            Log.e(TAG, "Error highlighting menu: ${e.message}", e)
         }
     }
 
     private fun showHomePage() {
-        binding.scrollView.visibility = View.VISIBLE
-        binding.fragmentContainer.visibility = View.GONE
+        try {
+            binding.scrollView.visibility = View.VISIBLE
+            binding.fragmentContainer.visibility = View.GONE
 
-        supportFragmentManager.popBackStack(
-            null,
-            androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
+            supportFragmentManager.popBackStack(
+                null,
+                androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing home page: ${e.message}", e)
+        }
     }
 
     private fun showAppointmentPage() {
-        binding.scrollView.visibility = View.GONE
-        binding.fragmentContainer.visibility = View.VISIBLE
+        try {
+            binding.scrollView.visibility = View.GONE
+            binding.fragmentContainer.visibility = View.VISIBLE
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, AppointmentFragment())
-            .commit()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, AppointmentFragment())
+                .commit()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing appointment page: ${e.message}", e)
+        }
     }
 
     private fun setupBackHandler() {
@@ -164,6 +240,7 @@ class DoctorMainActivity : AppCompatActivity() {
                 override fun handleOnBackPressed() {
                     if (binding.fragmentContainer.visibility == View.VISIBLE) {
                         showHomePage()
+                        highlightMenu(binding.menuHome)
                     } else {
                         isEnabled = false
                         onBackPressedDispatcher.onBackPressed()
@@ -175,7 +252,11 @@ class DoctorMainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        loadDoctorProfile()
-        loadArticlesFromFirestore()
+        try {
+            loadDoctorProfile()
+            loadArticlesFromFirestore()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in onResume: ${e.message}", e)
+        }
     }
 }

@@ -11,7 +11,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:text="Keluar"
-                    android:backgroundTint="#E53935"
+                    android:backgroundTint="#356187"
                     android:textColor="#FFFFFF"
                     android:textSize="11sp"
                     android:paddingStart="12dp"
@@ -61,13 +60,12 @@
                     android:id="@+id/img_admin_avatar"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@android:drawable/sym_def_app_icon"
+                    android:src="@drawable/ic_paw_print"
                     android:background="@drawable/bg_avatar_circle"
                     android:padding="4dp"/>
             </LinearLayout>
         </RelativeLayout>
 
-        <!-- Search Bar -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -89,7 +87,6 @@
                 android:clickable="true"/>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Pengguna -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_users"
             android:layout_width="match_parent"
@@ -140,7 +137,6 @@
                             android:textSize="13sp" />
                     </LinearLayout>
 
-                    <!-- GANTI: pakai ic_chevron_right -->
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
@@ -152,7 +148,7 @@
                     android:id="@+id/btn_view_users"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:background="#D32F2F"
+                    android:background="#356187"
                     android:text="Lihat Detail Pengguna"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
@@ -162,7 +158,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Dokter -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_doctors"
             android:layout_width="match_parent"
@@ -213,7 +208,6 @@
                             android:textSize="13sp" />
                     </LinearLayout>
 
-                    <!-- GANTI: pakai ic_chevron_right -->
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
@@ -225,7 +219,7 @@
                     android:id="@+id/btn_view_doctors"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:background="#388E3C"
+                    android:background="#356187"
                     android:text="Lihat Detail Dokter"
                     android:textColor="@android:color/white"
                     android:textSize="12sp"
@@ -235,7 +229,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Tulis Artikel -->
         <androidx.cardview.widget.CardView
             android:id="@+id/card_add_article"
             android:layout_width="match_parent"

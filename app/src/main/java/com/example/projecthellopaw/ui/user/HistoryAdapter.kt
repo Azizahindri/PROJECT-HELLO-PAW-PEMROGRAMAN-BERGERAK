@@ -86,7 +86,6 @@ class HistoryAdapter(
                 tvStatus.setTextColor(Color.parseColor("#757575"))
 
                 if (item.hasReview) {
-                    // Sudah review → tampilkan "Lihat Review"
                     btnRate.text = "📋 Lihat Review"
                     btnRate.visibility = View.VISIBLE
                     btnRate.setOnClickListener {
@@ -102,7 +101,6 @@ class HistoryAdapter(
                         itemView.context.startActivity(intent)
                     }
                 } else {
-                    // Belum review → sembunyikan tombol sama sekali
                     btnRate.visibility = View.GONE
                 }
 

@@ -72,7 +72,6 @@ class AppointmentAdapter(
                 holder.tvStatusBadge.setTextColor(
                     holder.itemView.context.getColor(R.color.badge_active_text)
                 )
-                // ✅ SEMBUNYIKAN TOMBOL REVIEW
                 holder.btnViewReview.visibility = View.GONE
                 holder.btnViewReview.isEnabled = false
             }
@@ -83,9 +82,7 @@ class AppointmentAdapter(
                     holder.itemView.context.getColor(R.color.badge_pending_text)
                 )
 
-                // ✅ PERBAIKAN: HANYA TAMPILKAN JIKA SUDAH ADA REVIEW
                 if (item.hasReview) {
-                    // ✅ SUDAH REVIEW → TAMPILKAN "Lihat Review"
                     holder.btnViewReview.visibility = View.VISIBLE
                     holder.btnViewReview.isEnabled = true
                     holder.btnViewReview.text = "📋 Lihat Review"
@@ -102,10 +99,8 @@ class AppointmentAdapter(
                         holder.itemView.context.startActivity(intent)
                     }
                 } else {
-                    // ❌ BELUM REVIEW → TOMBOL TIDAK MUNCUL
                     holder.btnViewReview.visibility = View.GONE
                     holder.btnViewReview.isEnabled = false
-                    // ✅ JANGAN TAMPILKAN "Beri Review" UNTUK DOKTER
                 }
             }
             else -> {
@@ -119,7 +114,6 @@ class AppointmentAdapter(
             }
         }
 
-        // ✅ KLIK CARD UNTUK BUKA CHAT
         holder.cardRoot.setOnClickListener {
             onItemClick(item)
         }
@@ -155,9 +149,6 @@ class AppointmentAdapter(
     }
 }
 
-// ============================================================
-// 3. APPOINTMENT FRAGMENT
-// ============================================================
 class AppointmentFragment : Fragment() {
 
     private var _binding: FragmentAppointmentBinding? = null
@@ -188,21 +179,29 @@ class AppointmentFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = AppointmentAdapter(emptyList()) { item ->
-            Log.d(TAG, "=== ITEM CLICKED ===")
-            Log.d(TAG, "chatRoomId: ${item.chatRoomId}")
-            Log.d(TAG, "ownerName: ${item.ownerName}")
-            Log.d(TAG, "chatStatus: ${item.chatStatus}")
+            try {
+                Log.d(TAG, "=== ITEM CLICKED ===")
+                Log.d(TAG, "chatRoomId: ${item.chatRoomId}")
+                Log.d(TAG, "ownerName: ${item.ownerName}")
+                Log.d(TAG, "chatStatus: ${item.chatStatus}")
 
-            // ✅ PASTIKAN INTENT KE CHAT ACTIVITY
-            val intent = Intent(requireContext(), ChatActivity::class.java).apply {
-                putExtra("CHAT_ROOM_ID", item.chatRoomId)
-                putExtra("OWNER_ID", item.ownerId)
-                putExtra("OWNER_NAME", item.ownerName)
-                putExtra("PET_NAME", item.petName)
-                putExtra("DOCTOR_ID", item.doctorId)
-                putExtra("DOCTOR_NAME", item.doctorName)
+                if (item.chatRoomId.isEmpty()) {
+                    Log.e(TAG, "ChatRoomId is empty!")
+                    return@AppointmentAdapter
+                }
+
+                val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+                    putExtra("CHAT_ROOM_ID", item.chatRoomId)
+                    putExtra("OWNER_ID", item.ownerId)
+                    putExtra("OWNER_NAME", item.ownerName)
+                    putExtra("PET_NAME", item.petName)
+                    putExtra("DOCTOR_ID", item.doctorId)
+                    putExtra("DOCTOR_NAME", item.doctorName)
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error opening chat: ${e.message}", e)
             }
-            startActivity(intent)
         }
         binding.rvAppointment.layoutManager = LinearLayoutManager(requireContext())
         binding.rvAppointment.adapter = adapter
@@ -216,20 +215,35 @@ class AppointmentFragment : Fragment() {
     }
 
     private fun listenToAppointments() {
-        val doctorId = auth.currentUser?.uid ?: return
+        val doctorId = auth.currentUser?.uid
+        if (doctorId.isNullOrEmpty()) {
+            Log.e(TAG, "Doctor ID is null or empty")
+            showEmpty()
+            return
+        }
 
         Log.d(TAG, "=== LISTEN TO APPOINTMENTS ===")
         Log.d(TAG, "doctorId: $doctorId")
+
+        if (_binding == null) {
+            Log.e(TAG, "Binding is null")
+            return
+        }
 
         binding.progressBar.visibility = View.VISIBLE
         binding.tvEmpty.visibility = View.GONE
 
         listenerReg?.remove()
+        listenerReg = null
 
-        // ✅ AMBIL SEMUA CHAT ROOM DENGAN DOCTOR ID (TANPA FILTER PAYMENT STATUS)
-        db.collection("chat_rooms")
+        listenerReg = db.collection("chat_rooms")
             .whereEqualTo("doctorId", doctorId)
             .addSnapshotListener { snapshots, error ->
+                if (_binding == null) {
+                    Log.e(TAG, "Binding is null in listener")
+                    return@addSnapshotListener
+                }
+
                 binding.progressBar.visibility = View.GONE
                 binding.swipeRefresh.isRefreshing = false
 
@@ -247,63 +261,77 @@ class AppointmentFragment : Fragment() {
 
                 Log.d(TAG, "Total documents: ${snapshots.size()}")
 
-                // ✅ FILTER MANUAL UNTUK PAYMENT STATUS
-                val filteredDocs = snapshots.documents.filter { doc ->
-                    val paymentStatus = doc.getString("paymentStatus") ?: ""
-                    val isSuccess = paymentStatus.equals("success", ignoreCase = true) ||
-                            paymentStatus.equals("SUCCESS", ignoreCase = true)
-                    Log.d(TAG, "Doc ${doc.id}: paymentStatus=$paymentStatus, isSuccess=$isSuccess")
-                    isSuccess
-                }
+                try {
+                    val filteredDocs = snapshots.documents.filter { doc ->
+                        val paymentStatus = doc.getString("paymentStatus") ?: ""
+                        val isSuccess = paymentStatus.equals("success", ignoreCase = true) ||
+                                paymentStatus.equals("SUCCESS", ignoreCase = true)
+                        isSuccess
+                    }
 
-                Log.d(TAG, "Filtered documents: ${filteredDocs.size}")
+                    Log.d(TAG, "Filtered documents: ${filteredDocs.size}")
 
-                if (filteredDocs.isEmpty()) {
+                    if (filteredDocs.isEmpty()) {
+                        showEmpty()
+                        return@addSnapshotListener
+                    }
+
+                    val sortedDocs = filteredDocs.sortedByDescending {
+                        it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+                    }
+
+                    val items = sortedDocs.mapNotNull { doc ->
+                        try {
+                            AppointmentItem(
+                                chatRoomId = doc.getString("chatRoomId") ?: doc.id,
+                                ownerId = doc.getString("ownerId") ?: "",
+                                ownerName = doc.getString("ownerName") ?: "Pemilik",
+                                petName = doc.getString("petName") ?: "Anabul",
+                                petType = doc.getString("petType") ?: "Hewan",
+                                lastMessageTime = doc.getDate("lastMessageTime"),
+                                chatStatus = doc.getString("chatStatus") ?: "active",
+                                doctorId = doctorId,
+                                doctorName = doc.getString("doctorName") ?: "",
+                                paymentStatus = doc.getString("paymentStatus") ?: "",
+                                hasReview = doc.getBoolean("hasReview") ?: false,
+                                duration = doc.getLong("duration")?.toInt() ?: 0
+                            )
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Error parsing document: ${e.message}", e)
+                            null
+                        }
+                    }
+
+                    Log.d(TAG, "Items count: ${items.size}")
+
+                    if (_binding == null) return@addSnapshotListener
+
+                    if (items.isEmpty()) {
+                        showEmpty()
+                    } else {
+                        binding.tvEmpty.visibility = View.GONE
+                        binding.rvAppointment.visibility = View.VISIBLE
+                        adapter.updateItems(items)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error processing data: ${e.message}", e)
                     showEmpty()
-                    return@addSnapshotListener
                 }
-
-                // ✅ SORTIR MANUAL (terbaru di atas)
-                val sortedDocs = filteredDocs.sortedByDescending {
-                    it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
-                }
-
-                val items = sortedDocs.map { doc ->
-                    AppointmentItem(
-                        chatRoomId = doc.getString("chatRoomId") ?: doc.id,
-                        ownerId = doc.getString("ownerId") ?: "",
-                        ownerName = doc.getString("ownerName") ?: "Pemilik",
-                        petName = doc.getString("petName") ?: "Anabul",
-                        petType = doc.getString("petType") ?: "Hewan",
-                        lastMessageTime = doc.getDate("lastMessageTime"),
-                        chatStatus = doc.getString("chatStatus") ?: "active",
-                        doctorId = doctorId,
-                        doctorName = doc.getString("doctorName") ?: "",
-                        paymentStatus = doc.getString("paymentStatus") ?: "",
-                        hasReview = doc.getBoolean("hasReview") ?: false,
-                        duration = doc.getLong("duration")?.toInt() ?: 0
-                    )
-                }
-
-                Log.d(TAG, "Items count: ${items.size}")
-                for (item in items) {
-                    Log.d(TAG, "Item: ${item.ownerName}, status: ${item.chatStatus}, roomId: ${item.chatRoomId}")
-                }
-
-                binding.tvEmpty.visibility = View.GONE
-                binding.rvAppointment.visibility = View.VISIBLE
-                adapter.updateItems(items)
             }
     }
 
     private fun showEmpty() {
+        if (_binding == null) return
+
         binding.rvAppointment.visibility = View.GONE
         binding.tvEmpty.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.GONE
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         listenerReg?.remove()
+        listenerReg = null
         _binding = null
     }
 }

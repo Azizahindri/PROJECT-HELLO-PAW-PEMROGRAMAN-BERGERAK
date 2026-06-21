@@ -9,11 +9,11 @@ data class ChatRoom(
     val doctorName: String = "",
     val ownerName: String = "",
     val petName: String = "",
-    val paymentStatus: String = "PENDING", // PENDING, SUCCESS
-    val chatStatus: String = "active", // active, completed, cancelled
-    val createdAt: Timestamp? = null, // Waktu mulai sesi
-    val endedAt: Timestamp? = null, // Waktu selesai sesi
-    val duration: Long = 0, // Durasi dalam menit
+    val paymentStatus: String = "PENDING",
+    val chatStatus: String = "active",
+    val createdAt: Timestamp? = null,
+    val endedAt: Timestamp? = null,
+    val duration: Long = 0,
     val hasReview: Boolean = false,
     val lastMessage: String = "",
     val lastMessageTime: Timestamp? = null

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="#F5F8FA">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -14,9 +14,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary"
+            android:background="#356187"
             app:navigationIcon="@drawable/ic_arrow_back"
-            app:title="Edit Profil Dokter" />
+            app:navigationIconTint="#FFFFFF"
+            app:title="Edit Profil Dokter"
+            app:titleTextColor="#FFFFFF" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -29,68 +31,74 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:paddingTop="24dp">
 
-            <!-- Profile Photo -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="28dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/iv_doctor_photo"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
-                    android:src="@drawable/ic_doctor_placeholder" />
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:src="@drawable/ic_doctor_placeholder"
+                    app:civ_border_color="#356187"
+                    app:civ_border_width="3dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_change_photo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="12dp"
                     android:text="Ubah Foto"
-                    android:textColor="@color/primary"
+                    android:textColor="#356187"
                     android:textSize="13sp"
-                    app:strokeColor="@color/primary"
+                    app:strokeColor="#356187"
+                    app:cornerRadius="20dp"
                     style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             </LinearLayout>
 
-            <!-- Specialization -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_specialization"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:hint="Spesialisasi"
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_specialization"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords" />
+                    android:inputType="textCapWords"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- STR Number -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_str_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:hint="Nomor STR"
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_str_number"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text" />
+                    android:inputType="text"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Consultation Fee -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_consultation_fee"
                 android:layout_width="match_parent"
@@ -98,22 +106,26 @@
                 android:layout_marginBottom="16dp"
                 android:hint="Tarif Konsultasi"
                 app:prefixText="Rp "
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_consultation_fee"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberDecimal" />
+                    android:inputType="numberDecimal"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Bio -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_bio"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:hint="Bio / Deskripsi Diri"
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -122,10 +134,10 @@
                     android:layout_height="wrap_content"
                     android:gravity="top"
                     android:inputType="textMultiLine|textCapSentences"
-                    android:minLines="3" />
+                    android:minLines="3"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Years of Experience -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_experience"
                 android:layout_width="match_parent"
@@ -133,39 +145,45 @@
                 android:layout_marginBottom="16dp"
                 android:hint="Tahun Pengalaman"
                 app:suffixText=" tahun"
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_experience"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number" />
+                    android:inputType="number"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Clinic Name -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_clinic_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:hint="Nama Klinik / Tempat Praktek"
+                app:boxStrokeColor="#356187"
+                app:hintTextColor="#356187"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_clinic_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textCapWords" />
+                    android:inputType="textCapWords"
+                    android:textColor="#1A2332" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- ===== LOKASI KLINIK ===== -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="20dp"
-                app:cardBackgroundColor="#F0F9FF"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
+                app:cardElevation="2dp"
+                app:strokeColor="#356187"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -177,7 +195,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="📍 Lokasi Klinik"
-                        android:textColor="@color/text_primary"
+                        android:textColor="#1A2332"
                         android:textSize="15sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="4dp" />
@@ -186,11 +204,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Buka Google Maps → cari lokasi klinik → tahan titik → salin koordinat ke sini"
-                        android:textColor="@color/text_secondary"
+                        android:textColor="#546E7A"
                         android:textSize="12sp"
                         android:layout_marginBottom="12dp" />
 
-                    <!-- Tombol buka Google Maps -->
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_open_maps"
                         android:layout_width="wrap_content"
@@ -198,11 +215,11 @@
                         android:layout_marginBottom="12dp"
                         android:text="🗺️ Buka Google Maps"
                         android:textSize="13sp"
-                        android:textColor="@color/primary"
-                        app:strokeColor="@color/primary"
+                        android:textColor="#356187"
+                        app:strokeColor="#356187"
+                        app:cornerRadius="20dp"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-                    <!-- Latitude & Longitude berdampingan -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -216,13 +233,17 @@
                             android:layout_marginEnd="8dp"
                             android:hint="Latitude"
                             app:helperText="cth: -8.583333"
+                            app:boxStrokeColor="#356187"
+                            app:hintTextColor="#356187"
+                            app:helperTextTextColor="#546E7A"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_latitude"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="numberDecimal|numberSigned" />
+                                android:inputType="numberDecimal|numberSigned"
+                                android:textColor="#1A2332" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -233,13 +254,17 @@
                             android:layout_marginStart="8dp"
                             android:hint="Longitude"
                             app:helperText="cth: 116.116667"
+                            app:boxStrokeColor="#356187"
+                            app:hintTextColor="#356187"
+                            app:helperTextTextColor="#546E7A"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/et_longitude"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:inputType="numberDecimal|numberSigned" />
+                                android:inputType="numberDecimal|numberSigned"
+                                android:textColor="#1A2332" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
@@ -247,14 +272,13 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Online Status Switch -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/surface"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -273,7 +297,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Status Online"
-                            android:textColor="@color/text_primary"
+                            android:textColor="#1A2332"
                             android:textSize="15sp"
                             android:textStyle="bold" />
 
@@ -281,7 +305,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tampil sebagai dokter tersedia"
-                            android:textColor="@color/text_secondary"
+                            android:textColor="#546E7A"
                             android:textSize="12sp" />
 
                     </LinearLayout>
@@ -290,32 +314,32 @@
                         android:id="@+id/switch_online_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:thumbTint="@color/switch_thumb_selector"
-                        app:trackTint="@color/switch_track_selector" />
+                        app:thumbTint="#356187"
+                        app:trackTint="#C8E0F5" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Save Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_save"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginBottom="12dp"
-                android:backgroundTint="@color/primary"
+                android:layout_marginBottom="8dp"
+                android:backgroundTint="#356187"
                 android:text="Simpan Perubahan"
+                android:textColor="#FFFFFF"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                app:cornerRadius="12dp" />
+                app:cornerRadius="12dp"
+                app:rippleColor="#C8E0F5" />
 
-            <!-- Cancel Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_cancel"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginBottom="16dp"
                 android:text="Batal"
-                android:textColor="@color/text_secondary"
+                android:textColor="#546E7A"
                 android:textSize="16sp"
                 style="@style/Widget.MaterialComponents.Button.TextButton" />
 

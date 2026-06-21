@@ -50,16 +50,14 @@ class AddPetActivity : AppCompatActivity() {
             val radioButton = findViewById<RadioButton>(selectedGenderId)
             val gender = radioButton.text.toString()
 
-            // ✅ AMBIL USER ID
             val userId = auth.currentUser?.uid
             if (userId == null) {
                 Toast.makeText(this, "Silakan login terlebih dahulu", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // ✅ TAMBAHKAN ownerId KE DATA
             val petData = hashMapOf(
-                "ownerId" to userId,  // ← INI YANG PALING PENTING!
+                "ownerId" to userId,
                 "category" to category,
                 "type" to type,
                 "name" to name,

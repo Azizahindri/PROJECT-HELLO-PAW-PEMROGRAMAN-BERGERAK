@@ -4,6 +4,6 @@ data class Pet(
     val petId: String = "",
     val ownerId: String = "",
     val petName: String = "",
-    val petType: String = "", // Kucing, Anjing, dll
+    val petType: String = "",
     val petAge: Int = 0
 )

@@ -17,7 +17,6 @@
         android:gravity="center_vertical"
         android:background="@android:color/white">
 
-        <!-- Avatar -->
         <TextView
             android:id="@+id/tv_user_initial"
             android:layout_width="48dp"
@@ -29,7 +28,6 @@
             android:textSize="20sp"
             android:textStyle="bold"/>
 
-        <!-- Nama & Email -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -71,7 +69,6 @@
                 android:background="@drawable/bg_role_badge_red"/>
         </LinearLayout>
 
-        <!-- Icon Arrow -->
         <ImageView
             android:layout_width="28dp"
             android:layout_height="28dp"

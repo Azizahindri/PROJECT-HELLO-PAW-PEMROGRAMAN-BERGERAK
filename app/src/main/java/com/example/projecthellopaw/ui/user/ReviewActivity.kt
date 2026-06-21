@@ -68,10 +68,6 @@ class ReviewActivity : AppCompatActivity() {
 
         val currentUserId = auth.currentUser?.uid ?: ""
 
-        /*
-         * Review hanya boleh diberikan oleh pasien.
-         * Kalau yang login adalah dokter, langsung mode lihat review.
-         */
         if (currentUserId.isEmpty()) {
             Toast.makeText(this, "User belum login", Toast.LENGTH_SHORT).show()
             setReadOnlyMode(rbRating, etComment, btnSubmit)

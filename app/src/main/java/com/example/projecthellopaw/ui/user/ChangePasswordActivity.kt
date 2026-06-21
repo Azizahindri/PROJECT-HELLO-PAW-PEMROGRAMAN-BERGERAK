@@ -28,7 +28,6 @@ class ChangePasswordActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Inisialisasi View
         ivBack = findViewById(R.id.ivBackChangePassword)
         etCurrentPassword = findViewById(R.id.etCurrentPassword)
         etNewPassword = findViewById(R.id.etNewPassword)
@@ -36,15 +35,12 @@ class ChangePasswordActivity : AppCompatActivity() {
         btnChangePassword = findViewById(R.id.btnChangePassword)
         tvResetPassword = findViewById(R.id.tvResetPassword)
 
-        // Tombol Back
         ivBack.setOnClickListener { finish() }
 
-        // Tombol Ganti Password
         btnChangePassword.setOnClickListener {
             changePassword()
         }
 
-        // Reset Password via Email
         tvResetPassword.setOnClickListener {
             sendResetPasswordEmail()
         }
@@ -55,7 +51,6 @@ class ChangePasswordActivity : AppCompatActivity() {
         val newPassword = etNewPassword.text.toString().trim()
         val confirmPassword = etConfirmPassword.text.toString().trim()
 
-        // Validasi
         if (currentPassword.isEmpty()) {
             etCurrentPassword.error = "Masukkan password saat ini"
             etCurrentPassword.requestFocus()
@@ -92,7 +87,6 @@ class ChangePasswordActivity : AppCompatActivity() {
             return
         }
 
-        // Re-autentikasi + Update Password
         reauthenticateAndChangePassword(user, currentPassword, newPassword)
     }
 
@@ -104,17 +98,13 @@ class ChangePasswordActivity : AppCompatActivity() {
         btnChangePassword.isEnabled = false
         btnChangePassword.text = "Memproses..."
 
-        // Buat credential dari email dan password saat ini
         val credential = EmailAuthProvider.getCredential(user.email ?: "", currentPassword)
 
-        // Re-autentikasi (verifikasi password lama)
         user.reauthenticate(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    // Sukses, ganti password
                     updatePassword(user, newPassword)
                 } else {
-                    // Gagal (password lama salah)
                     btnChangePassword.isEnabled = true
                     btnChangePassword.text = "Ganti Password"
                     Toast.makeText(

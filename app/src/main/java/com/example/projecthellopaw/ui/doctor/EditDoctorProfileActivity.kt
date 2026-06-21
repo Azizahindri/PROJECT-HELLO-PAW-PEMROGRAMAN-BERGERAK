@@ -74,8 +74,6 @@ class EditDoctorProfileActivity : AppCompatActivity() {
             pickImageLauncher.launch("image/*")
         }
 
-        // Buka Google Maps di browser — dokter cari lokasi klinik,
-        // tahan titik di Maps → koordinat muncul di bawah, tinggal salin
         binding.btnOpenMaps.setOnClickListener {
             val uri = Uri.parse("https://maps.google.com")
             startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -121,7 +119,6 @@ class EditDoctorProfileActivity : AppCompatActivity() {
         binding.btnSave.isEnabled = false
         binding.btnSave.text = "Menyimpan..."
 
-        // Ambil latitude & longitude dari input manual (0.0 kalau kosong/tidak valid)
         val lat = binding.etLatitude.text.toString().trim().toDoubleOrNull() ?: 0.0
         val lng = binding.etLongitude.text.toString().trim().toDoubleOrNull() ?: 0.0
 

@@ -8,5 +8,5 @@ data class DoctorItem(
     val bio: String,
     val isOnline: Boolean,
     val avatarUrl: String = "",
-    val totalReviews: Int = 0  // ← TAMBAHKAN
+    val totalReviews: Int = 0
 )

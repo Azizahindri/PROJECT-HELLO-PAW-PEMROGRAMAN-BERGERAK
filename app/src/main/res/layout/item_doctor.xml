@@ -4,7 +4,8 @@
     android:id="@+id/card_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
     app:cardCornerRadius="12dp"
     app:cardElevation="3dp"
     app:cardBackgroundColor="#FFFFFF">
@@ -16,16 +17,14 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
-        <!-- Avatar Dokter -->
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/ivDoctorAvatar"
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@mipmap/ic_launcher"
-            android:padding="8dp"
-            android:scaleType="centerCrop" />
+            android:src="@drawable/ic_doctor_placeholder"
+            app:civ_border_color="#356187"
+            app:civ_border_width="2dp" />
 
-        <!-- Info Dokter -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -38,21 +37,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="drh. Nama Dokter"
-                android:textColor="#1A2D4E"
-                android:textSize="14sp"
+                android:textColor="#1A2332"
+                android:textSize="15sp"
+                android:textStyle="bold"
                 android:maxLines="1"
                 android:ellipsize="end" />
 
             <TextView
-                android:id="@+id/tvSpecialization"
+                android:id="@+id/tvDoctorSpecialization"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dokter Hewan Umum"
-                android:textColor="#6B7C93"
+                android:textColor="#546E7A"
                 android:textSize="12sp"
                 android:layout_marginTop="2dp" />
 
-            <!-- Rating -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -60,24 +59,13 @@
                 android:gravity="center_vertical"
                 android:layout_marginTop="4dp">
 
-                <RatingBar
-                    android:id="@+id/ratingBar"
-                    style="?android:attr/ratingBarStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:numStars="5"
-                    android:stepSize="0.5"
-                    android:progressTint="#FFB800"
-                    android:isIndicator="true" />
-
                 <TextView
-                    android:id="@+id/tvRatingCount"
+                    android:id="@+id/tvDoctorRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textColor="#FFB800"
-                    android:textSize="11sp"
-                    android:layout_marginStart="4dp" />
+                    android:text="⭐ 0.0"
+                    android:textColor="#FF9800"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -87,15 +75,15 @@
                     android:textSize="11sp" />
 
                 <TextView
-                    android:id="@+id/tvExperience"
+                    android:id="@+id/tvDoctorExperience"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 Tahun"
-                    android:textColor="#6B7C93"
+                    android:text="0 tahun"
+                    android:textColor="#7F8C8D"
                     android:textSize="11sp" />
+
             </LinearLayout>
 
-            <!-- Harga & Status -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -104,38 +92,40 @@
                 android:layout_marginTop="6dp">
 
                 <TextView
-                    android:id="@+id/tvFee"
+                    android:id="@+id/tvDoctorFee"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rp 50.000,00"
+                    android:text="Rp 50.000"
                     android:textColor="#356187"
-                    android:textSize="12sp" />
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvStatus"
+                    android:id="@+id/tvDoctorStatus"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Online"
+                    android:text="🟢 Online"
                     android:textSize="10sp"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
                     android:layout_marginStart="8dp"
                     android:background="@drawable/bg_status_online"
                     android:textColor="#2E7D32" />
+
             </LinearLayout>
+
         </LinearLayout>
 
-        <!-- Tombol Konsultasi -->
         <ImageView
-            android:id="@+id/ivConsultBtn"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_consult"
-            android:background="@drawable/bg_btn_consult_circle"
-            android:padding="8dp"
-            android:layout_marginStart="8dp" />
+            android:id="@+id/btnConsultDoctor"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:src="@drawable/ic_chat_icon"
+            android:background="@drawable/bg_chat_icon"
+            android:padding="10dp"
+            android:contentDescription="Konsultasi" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

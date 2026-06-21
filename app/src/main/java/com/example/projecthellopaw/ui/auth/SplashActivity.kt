@@ -27,7 +27,6 @@ class SplashActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Menunda perpindahan halaman selama 3 detik (3000 milidetik)
         val delayMillis = 3000L
 
         Handler(Looper.getMainLooper()).postDelayed({
@@ -35,21 +34,16 @@ class SplashActivity : AppCompatActivity() {
         }, delayMillis)
     }
 
-    /**
-     * Fungsi pintar untuk mengecek apakah user sudah login atau belum
-     */
     private fun checkUserSession() {
         val currentUser = auth.currentUser
 
         if (currentUser != null) {
-            // 1. Jika USER SUDAH LOGIN, langsung cek role-nya di Firestore
             val uid = currentUser.uid
             db.collection("users").document(uid).get()
                 .addOnSuccessListener { document ->
                     if (document != null && document.exists()) {
                         val role = document.getString("role")
 
-                        // Menggunakan ketika (when) agar kode lebih rapi dan terbaca jelas
                         when (role) {
                             "ADMIN" -> {
                                 Toast.makeText(this, "Selamat datang kembali, Admin!", Toast.LENGTH_SHORT).show()
@@ -58,7 +52,6 @@ class SplashActivity : AppCompatActivity() {
                             }
                             "OWNER" -> {
                                 Toast.makeText(this, "Selamat datang kembali, Pemilik!", Toast.LENGTH_SHORT).show()
-                                // FIX: Menambahkan pemanggilan ke UserMainActivity
                                 startActivity(Intent(this, UserMainActivity::class.java))
                                 finish()
                             }
@@ -68,22 +61,18 @@ class SplashActivity : AppCompatActivity() {
                                 finish()
                             }
                             else -> {
-                                // Jika role tidak dikenali, amankan dengan melempar ke halaman Login
                                 Toast.makeText(this, "Role tidak dikenali!", Toast.LENGTH_SHORT).show()
                                 navigateToLogin()
                             }
                         }
                     } else {
-                        // Jika data di firestore tidak ada, lempar ke Login
                         navigateToLogin()
                     }
                 }
                 .addOnFailureListener {
-                    // Jika internet bermasalah/gagal ambil data, amankan ke Login
                     navigateToLogin()
                 }
         } else {
-            // 2. Jika USER BELUM LOGIN, arahkan ke LoginActivity
             navigateToLogin()
         }
     }

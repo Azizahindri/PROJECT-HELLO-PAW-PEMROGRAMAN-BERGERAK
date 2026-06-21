@@ -37,7 +37,7 @@ class ChatActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var messagesListener: ListenerRegistration? = null
-    private lateinit var chatAdapter: ChatAdapter
+    private var chatAdapter: ChatAdapter? = null  // 🔥 DIUBAH JADI NULLABLE
 
     private var chatRoomId = ""
     private var ownerId = ""
@@ -58,6 +58,7 @@ class ChatActivity : AppCompatActivity() {
     private var userRole: String = "OWNER"
 
     private var consultationDuration = 0
+    private var isMessagesListenerActive = false  // 🔥 TAMBAHAN
 
     companion object {
         private const val TAG = "ChatActivity"
@@ -67,43 +68,109 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityChatBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        chatRoomId = intent.getStringExtra("CHAT_ROOM_ID") ?: ""
-        ownerId = intent.getStringExtra("OWNER_ID") ?: ""
-        ownerName = intent.getStringExtra("OWNER_NAME") ?: ""
-        petName = intent.getStringExtra("PET_NAME") ?: getString(R.string.default_pet_name)
-        doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
-        doctorName = intent.getStringExtra("DOCTOR_NAME") ?: getString(R.string.default_doctor_name)
+        try {
+            binding = ActivityChatBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-        Log.d(TAG, "=== CHAT STARTED ===")
-        Log.d(TAG, "chatRoomId: $chatRoomId")
+            chatRoomId = intent.getStringExtra("CHAT_ROOM_ID") ?: ""
+            ownerId = intent.getStringExtra("OWNER_ID") ?: ""
+            ownerName = intent.getStringExtra("OWNER_NAME") ?: ""
+            petName = intent.getStringExtra("PET_NAME") ?: getString(R.string.default_pet_name)
+            doctorId = intent.getStringExtra("DOCTOR_ID") ?: ""
+            doctorName = intent.getStringExtra("DOCTOR_NAME") ?: getString(R.string.default_doctor_name)
 
-        val currentUid = auth.currentUser?.uid ?: ""
-        if (currentUid != doctorId && ownerName.isEmpty()) {
-            db.collection("users").document(currentUid).get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val doc = task.result
-                        if (doc != null && doc.exists()) {
-                            ownerName = doc.getString("name") ?: getString(R.string.default_owner_name)
-                            setupToolbar()
+            Log.d(TAG, "=== CHAT STARTED ===")
+            Log.d(TAG, "chatRoomId: $chatRoomId")
+
+            if (chatRoomId.isEmpty()) {
+                Toast.makeText(this, "ID Chat tidak valid", Toast.LENGTH_SHORT).show()
+                finish()
+                return
+            }
+
+            val currentUid = auth.currentUser?.uid ?: ""
+            if (currentUid != doctorId && ownerName.isEmpty()) {
+                db.collection("users").document(currentUid).get()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val doc = task.result
+                            if (doc != null && doc.exists()) {
+                                ownerName = doc.getString("name") ?: getString(R.string.default_owner_name)
+                                setupToolbar()
+                            }
+                        } else {
+                            ownerName = getString(R.string.default_owner_name)
                         }
-                    } else {
-                        ownerName = getString(R.string.default_owner_name)
                     }
-                }
-        }
+            }
 
-        setupToolbar()
-        setupChat()
-        setupInputArea()
-        listenToMessages()
-        setupEndButton()
-        fetchGeminiApiKey()
-        getUserRole()
-        checkChatStatusAndTime()
+            checkChatStatusBeforeLoad()
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error in onCreate: ${e.message}", e)
+            Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    private fun checkChatStatusBeforeLoad() {
+        db.collection("chat_rooms")
+            .document(chatRoomId)
+            .get()
+            .addOnSuccessListener { doc ->
+                if (doc.exists()) {
+                    val chatStatus = doc.getString("chatStatus") ?: "active"
+                    hasReview = doc.getBoolean("hasReview") ?: false
+                    consultationDuration = doc.getLong("duration")?.toInt() ?: 0
+
+                    Log.d(TAG, "Chat Status: $chatStatus")
+
+                    when (chatStatus) {
+                        "completed", "finished" -> {
+                            isConsultationCompleted = true
+                            isChatReadOnly = true
+
+                            setupToolbar()
+                            setupChat()
+                            setChatReadOnly()
+                            listenToMessages()
+                            getUserRole()
+
+                            Toast.makeText(
+                                this,
+                                "Konsultasi ini sudah selesai",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                        "active", "waiting", "pending" -> {
+                            isConsultationCompleted = false
+                            isChatReadOnly = false
+
+                            setupToolbar()
+                            setupChat()
+                            setupInputArea()
+                            listenToMessages()
+                            setupEndButton()
+                            fetchGeminiApiKey()
+                            getUserRole()
+                            checkChatStatusAndTime()
+                        }
+                        else -> {
+                            Toast.makeText(this, "Status chat tidak dikenali", Toast.LENGTH_SHORT).show()
+                            finish()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "Chat room tidak ditemukan", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error: ${e.message}", e)
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                finish()
+            }
     }
 
     private fun getUserRole() {
@@ -122,19 +189,11 @@ class ChatActivity : AppCompatActivity() {
 
     private fun checkChatStatusAndTime() {
         db.collection("chat_rooms").document(chatRoomId).get()
-            .addOnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.e(TAG, "Failed to check session time", task.exception)
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
                     sessionStartTime = System.currentTimeMillis()
                     startSessionTimer()
-                    return@addOnCompleteListener
-                }
-
-                val document = task.result
-                if (document == null || !document.exists()) {
-                    sessionStartTime = System.currentTimeMillis()
-                    startSessionTimer()
-                    return@addOnCompleteListener
+                    return@addOnSuccessListener
                 }
 
                 val chatStatus = document.getString("chatStatus")
@@ -145,8 +204,13 @@ class ChatActivity : AppCompatActivity() {
                     Log.d(TAG, "=== CHAT SUDAH SELESAI ===")
                     timer?.cancel()
                     binding.tvTimer.visibility = View.GONE
+
+                    binding.tvChatSubtitle.text = "✅ Konsultasi Selesai"
+                    binding.tvChatSubtitle.setTextColor(android.graphics.Color.parseColor("#A5D6A7"))
+                    binding.tvChatSubtitle.visibility = View.VISIBLE
+
                     setChatReadOnly()
-                    return@addOnCompleteListener
+                    return@addOnSuccessListener
                 }
 
                 val createdAt = document.getTimestamp("createdAt")
@@ -188,12 +252,25 @@ class ChatActivity : AppCompatActivity() {
         timer?.cancel()
         binding.tvTimer.visibility = View.GONE
 
-        binding.etMessage.isEnabled = false
-        binding.btnSend.isEnabled = false
-        binding.btnSend.alpha = 0.5f
-        binding.etMessage.hint = "Konsultasi telah selesai"
-        binding.btnAiSuggest.visibility = View.GONE
+        binding.tvChatSubtitle.text = "✅ Konsultasi Selesai"
+        binding.tvChatSubtitle.setTextColor(android.graphics.Color.parseColor("#A5D6A7"))
+        binding.tvChatSubtitle.visibility = View.VISIBLE
+
+        binding.inputArea.visibility = View.GONE
+
         binding.btnEndConsultation.visibility = View.GONE
+
+        binding.tvChatStatus.visibility = View.VISIBLE
+        binding.tvChatStatus.text = "✅ Konsultasi telah berakhir"
+        binding.tvChatStatus.setTextColor(android.graphics.Color.parseColor("#1B5E20"))
+        binding.tvChatStatus.setBackgroundColor(android.graphics.Color.parseColor("#E8F5E9"))
+
+        binding.btnBackToHome.visibility = View.VISIBLE
+        binding.btnBackToHome.setOnClickListener {
+            finish()
+        }
+
+        binding.btnViewReview.visibility = View.VISIBLE
 
         setupReviewButtonByRole()
     }
@@ -204,10 +281,16 @@ class ChatActivity : AppCompatActivity() {
         val isDoctor = currentUid == doctorId
         val isOwner = currentUid == ownerId
 
+        // 🔥 Hanya tampilkan jika chat sudah selesai
+        if (!isConsultationCompleted) {
+            binding.btnViewReview.visibility = View.GONE
+            return
+        }
+
         when {
             isDoctor && hasReview -> {
                 binding.btnViewReview.visibility = View.VISIBLE
-                binding.btnViewReview.text = "Lihat Review"
+                binding.btnViewReview.text = "⭐ Lihat Review"
 
                 binding.btnViewReview.setOnClickListener {
                     val intent = Intent(this, ReviewActivity::class.java)
@@ -228,7 +311,7 @@ class ChatActivity : AppCompatActivity() {
 
             isOwner && hasReview -> {
                 binding.btnViewReview.visibility = View.VISIBLE
-                binding.btnViewReview.text = "Lihat Review"
+                binding.btnViewReview.text = "⭐ Lihat Review"
 
                 binding.btnViewReview.setOnClickListener {
                     val intent = Intent(this, ReviewActivity::class.java)
@@ -245,7 +328,7 @@ class ChatActivity : AppCompatActivity() {
 
             isOwner && !hasReview -> {
                 binding.btnViewReview.visibility = View.VISIBLE
-                binding.btnViewReview.text = "Beri Review"
+                binding.btnViewReview.text = "⭐ Beri Review"
 
                 binding.btnViewReview.setOnClickListener {
                     val intent = Intent(this, ReviewActivity::class.java)
@@ -527,12 +610,17 @@ class ChatActivity : AppCompatActivity() {
         binding.ivBack.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
         val currentUid = auth.currentUser?.uid ?: ""
+
         if (currentUid == doctorId) {
-            binding.tvChatName.text = ownerName.ifEmpty { getString(R.string.default_owner_name) }
-            binding.tvChatSubtitle.text = getString(R.string.chat_subtitle_doctor, petName)
+            binding.tvChatName.text = if (ownerName.isNotEmpty()) ownerName else "Pemilik Hewan"
         } else {
-            binding.tvChatName.text = getString(R.string.chat_name_doctor, doctorName)
-            binding.tvChatSubtitle.text = getString(R.string.chat_subtitle_patient)
+            binding.tvChatName.text = if (doctorName.isNotEmpty()) doctorName else "Dokter Hewan"
+        }
+
+        if (!isConsultationCompleted) {
+            binding.tvChatSubtitle.text = "Konsultasi Berlangsung"
+            binding.tvChatSubtitle.setTextColor(android.graphics.Color.parseColor("#D4E8F2"))
+            binding.tvChatSubtitle.visibility = View.VISIBLE
         }
     }
 
@@ -610,6 +698,11 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
+        if (chatAdapter == null) {
+            Log.e(TAG, "ChatAdapter is null, skipping listenToMessages")
+            return
+        }
+
         val welcomeMessageText = getString(R.string.welcome_message)
         val welcomeMsg = Message(
             messageId = "welcome",
@@ -640,6 +733,12 @@ class ChatActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
+                val adapter = chatAdapter
+                if (adapter == null) {
+                    Log.e(TAG, "ChatAdapter is null, cannot update messages")
+                    return@addSnapshotListener
+                }
+
                 val messages = mutableListOf<Message>()
                 messages.add(welcomeMsg)
                 messages.addAll(snapshots.documents.mapNotNull { doc ->
@@ -658,7 +757,7 @@ class ChatActivity : AppCompatActivity() {
                     }
                 })
 
-                chatAdapter.updateMessages(messages)
+                adapter.updateMessages(messages)
 
                 if (messages.isNotEmpty()) {
                     binding.rvChat.scrollToPosition(messages.size - 1)
@@ -673,7 +772,13 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-        val rawMessages = chatAdapter.getMessages()
+        val adapter = chatAdapter
+        if (adapter == null) {
+            showFallbackSuggestions("Chat tidak tersedia")
+            return
+        }
+
+        val rawMessages = adapter.getMessages()
         val realChatMessages = rawMessages.filter { it.senderId != "system" }
 
         if (realChatMessages.isEmpty()) {

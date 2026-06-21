@@ -3,57 +3,104 @@ package com.example.projecthellopaw.ui.user
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.projecthellopaw.R
+import com.example.projecthellopaw.databinding.FragmentHomeBinding
 import com.example.projecthellopaw.model.Article
+import com.example.projecthellopaw.ui.user.DoctorListFragment
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeFragment : Fragment() {
 
-    private lateinit var rvArticles: RecyclerView
-    private lateinit var etSearch: EditText
-    private lateinit var ivClear: ImageView
-    private lateinit var db: FirebaseFirestore
-    private lateinit var adapter: ArticleAdapter
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+    private val db = FirebaseFirestore.getInstance()
     private val articleList = mutableListOf<Article>()
     private val filteredList = mutableListOf<Article>()
+    private lateinit var adapter: ArticleAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.fragment_home, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        rvArticles = view.findViewById(R.id.rv_articles)
-        etSearch = view.findViewById(R.id.etSearchHome)
-        ivClear = view.findViewById(R.id.ivClearSearchHome)
-
-        db = FirebaseFirestore.getInstance()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         setupRecyclerView()
         loadArticles()
+        setupSearch()
+        setupButtons()
+    }
 
-        // Search Listener
-        etSearch.addTextChangedListener(object : TextWatcher {
+    private fun setupRecyclerView() {
+        binding.rvArticles.layoutManager = LinearLayoutManager(requireContext())
+        adapter = ArticleAdapter(filteredList)
+        binding.rvArticles.adapter = adapter
+    }
+
+    private fun loadArticles() {
+        db.collection("articles")
+            .get()
+            .addOnSuccessListener { documents ->
+                articleList.clear()
+
+                for (document in documents) {
+                    try {
+                        val id = document.id
+                        val title = document.getString("title") ?: ""
+                        val description = document.getString("description") ?: ""
+                        val thumbnail = document.getString("thumbnail") ?: ""
+                        val url = document.getString("url") ?: ""
+                        val doctorId = document.getString("doctorId") ?: ""
+                        val createdAt = document.getLong("createdAt") ?: System.currentTimeMillis()
+
+                        val article = Article(
+                            id = id,
+                            title = title,
+                            description = description,
+                            thumbnail = thumbnail,
+                            url = url,
+                            doctorId = doctorId,
+                            createdAt = createdAt
+                        )
+                        articleList.add(article)
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
+                filteredList.clear()
+                filteredList.addAll(articleList)
+                adapter.notifyDataSetChanged()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Gagal memuat artikel", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun setupSearch() {
+        binding.etSearchHome.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val query = s.toString().trim()
                 if (query.isEmpty()) {
-                    ivClear.visibility = View.GONE
+                    binding.ivClearSearchHome.visibility = View.GONE
                     filterArticles("")
                 } else {
-                    ivClear.visibility = View.VISIBLE
+                    binding.ivClearSearchHome.visibility = View.VISIBLE
                     filterArticles(query)
                 }
             }
@@ -61,53 +108,36 @@ class HomeFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {}
         })
 
-        // Clear Button
-        ivClear.setOnClickListener {
-            etSearch.setText("")
-            ivClear.visibility = View.GONE
+        binding.ivClearSearchHome.setOnClickListener {
+            binding.etSearchHome.setText("")
+            binding.ivClearSearchHome.visibility = View.GONE
             filterArticles("")
         }
-
-        return view
     }
 
-    private fun setupRecyclerView() {
-        adapter = ArticleAdapter(filteredList)
-        rvArticles.layoutManager = LinearLayoutManager(context)
-        rvArticles.adapter = adapter
-    }
-
-    private fun loadArticles() {
-        db.collection("articles").get()
-            .addOnSuccessListener { documents ->
-                articleList.clear()
-                for (document in documents) {
-                    val article = document.toObject(Article::class.java)
-                    articleList.add(article)
-                }
-                filteredList.clear()
-                filteredList.addAll(articleList)
-                adapter.updateData(filteredList)
-            }
-            .addOnFailureListener { e ->
-                Log.e("HOME_FRAGMENT", "Gagal memuat artikel", e)
-                Toast.makeText(context, "Gagal memuat artikel", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    // 🔍 FILTER ARTIKEL BERDASARKAN JUDUL
     private fun filterArticles(query: String) {
         filteredList.clear()
+
         if (query.isEmpty()) {
             filteredList.addAll(articleList)
         } else {
             val lowerQuery = query.lowercase()
-            val filtered = articleList.filter { article ->
-                article.title.lowercase().contains(lowerQuery) ||
-                        article.description.lowercase().contains(lowerQuery)
-            }
-            filteredList.addAll(filtered)
+            filteredList.addAll(
+                articleList.filter { article ->
+                    article.title.lowercase().contains(lowerQuery) ||
+                            article.description.lowercase().contains(lowerQuery)
+                }
+            )
         }
-        adapter.updateData(filteredList)
+
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun setupButtons() {
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

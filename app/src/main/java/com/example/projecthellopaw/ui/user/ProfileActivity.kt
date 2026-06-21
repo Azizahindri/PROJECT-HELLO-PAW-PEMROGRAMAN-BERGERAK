@@ -32,7 +32,6 @@ class ProfileActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
-        // Inisialisasi View
         etFullName = findViewById(R.id.etFullName)
         etUsername = findViewById(R.id.etUsername)
         etPassword = findViewById(R.id.etPassword)
@@ -45,14 +44,11 @@ class ProfileActivity : AppCompatActivity() {
         etAddress = findViewById(R.id.etAddress)
         btnSave = findViewById(R.id.btnSave)
 
-        // Tombol Back
         val ivBack = findViewById<android.widget.ImageView>(R.id.ivBackProfile)
         ivBack.setOnClickListener { finish() }
 
-        // Load data user
         loadUserData()
 
-        // Tombol Simpan
         btnSave.setOnClickListener {
             saveUserData()
         }
@@ -95,7 +91,6 @@ class ProfileActivity : AppCompatActivity() {
         val email = etEmail.text.toString().trim()
         val address = etAddress.text.toString().trim()
 
-        // Validasi
         if (fullName.isEmpty() || username.isEmpty()) {
             Toast.makeText(this, "Nama lengkap dan username harus diisi", Toast.LENGTH_SHORT).show()
             return
@@ -116,10 +111,8 @@ class ProfileActivity : AppCompatActivity() {
         updates["email"] = email
         updates["address"] = address
 
-        // Jika password diisi, update juga
         if (password.isNotEmpty()) {
             updates["password"] = password
-            // Update password di Firebase Auth
             auth.currentUser?.updatePassword(password)
                 ?.addOnFailureListener {
                     Toast.makeText(this, "Gagal update password: ${it.message}", Toast.LENGTH_SHORT).show()

@@ -171,8 +171,7 @@ class DoctorPatientListActivity : AppCompatActivity() {
 
         tvName.text = "Nama: ${patient.ownerName}"
 
-        // Untuk versi stabil dulu, data akun lengkap tidak dipaksa ambil dari users.
-        // Ini mencegah crash karena field user tidak konsisten.
+
         tvEmail.text = "Email: -"
         tvPhone.text = "No. HP: -"
         tvAddress.text = "Alamat: -"

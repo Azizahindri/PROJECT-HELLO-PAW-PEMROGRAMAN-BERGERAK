@@ -1,25 +1,30 @@
 package com.example.projecthellopaw.ui.user
 
+import android.content.Intent
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.cardview.widget.CardView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.model.Article
+import java.text.SimpleDateFormat
+import java.util.*
 
 class ArticleAdapter(
-    private var items: List<Article>
+    private val articles: List<Article>
 ) : RecyclerView.Adapter<ArticleAdapter.ViewHolder>() {
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvTitle: TextView = itemView.findViewById(R.id.tv_title)
-        val tvDescription: TextView = itemView.findViewById(R.id.tv_description)
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivThumbnail: ImageView = itemView.findViewById(R.id.ivArticleThumbnail)
+        val tvTitle: TextView = itemView.findViewById(R.id.tvArticleTitle)
+        val tvDescription: TextView = itemView.findViewById(R.id.tvArticleDescription)
+        val tvDate: TextView = itemView.findViewById(R.id.tvArticleDate)
         val tvReadMore: TextView = itemView.findViewById(R.id.tv_read_more)
-        val ivThumbnail: ImageView = itemView.findViewById(R.id.iv_thumbnail)
-        val cardRoot: CardView = itemView.findViewById(R.id.card_root)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -29,27 +34,71 @@ class ArticleAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = items[position]
-        holder.tvTitle.text = item.title
-        holder.tvDescription.text = item.description
-        holder.tvReadMore.text = "Baca selengkapnya →"
+        try {
+            val article = articles[position]
 
-        // ✅ PERBAIKAN: Hapus isNotEmpty()
-        val imageUrl = item.imageUrl
-        if (imageUrl != null) {
-            // Gunakan Glide jika ada
-            // Glide.with(holder.itemView.context).load(imageUrl).into(holder.ivThumbnail)
-        }
+            holder.tvTitle.text = article.title
+            holder.tvDescription.text = article.description
 
-        holder.cardRoot.setOnClickListener {
-            // Buka detail artikel
+            val date = Date(article.createdAt)
+            val format = SimpleDateFormat("dd MMM yyyy", Locale.forLanguageTag("id-ID"))
+            holder.tvDate.text = format.format(date)
+
+            if (article.thumbnail.isNotEmpty()) {
+                Glide.with(holder.itemView.context)
+                    .load(article.thumbnail)
+                    .placeholder(R.drawable.ic_pet_placeholder)
+                    .into(holder.ivThumbnail)
+            } else {
+                holder.ivThumbnail.setImageResource(R.drawable.ic_pet_placeholder)
+            }
+
+            holder.itemView.setOnClickListener {
+                try {
+                    if (article.url.isNotEmpty()) {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.url))
+                        holder.itemView.context.startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "Tidak ada tautan artikel",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            holder.tvReadMore.setOnClickListener {
+                try {
+                    if (article.url.isNotEmpty()) {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(article.url))
+                        holder.itemView.context.startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "Tidak ada tautan artikel",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        holder.itemView.context,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    override fun getItemCount(): Int = items.size
-
-    fun updateData(newItems: List<Article>) {
-        items = newItems
-        notifyDataSetChanged()
-    }
+    override fun getItemCount(): Int = articles.size
 }

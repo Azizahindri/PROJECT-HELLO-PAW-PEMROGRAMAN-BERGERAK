@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="@color/background">
 
-    <!-- Toolbar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -40,7 +39,6 @@
 
     </LinearLayout>
 
-    <!-- Isi Menu -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -52,7 +50,6 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Profil Dokter -->
             <LinearLayout
                 android:id="@+id/llDoctorProfile"
                 android:layout_width="match_parent"
@@ -79,7 +76,6 @@
 
             </LinearLayout>
 
-            <!-- Profil Pasien -->
             <LinearLayout
                 android:id="@+id/llPatientProfile"
                 android:layout_width="match_parent"
@@ -106,7 +102,6 @@
 
             </LinearLayout>
 
-            <!-- Artikel -->
             <LinearLayout
                 android:id="@+id/llDoctorArticle"
                 android:layout_width="match_parent"
@@ -133,7 +128,6 @@
 
             </LinearLayout>
 
-            <!-- Melihat Rating -->
             <LinearLayout
                 android:id="@+id/llDoctorRating"
                 android:layout_width="match_parent"
@@ -160,7 +154,6 @@
 
             </LinearLayout>
 
-            <!-- Ganti Password -->
             <LinearLayout
                 android:id="@+id/llDoctorChangePassword"
                 android:layout_width="match_parent"
@@ -187,14 +180,12 @@
 
             </LinearLayout>
 
-            <!-- Divider -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#E0E0E0"
                 android:layout_marginVertical="12dp" />
 
-            <!-- Logout -->
             <LinearLayout
                 android:id="@+id/llDoctorLogout"
                 android:layout_width="match_parent"

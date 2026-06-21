@@ -5,12 +5,11 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Header - Biru Muda -->
     <LinearLayout
         android:id="@+id/header_layout"
         android:layout_width="0dp"
         android:layout_height="64dp"
-        android:background="#7FB4D9"
+        android:background="#356187"
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -56,7 +55,6 @@
 
         </LinearLayout>
 
-        <!-- TIMER -->
         <TextView
             android:id="@+id/tvTimer"
             android:layout_width="wrap_content"
@@ -79,7 +77,22 @@
 
     </LinearLayout>
 
-    <!-- Chat RecyclerView -->
+    <TextView
+        android:id="@+id/tvChatStatus"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:gravity="center"
+        android:text="✅ Konsultasi Selesai"
+        android:textColor="#1B5E20"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:background="#E8F5E9"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_chat"
         android:layout_width="0dp"
@@ -91,12 +104,11 @@
         app:layout_constraintBottom_toTopOf="@id/btnEndConsultation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout" />
+        app:layout_constraintTop_toBottomOf="@id/tvChatStatus" />
 
-    <!-- Tombol Selesaikan Konsultasi (untuk dokter) -->
     <Button
         android:id="@+id/btnEndConsultation"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Selesaikan Konsultasi"
         android:backgroundTint="#D32F2F"
@@ -105,12 +117,28 @@
         android:layout_marginBottom="8dp"
         android:visibility="gone"
         app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@id/btnViewReview" />
+        app:layout_constraintBottom_toTopOf="@id/btnViewReview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Tombol Review (muncul setelah sesi selesai) -->
+    <Button
+        android:id="@+id/btnBackToHome"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="🏠 Kembali ke Beranda"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#356187"
+        android:visibility="gone"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp"
+        app:cornerRadius="12dp"
+        app:layout_constraintBottom_toTopOf="@id/btnViewReview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/btnViewReview"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="56dp"
         android:text="Beri Review"
         android:textSize="16sp"
@@ -120,9 +148,10 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="8dp"
         app:cornerRadius="12dp"
-        app:layout_constraintBottom_toTopOf="@id/input_area" />
+        app:layout_constraintBottom_toTopOf="@id/input_area"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Input Area -->
     <LinearLayout
         android:id="@+id/input_area"
         android:layout_width="0dp"
@@ -166,7 +195,7 @@
             android:paddingBottom="12dp"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint"
-            android:textSize="14sp" />
+            android:textSize="15sp" />
 
         <ImageButton
             android:id="@+id/btn_send"

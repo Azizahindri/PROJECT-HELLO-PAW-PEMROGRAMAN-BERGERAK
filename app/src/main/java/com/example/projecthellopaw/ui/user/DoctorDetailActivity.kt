@@ -61,7 +61,6 @@ class DoctorDetailActivity : AppCompatActivity() {
         Log.d(TAG, "doctorId: $doctorId")
         Log.d(TAG, "doctorName: $doctorName")
 
-        // Bind View
         val tvName = findViewById<TextView>(R.id.tvDetailDoctorName)
         val tvSpec = findViewById<TextView>(R.id.tvDetailSpecialization)
         val ratingBar = findViewById<RatingBar>(R.id.ratingBarDetail)
@@ -81,7 +80,6 @@ class DoctorDetailActivity : AppCompatActivity() {
         tvFee.text = "Rp ${String.format("%,d", fee).replace(',', '.')}"
         tvBio.text = if (bio.isNotEmpty()) bio else "Informasi bio belum tersedia."
 
-        // ✅ Cek role user untuk tombol Lihat Review
         val currentUserId = auth.currentUser?.uid ?: ""
         db.collection("users").document(currentUserId).get()
             .addOnCompleteListener { task ->

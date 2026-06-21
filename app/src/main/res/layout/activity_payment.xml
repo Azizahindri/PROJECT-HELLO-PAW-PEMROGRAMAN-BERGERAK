@@ -4,9 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#f0fcff">
+    android:background="#F5F8FA">
 
-    <!-- Toolbar biru navy -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbarPayment"
         android:layout_width="0dp"
@@ -15,21 +14,62 @@
         app:title="Ringkasan Pesanan"
         app:titleTextColor="#FFFFFF"
         app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="#FFFFFF"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Card Ringkasan Pesanan -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardWarning"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="12dp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFF3E0"
+        app:layout_constraintTop_toBottomOf="@id/toolbarPayment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚠️"
+                android:textSize="20sp"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/tvWarningActiveChat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Anda sudah memiliki konsultasi aktif dengan dokter ini"
+                android:textColor="#E65100"
+                android:textSize="13sp"
+                android:lineSpacingExtra="2dp" />
+
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardOrderSummary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         app:cardCornerRadius="14dp"
         app:cardElevation="3dp"
         app:cardBackgroundColor="#FFFFFF"
-        app:layout_constraintTop_toBottomOf="@id/toolbarPayment"
+        app:layout_constraintTop_toBottomOf="@id/cardWarning"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -42,18 +82,17 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Detail Pesanan"
+                android:text="📋 Detail Pesanan"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#356187" />
+                android:textColor="#1A2332" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#DAEAF8"
+                android:background="#E8ECF0"
                 android:layout_marginVertical="10dp" />
 
-            <!-- Nama Layanan -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,7 +103,7 @@
                     android:layout_weight="1"
                     android:text="Layanan"
                     android:textSize="13sp"
-                    android:textColor="#9BBBD4" />
+                    android:textColor="#7F8C8D" />
                 <TextView
                     android:id="@+id/tvServiceName"
                     android:layout_width="wrap_content"
@@ -72,7 +111,7 @@
                     android:text="Konsultasi Online"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="#356187" />
+                    android:textColor="#1A2332" />
             </LinearLayout>
 
             <LinearLayout
@@ -86,7 +125,7 @@
                     android:layout_weight="1"
                     android:text="Dokter"
                     android:textSize="13sp"
-                    android:textColor="#9BBBD4" />
+                    android:textColor="#7F8C8D" />
                 <TextView
                     android:id="@+id/tvDoctorNamePayment"
                     android:layout_width="wrap_content"
@@ -94,7 +133,29 @@
                     android:text="drh. Susianti"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="#356187" />
+                    android:textColor="#1A2332" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Nama Hewan"
+                    android:textSize="13sp"
+                    android:textColor="#7F8C8D" />
+                <TextView
+                    android:id="@+id/tvPetNamePayment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Milo"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="#1A2332" />
             </LinearLayout>
 
             <LinearLayout
@@ -108,23 +169,22 @@
                     android:layout_weight="1"
                     android:text="Metode Pembayaran"
                     android:textSize="13sp"
-                    android:textColor="#9BBBD4" />
+                    android:textColor="#7F8C8D" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="QRIS"
                     android:textSize="13sp"
                     android:textStyle="bold"
-                    android:textColor="#356187" />
+                    android:textColor="#1A2332" />
             </LinearLayout>
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#DAEAF8"
+                android:background="#E8ECF0"
                 android:layout_marginVertical="10dp" />
 
-            <!-- Total -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -134,15 +194,16 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total hem bayaran"
-                    android:textSize="13sp"
-                    android:textColor="#9BBBD4" />
+                    android:text="💰 Total Pembayaran"
+                    android:textSize="14sp"
+                    android:textColor="#1A2332"
+                    android:textStyle="bold" />
                 <TextView
                     android:id="@+id/tvTotalAmount"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Rp 305.000,00"
-                    android:textSize="18sp"
+                    android:text="Rp 50.000"
+                    android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="#356187" />
             </LinearLayout>
@@ -150,7 +211,6 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Card QRIS -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cardQris"
         android:layout_width="0dp"
@@ -169,38 +229,37 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center"
-            android:padding="16dp">
+            android:padding="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Scan QRIS untuk Membayar"
+                android:text="📱 Scan QRIS untuk Membayar"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="#356187" />
+                android:textColor="#1A2332" />
 
-            <!-- Gambar QRIS statis -->
             <ImageView
                 android:id="@+id/ivQrisCode"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:src="@android:drawable/ic_menu_report_image"
+                android:layout_width="180dp"
+                android:layout_height="180dp"
+                android:src="@drawable/ic_qris_placeholder"
                 android:scaleType="fitCenter"
                 android:contentDescription="Kode QRIS Pembayaran"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_qris" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Berlaku untuk semua e-wallet &amp; m-banking"
                 android:textSize="11sp"
-                android:textColor="#9BBBD4"
+                android:textColor="#7F8C8D"
                 android:layout_marginTop="8dp" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- ProgressBar loading (hidden by default) -->
     <ProgressBar
         android:id="@+id/progressBarPayment"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -213,19 +272,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="6dp" />
+        android:layout_marginBottom="8dp" />
 
-    <!-- Tombol SAYA SUDAH BAYAR -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnConfirmPayment"
         android:layout_width="0dp"
-        android:layout_height="54dp"
-        android:text="SAYA SUDAH BAYAR"
+        android:layout_height="56dp"
+        android:text="✅ SAYA SUDAH BAYAR"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:backgroundTint="#356187"
         app:cornerRadius="14dp"
+        app:rippleColor="#C8E0F5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

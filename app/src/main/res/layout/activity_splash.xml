@@ -6,12 +6,11 @@
     android:layout_height="match_parent"
     android:background="#f0fcff">
 
-    <!-- Logo Ikon Hewan (Placeholder ImageView) -->
     <ImageView
         android:id="@+id/ivSplashLogo"
         android:layout_width="140dp"
         android:layout_height="140dp"
-        android:src="@drawable/ic_launcher_foreground"
+        android:src="@drawable/ic_paw_print"
         android:scaleType="fitCenter"
         app:layout_constraintBottom_toTopOf="@+id/tvAppName"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,7 +19,6 @@
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintVertical_bias="0.45" />
 
-    <!-- Nama Aplikasi -->
     <TextView
         android:id="@+id/tvAppName"
         android:layout_width="wrap_content"
@@ -36,7 +34,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ivSplashLogo" />
 
-    <!-- Tagline -->
     <TextView
         android:id="@+id/tvTagline"
         android:layout_width="wrap_content"
@@ -50,7 +47,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAppName" />
 
-    <!-- Loading Indicator -->
     <ProgressBar
         android:id="@+id/progressBarSplash"
         style="?android:attr/progressBarStyle"
@@ -65,7 +61,6 @@
         android:layout_marginBottom="80dp"
         app:layout_constraintVertical_bias="0.0"/>
 
-    <!-- Versi Aplikasi -->
     <TextView
         android:id="@+id/tvVersion"
         android:layout_width="wrap_content"

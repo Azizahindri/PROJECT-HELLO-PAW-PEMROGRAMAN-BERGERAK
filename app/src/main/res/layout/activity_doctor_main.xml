@@ -3,86 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="#F5F8FA">
 
-    <!-- HEADER STATIS DOKTER -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/headerDoctorProfile"
-        android:layout_width="0dp"
+    <include
+        android:id="@+id/headerDoctor"
+        layout="@layout/include_doctor_header"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface"
-        android:paddingStart="20dp"
-        android:paddingTop="16dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/iv_doctor_photo"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_doctor_placeholder"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <LinearLayout
-            android:id="@+id/ll_doctor_info"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="@id/iv_doctor_photo"
-            app:layout_constraintEnd_toStartOf="@id/iv_doctor_settings"
-            app:layout_constraintStart_toEndOf="@id/iv_doctor_photo"
-            app:layout_constraintTop_toTopOf="@id/iv_doctor_photo">
-
-            <TextView
-                android:id="@+id/tv_doctor_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dokter Hewan"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_doctor_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="doctor@email.com"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-        </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iv_doctor_settings"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:contentDescription="Pengaturan Dokter"
-            android:padding="4dp"
-            android:src="@drawable/ic_settings"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/primary" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- ISI DASHBOARD YANG BISA DISCROLL -->
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
+        android:paddingTop="8dp"
         app:layout_constraintBottom_toTopOf="@id/bottomDoctorMenu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerDoctorProfile">
+        app:layout_constraintTop_toBottomOf="@id/headerDoctor">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,9 +35,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:text="Hello Dokter!"
-                android:textColor="@color/text_primary"
+                android:layout_marginTop="16dp"
+                android:text="Hello Dokter! 👋"
+                android:textColor="#1A2332"
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
@@ -104,10 +45,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="12dp"
-                android:text="Artikel seputar kesehatan hewan"
-                android:textColor="@color/text_primary"
+                android:text="📚 Artikel seputar kesehatan hewan"
+                android:textColor="#1A2332"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -118,13 +59,13 @@
                 android:clipToPadding="false"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
+                android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         </LinearLayout>
 
     </ScrollView>
 
-    <!-- TEMPAT FRAGMENT ANTREAN -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="0dp"
@@ -133,14 +74,13 @@
         app:layout_constraintBottom_toTopOf="@id/bottomDoctorMenu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/headerDoctorProfile" />
+        app:layout_constraintTop_toBottomOf="@id/headerDoctor" />
 
-    <!-- MENU DOKTER STATIS PALING BAWAH -->
     <LinearLayout
         android:id="@+id/bottomDoctorMenu"
         android:layout_width="0dp"
         android:layout_height="72dp"
-        android:background="@color/surface"
+        android:background="#FFFFFF"
         android:elevation="8dp"
         android:gravity="center"
         android:orientation="horizontal"
@@ -149,6 +89,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/menu_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="6dp">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_home"
+                app:tint="#356187" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Beranda"
+                android:textColor="@color/menu_text_color"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menu_notification"
@@ -165,15 +133,16 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_bell"
-                app:tint="@color/primary" />
+                app:tint="#356187" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Notifikasi"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp" />
+                android:textColor="@color/menu_text_color"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -192,15 +161,16 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_calendar"
-                app:tint="@color/primary" />
+                app:tint="#356187" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Antrean"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp" />
+                android:textColor="@color/menu_text_color"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
@@ -219,21 +189,21 @@
                 android:layout_width="26dp"
                 android:layout_height="26dp"
                 android:src="@drawable/ic_article"
-                app:tint="@color/primary" />
+                app:tint="#356187" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Artikel"
-                android:textColor="@color/text_primary"
-                android:textSize="11sp" />
+                android:textColor="@color/menu_text_color"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Tetap disediakan agar binding.menuPetStuff di Kotlin tidak error -->
     <View
         android:id="@+id/menu_pet_stuff"
         android:layout_width="0dp"

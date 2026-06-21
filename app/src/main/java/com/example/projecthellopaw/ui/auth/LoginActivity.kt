@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.databinding.ActivityLoginBinding
-import com.example.projecthellopaw.ui.admin.AdminMainActivity // Pastikan package ini sesuai projectmu
+import com.example.projecthellopaw.ui.admin.AdminMainActivity
 import com.example.projecthellopaw.ui.doctor.DoctorMainActivity
-import com.example.projecthellopaw.ui.user.UserMainActivity // Pastikan package ini sesuai projectmu
+import com.example.projecthellopaw.ui.user.UserMainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -34,12 +34,10 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Lakukan Login via Firebase Auth
             auth.signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener { authResult ->
                     val uid = authResult.user?.uid ?: ""
 
-                    // Ambil data role dari Firestore berdasarkan UID
                     db.collection("users").document(uid).get()
                         .addOnSuccessListener { document ->
                             if (document != null && document.exists()) {
@@ -54,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
                                     }
                                     "OWNER" -> {
                                         Toast.makeText(this, "Login Berhasil sebagai Pemilik!", Toast.LENGTH_SHORT).show()
-                                        // FIX: Menambahkan perpindahan ke UserMainActivity
+
                                         val intent = Intent(this, UserMainActivity::class.java)
                                         startActivity(intent)
                                         finish()
@@ -78,7 +76,6 @@ class LoginActivity : AppCompatActivity() {
                         }
                 }
                 .addOnFailureListener { e ->
-                    // Jika salah password / email belum terdaftar, larinya ke sini
                     Toast.makeText(this, "Login Gagal: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
         }

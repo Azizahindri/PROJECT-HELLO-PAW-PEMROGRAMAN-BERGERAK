@@ -10,7 +10,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Header biru navy -->
         <LinearLayout
             android:id="@+id/layoutDetailHeader"
             android:layout_width="0dp"
@@ -24,7 +23,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
-            <!-- Foto Dokter -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/ivDoctorDetailPhoto"
                 android:layout_width="100dp"
@@ -33,7 +31,6 @@
                 app:civ_border_width="3dp"
                 app:civ_border_color="#C8E0F5" />
 
-            <!-- Nama -->
             <TextView
                 android:id="@+id/tvDetailDoctorName"
                 android:layout_width="wrap_content"
@@ -44,7 +41,6 @@
                 android:textColor="#FFFFFF"
                 android:layout_marginTop="10dp" />
 
-            <!-- Spesialisasi -->
             <TextView
                 android:id="@+id/tvDetailSpecialization"
                 android:layout_width="wrap_content"
@@ -54,7 +50,6 @@
                 android:textColor="#C8E0F5"
                 android:layout_marginTop="4dp" />
 
-            <!-- Rating Bar + Jumlah Ulasan -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -73,7 +68,6 @@
                     android:isIndicator="true"
                     android:progressTint="#FFC107" />
 
-                <!-- ✅ TAMBAHKAN INI -->
                 <TextView
                     android:id="@+id/tvRatingCount"
                     android:layout_width="wrap_content"
@@ -85,7 +79,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Card Quick Info -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardQuickInfo"
             android:layout_width="0dp"
@@ -106,7 +99,6 @@
                 android:gravity="center"
                 android:padding="16dp">
 
-                <!-- Pengalaman -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -129,13 +121,11 @@
                         android:textColor="#9BBBD4" />
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="1dp"
                     android:layout_height="36dp"
                     android:background="#DAEAF8" />
 
-                <!-- Tarif -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -158,13 +148,11 @@
                         android:textColor="#9BBBD4" />
                 </LinearLayout>
 
-                <!-- Divider -->
                 <View
                     android:layout_width="1dp"
                     android:layout_height="36dp"
                     android:background="#DAEAF8" />
 
-                <!-- Ulasan -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -189,7 +177,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card Biodata -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardBio"
             android:layout_width="0dp"
@@ -252,7 +239,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Tombol Mulai Konsultasi -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartConsultation"
             android:layout_width="0dp"
@@ -269,7 +255,6 @@
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp" />
 
-        <!-- Tombol Lihat Review (untuk dokter) -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewReviews"
             android:layout_width="0dp"

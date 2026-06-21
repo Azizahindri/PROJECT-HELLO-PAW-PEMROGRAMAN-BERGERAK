@@ -20,10 +20,14 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.projecthellopaw.R
+import com.example.projecthellopaw.ui.chat.ChatActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlin.math.*
 
 class DoctorListFragment : Fragment() {
@@ -36,14 +40,14 @@ class DoctorListFragment : Fragment() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+
     private val doctorList = mutableListOf<DoctorItem>()
     private val filteredList = mutableListOf<DoctorItem>()
 
-    // Lokasi user saat ini (null = belum dapat lokasi)
     private var userLat: Double? = null
     private var userLng: Double? = null
 
-    // Mode tampilan: "rating" atau "nearby"
     private var sortMode = "rating"
 
     companion object {
@@ -108,23 +112,21 @@ class DoctorListFragment : Fragment() {
         val btnSortRating = view.findViewById<TextView>(R.id.btnSortRating)
         val btnSortNearby = view.findViewById<TextView>(R.id.btnSortNearby)
 
-        if (btnSortRating == null || btnSortNearby == null) return
-
-        btnSortRating.setOnClickListener {
+        btnSortRating?.setOnClickListener {
             sortMode = "rating"
             btnSortRating.isSelected = true
-            btnSortNearby.isSelected = false
+            btnSortNearby?.isSelected = false
             applySortAndFilter()
         }
 
-        btnSortNearby.setOnClickListener {
+        btnSortNearby?.setOnClickListener {
             if (userLat == null) {
                 Toast.makeText(context, "Sedang mengambil lokasi...", Toast.LENGTH_SHORT).show()
                 requestLocationPermission()
                 return@setOnClickListener
             }
             sortMode = "nearby"
-            btnSortRating.isSelected = false
+            btnSortRating?.isSelected = false
             btnSortNearby.isSelected = true
             applySortAndFilter()
         }
@@ -158,7 +160,6 @@ class DoctorListFragment : Fragment() {
                         userLat = location.latitude
                         userLng = location.longitude
                         Log.d(TAG, "User location: $userLat, $userLng")
-                        // Kalau list sudah ter-load, langsung hitung jarak
                         if (doctorList.isNotEmpty()) {
                             applySortAndFilter()
                         }
@@ -172,9 +173,8 @@ class DoctorListFragment : Fragment() {
         }
     }
 
-    // Haversine formula untuk hitung jarak (km) antara dua koordinat
     private fun haversineDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
-        val R = 6371.0 // Radius bumi dalam km
+        val R = 6371.0
         val dLat = Math.toRadians(lat2 - lat1)
         val dLon = Math.toRadians(lon2 - lon1)
         val a = sin(dLat / 2).pow(2) +
@@ -187,7 +187,6 @@ class DoctorListFragment : Fragment() {
         val query = etSearch.text.toString().trim().lowercase()
 
         var sorted = if (sortMode == "nearby" && userLat != null && userLng != null) {
-            // Urutkan berdasarkan jarak, dokter tanpa lokasi taruh paling akhir
             doctorList.sortedWith(compareBy { doctor ->
                 val dLat = doctor.latitude
                 val dLng = doctor.longitude
@@ -216,18 +215,59 @@ class DoctorListFragment : Fragment() {
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         adapter = DoctorAdapter(filteredList) { doctor ->
-            val intent = Intent(requireContext(), DoctorDetailActivity::class.java)
-            intent.putExtra("DOCTOR_ID", doctor.id)
-            intent.putExtra("DOCTOR_NAME", doctor.name)
-            intent.putExtra("DOCTOR_SPECIALIZATION", doctor.specialization)
-            intent.putExtra("DOCTOR_FEE", doctor.fee)
-            intent.putExtra("DOCTOR_RATING", doctor.rating)
-            intent.putExtra("DOCTOR_EXPERIENCE", doctor.experience)
-            intent.putExtra("DOCTOR_BIO", doctor.bio)
-            intent.putExtra("DOCTOR_STATUS", doctor.isOnline)
-            startActivity(intent)
+            checkIfAlreadyHaveActiveChat(doctor.id) { hasActiveChat, chatRoomId ->
+                if (hasActiveChat && chatRoomId != null) {
+                    val intent = Intent(requireContext(), ChatActivity::class.java).apply {
+                        putExtra("CHAT_ROOM_ID", chatRoomId)
+                        putExtra("DOCTOR_ID", doctor.id)
+                        putExtra("DOCTOR_NAME", doctor.name)
+                        putExtra("OWNER_ID", auth.currentUser?.uid ?: "")
+                        putExtra("PET_NAME", "Anabul")
+                    }
+                    startActivity(intent)
+                } else {
+                    val intent = Intent(requireContext(), DoctorDetailActivity::class.java)
+                    intent.putExtra("DOCTOR_ID", doctor.id)
+                    intent.putExtra("DOCTOR_NAME", doctor.name)
+                    intent.putExtra("DOCTOR_SPECIALIZATION", doctor.specialization)
+                    intent.putExtra("DOCTOR_FEE", doctor.fee)
+                    intent.putExtra("DOCTOR_RATING", doctor.rating)
+                    intent.putExtra("DOCTOR_EXPERIENCE", doctor.experience)
+                    intent.putExtra("DOCTOR_BIO", doctor.bio)
+                    intent.putExtra("DOCTOR_STATUS", doctor.isOnline)
+                    startActivity(intent)
+                }
+            }
         }
         recyclerView.adapter = adapter
+    }
+
+    private fun checkIfAlreadyHaveActiveChat(
+        doctorId: String,
+        callback: (Boolean, String?) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId.isNullOrEmpty()) {
+            callback(false, null)
+            return
+        }
+
+        db.collection("chat_rooms")
+            .whereEqualTo("ownerId", userId)
+            .whereEqualTo("doctorId", doctorId)
+            .whereIn("chatStatus", listOf("active", "waiting", "pending"))
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val chatRoomId = documents.documents.first().id
+                    callback(true, chatRoomId)
+                } else {
+                    callback(false, null)
+                }
+            }
+            .addOnFailureListener {
+                callback(false, null)
+            }
     }
 
     private fun loadDoctors() {
@@ -341,4 +381,78 @@ class DoctorListFragment : Fragment() {
             }
         }
     }
+}
+data class DoctorItem(
+    val id: String = "",
+    val name: String = "",
+    val specialization: String = "",
+    val fee: Int = 0,
+    val rating: Float = 0f,
+    val experience: Int = 0,
+    val bio: String = "",
+    val isOnline: Boolean = false,
+    val avatarUrl: String = "",
+    val totalReviews: Int = 0,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
+)
+
+class DoctorAdapter(
+    private val doctors: List<DoctorItem>,
+    private val onItemClick: (DoctorItem) -> Unit
+) : RecyclerView.Adapter<DoctorAdapter.ViewHolder>() {
+
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val ivAvatar: CircleImageView = itemView.findViewById(R.id.ivDoctorAvatar)
+        val tvName: TextView = itemView.findViewById(R.id.tvDoctorName)
+        val tvSpecialization: TextView = itemView.findViewById(R.id.tvDoctorSpecialization)
+        val tvRating: TextView = itemView.findViewById(R.id.tvDoctorRating)
+        val tvExperience: TextView = itemView.findViewById(R.id.tvDoctorExperience)
+        val tvFee: TextView = itemView.findViewById(R.id.tvDoctorFee)
+        val tvStatus: TextView = itemView.findViewById(R.id.tvDoctorStatus)
+        val btnConsult: ImageView = itemView.findViewById(R.id.btnConsultDoctor)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_doctor, parent, false)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val doctor = doctors[position]
+
+        holder.tvName.text = doctor.name
+        holder.tvSpecialization.text = doctor.specialization
+        holder.tvFee.text = String.format(java.util.Locale("id", "ID"), "Rp %,d", doctor.fee)
+        holder.tvRating.text = if (doctor.rating > 0) {
+            String.format(java.util.Locale("id", "ID"), "⭐ %.1f", doctor.rating)
+        } else {
+            "⭐ -"
+        }
+        holder.tvExperience.text = String.format(java.util.Locale("id", "ID"), "%d tahun", doctor.experience)
+        holder.tvStatus.text = if (doctor.isOnline) "🟢 Online" else "🔴 Offline"
+        holder.tvStatus.setTextColor(
+            if (doctor.isOnline) android.graphics.Color.parseColor("#2E7D32")
+            else android.graphics.Color.parseColor("#C62828")
+        )
+
+        if (doctor.avatarUrl.isNotEmpty()) {
+            Glide.with(holder.itemView.context)
+                .load(doctor.avatarUrl)
+                .placeholder(R.drawable.ic_doctor_placeholder)
+                .circleCrop()
+                .into(holder.ivAvatar)
+        }
+
+        holder.itemView.setOnClickListener {
+            onItemClick(doctor)
+        }
+
+        holder.btnConsult.setOnClickListener {
+            onItemClick(doctor)
+        }
+    }
+
+    override fun getItemCount(): Int = doctors.size
 }

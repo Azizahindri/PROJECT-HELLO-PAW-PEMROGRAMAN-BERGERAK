@@ -18,13 +18,11 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        // Tombol Back
         val ivBack = findViewById<ImageView>(R.id.ivBackSettings)
         ivBack.setOnClickListener {
             finish()
         }
 
-        // Menu Settings
         setupMenuClick(R.id.llAccount, "Akun", ProfileActivity::class.java)
         setupMenuClickActivity(R.id.llPetProfile, PetListActivity::class.java)
         setupMenuClick(R.id.llHealthHistory, "Riwayat Kesehatan")
@@ -37,7 +35,6 @@ class SettingsActivity : AppCompatActivity() {
         setupMenuClick(R.id.llRating, "Rating")
         setupMenuClick(R.id.llPaymentMethod, "Metode Pembayaran")
 
-        // Tombol Logout
         val llLogout = findViewById<LinearLayout>(R.id.llLogout)
         llLogout.setOnClickListener {
             auth.signOut()

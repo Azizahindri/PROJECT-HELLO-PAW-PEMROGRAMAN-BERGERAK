@@ -57,6 +57,7 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-database")
+    implementation("com.google.firebase:firebase-storage-ktx:20.2.0")
 
     // ML Kit Smart Reply (Jika masih digunakan)
     implementation("com.google.mlkit:smart-reply:17.0.4")
