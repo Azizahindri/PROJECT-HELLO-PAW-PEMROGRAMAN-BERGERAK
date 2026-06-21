@@ -56,6 +56,12 @@ class EditDoctorProfileActivity : AppCompatActivity() {
                 binding.etClinicName.setText(doc.getString("clinicName") ?: "")
                 binding.switchOnlineStatus.isChecked = doc.getBoolean("isOnline") ?: false
 
+                // Load koordinat yang sudah tersimpan
+                val lat = doc.getDouble("latitude") ?: 0.0
+                val lng = doc.getDouble("longitude") ?: 0.0
+                if (lat != 0.0) binding.etLatitude.setText(lat.toString())
+                if (lng != 0.0) binding.etLongitude.setText(lng.toString())
+
                 val photoUrl = doc.getString("photoUrl") ?: ""
                 if (photoUrl.isNotEmpty()) {
                     Glide.with(this).load(photoUrl).circleCrop().into(binding.ivDoctorPhoto)
@@ -66,6 +72,13 @@ class EditDoctorProfileActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         binding.btnChangePhoto.setOnClickListener {
             pickImageLauncher.launch("image/*")
+        }
+
+        // Buka Google Maps di browser — dokter cari lokasi klinik,
+        // tahan titik di Maps → koordinat muncul di bawah, tinggal salin
+        binding.btnOpenMaps.setOnClickListener {
+            val uri = Uri.parse("https://maps.google.com")
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
 
         binding.btnSave.setOnClickListener {
@@ -108,6 +121,10 @@ class EditDoctorProfileActivity : AppCompatActivity() {
         binding.btnSave.isEnabled = false
         binding.btnSave.text = "Menyimpan..."
 
+        // Ambil latitude & longitude dari input manual (0.0 kalau kosong/tidak valid)
+        val lat = binding.etLatitude.text.toString().trim().toDoubleOrNull() ?: 0.0
+        val lng = binding.etLongitude.text.toString().trim().toDoubleOrNull() ?: 0.0
+
         val profileData = hashMapOf(
             "specialization" to binding.etSpecialization.text.toString().trim(),
             "strNumber" to binding.etStrNumber.text.toString().trim(),
@@ -116,6 +133,8 @@ class EditDoctorProfileActivity : AppCompatActivity() {
             "yearsOfExperience" to (binding.etExperience.text.toString().toLongOrNull() ?: 0L),
             "clinicName" to binding.etClinicName.text.toString().trim(),
             "isOnline" to binding.switchOnlineStatus.isChecked,
+            "latitude" to lat,
+            "longitude" to lng,
             "updatedAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
 

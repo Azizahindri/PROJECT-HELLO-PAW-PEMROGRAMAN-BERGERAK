@@ -265,7 +265,6 @@
     <string name="anonymous">🕵️ Anonim</string>
     <string name="pet_with_anonymous">Hewan: %s (Pasien Anonim)</string>
 
-    <string name="change_password">Ganti Password</string>
     <string name="current_password">Password Saat Ini</string>
     <string name="new_password">Password Baru</string>
     <string name="confirm_password">Konfirmasi Password</string>
@@ -275,5 +274,26 @@
     <string name="password_wrong">❌ Password saat ini salah!</string>
     <string name="reset_password_email">Lupa password? Reset via email</string>
     <string name="reset_email_sent">📧 Email reset password telah dikirim</string>
+
+    <string name="open_menu">Buka menu</string>
+    <string name="doctor_settings_title">Pengaturan Dokter</string>
+    <string name="doctor_profile">Profil Dokter</string>
+    <string name="doctor_schedule">Jadwal Konsultasi</string>
+    <string name="manage_article">Kelola Artikel</string>
+    <string name="transaction_history">Riwayat Transaksi</string>
+    <string name="help_center">Pusat Bantuan</string>
+    <string name="change_password">Ganti Password</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="logout_account">Logout</string>
+
+    <!-- Doctor Settings Menu -->
+    <string name="patient_profile">Profil Pasien</string>
+    <string name="article_menu">Artikel</string>
+    <string name="view_rating">Melihat Rating</string>
+    <string name="add_article">Tambah Artikel</string>
+    <string name="view_published_article">Lihat Artikel yang Diterapkan</string>
+
+    <string name="published_article_title">Artikel yang Diterapkan</string>
+    <string name="no_article_yet">Belum ada artikel</string>
 
 </resources>

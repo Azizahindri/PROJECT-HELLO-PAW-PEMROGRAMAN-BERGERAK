@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#f0fcff">
 
-    <!-- Header teks judul -->
+    <!-- Header -->
     <TextView
         android:id="@+id/tvDoctorListTitle"
         android:layout_width="0dp"
@@ -36,9 +36,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvDoctorListTitle" />
 
-    <!-- ========================================== -->
-    <!-- SEARCH BAR                                -->
-    <!-- ========================================== -->
+    <!-- Search Bar -->
     <LinearLayout
         android:id="@+id/llSearchDoctor"
         android:layout_width="0dp"
@@ -46,8 +44,8 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
-        android:orientation="horizontal"
         android:background="@drawable/bg_search_input_home"
+        android:orientation="horizontal"
         android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -58,11 +56,11 @@
             android:layout_width="0dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:hint="Cari dokter..."
             android:background="@android:color/transparent"
+            android:hint="Cari dokter..."
+            android:inputType="text"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
-            android:inputType="text"
             android:textColor="@color/text_primary"
             android:textColorHint="#9CA3AF" />
 
@@ -70,34 +68,77 @@
             android:id="@+id/ivClearSearchDoctor"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:src="@drawable/ic_close"
-            android:padding="8dp"
             android:contentDescription="Clear"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"
             android:tint="#757575"
             android:visibility="gone" />
 
     </LinearLayout>
 
-    <!-- RecyclerView daftar dokter -->
+    <!-- Tombol Sort: Rating & Terdekat -->
+    <LinearLayout
+        android:id="@+id/llSortButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llSearchDoctor">
+
+        <TextView
+            android:id="@+id/btnSortRating"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:gravity="center"
+            android:text="⭐ Rating Tertinggi"
+            android:textSize="12sp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_sort_active"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <TextView
+            android:id="@+id/btnSortNearby"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:gravity="center"
+            android:text="📍 Terdekat"
+            android:textSize="12sp"
+            android:textColor="#356187"
+            android:background="@drawable/bg_sort_inactive"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvDoctorList"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/llSearchDoctor" />
+        app:layout_constraintTop_toBottomOf="@+id/llSortButtons" />
 
     <!-- Empty State -->
     <LinearLayout
         android:id="@+id/layoutEmptyState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center"
+        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

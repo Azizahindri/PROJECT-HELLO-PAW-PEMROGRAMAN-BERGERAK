@@ -4,21 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.databinding.ActivityDoctorMainBinding
 import com.example.projecthellopaw.model.Article
-import com.example.projecthellopaw.ui.user.ArticleAdapter
 import com.example.projecthellopaw.ui.article.AddArticleActivity
-import com.example.projecthellopaw.ui.auth.LoginActivity // ◄── TAMBAHKAN IMPORT INI
+import com.example.projecthellopaw.ui.user.ArticleAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class DoctorMainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDoctorMainBinding
+
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
@@ -27,35 +28,53 @@ class DoctorMainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityDoctorMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setupArticlesRecyclerView()
         setupMenuGrid()
-        setupBottomNav()
+        setupBackHandler()
         loadDoctorProfile()
-
-        // Ambil data artikel asli dari Firestore
         loadArticlesFromFirestore()
+
+        if (intent.getBooleanExtra("OPEN_APPOINTMENT", false)) {
+            showAppointmentPage()
+        } else {
+            showHomePage()
+        }
     }
 
     private fun loadDoctorProfile() {
         val uid = auth.currentUser?.uid ?: return
+
         binding.tvDoctorEmail.text = auth.currentUser?.email ?: ""
 
-        db.collection("users").document(uid).get()
+        db.collection("users")
+            .document(uid)
+            .get()
             .addOnSuccessListener { userDoc ->
-                val name = userDoc.getString("name") ?: "drh. I Nyoman Swerdi Jaya"
+                val name = userDoc.getString("name") ?: "Dokter Hewan"
+                val photoUrl = userDoc.getString("photoUrl") ?: ""
+
                 binding.tvDoctorName.text = name
 
-                val photoUrl = userDoc.getString("photoUrl") ?: ""
                 if (photoUrl.isNotEmpty()) {
                     Glide.with(this)
                         .load(photoUrl)
                         .placeholder(R.drawable.ic_doctor_placeholder)
                         .circleCrop()
                         .into(binding.ivDoctorPhoto)
+                } else {
+                    binding.ivDoctorPhoto.setImageResource(R.drawable.ic_doctor_placeholder)
                 }
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    this,
+                    "Gagal memuat profil dokter",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
@@ -66,83 +85,97 @@ class DoctorMainActivity : AppCompatActivity() {
     }
 
     private fun loadArticlesFromFirestore() {
-        db.collection("articles").get()
+        db.collection("articles")
+            .get()
             .addOnSuccessListener { documents ->
                 articleList.clear()
+
                 for (document in documents) {
                     val article = document.toObject(Article::class.java)
                     articleList.add(article)
                 }
+
                 articleAdapter.notifyDataSetChanged()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(this, "Gagal memuat artikel: ${e.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "Gagal memuat artikel: ${e.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
     private fun setupMenuGrid() {
         binding.menuNotification.setOnClickListener {
-            // Open NotificationActivity
+            startActivity(
+                Intent(this, DoctorNotificationActivity::class.java)
+            )
         }
+
         binding.menuSchedule.setOnClickListener {
-            binding.bottomNav.selectedItemId = R.id.nav_appointment
+            showAppointmentPage()
         }
 
         binding.menuArticle.setOnClickListener {
-            startActivity(Intent(this, AddArticleActivity::class.java))
+            startActivity(
+                Intent(this, AddArticleActivity::class.java)
+            )
         }
 
         binding.menuPetStuff.setOnClickListener {
-            // Open Pet Store (optional, bisa di-hide)
+            Toast.makeText(
+                this,
+                "Menu Pet Stuff belum tersedia",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
-        // ✅ TAMBAHAN LOGIKA: Klik Ikon Logout di Pojok Kanan Atas Header
-        binding.ivDoctorLogout.setOnClickListener {
-            // 1. Hancurkan sesi autentikasi akun Dokter di Firebase
-            auth.signOut()
-
-            Toast.makeText(this, "Dokter Logout Berhasil", Toast.LENGTH_SHORT).show()
-
-            // 2. Tendang kembali ke halaman Login & bersihkan stack activity sebelumnya
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-
-            // 3. Tutup halaman utama dokter agar tidak bisa ditekan tombol back HP
-            finish()
+        binding.ivDoctorSettings.setOnClickListener {
+            startActivity(
+                Intent(this, DoctorSettingsActivity::class.java)
+            )
         }
-
-        // Catatan: Jika ivNotificationBell masih dipertahankan di XML, biarkan baris klik ini ada.
-        // Jika sudah diganti total oleh ivDoctorLogout, baris di bawah ini bisa kamu hapus aman.
     }
 
-    private fun setupBottomNav() {
-        binding.bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> {
-                    binding.scrollView.visibility = View.VISIBLE
-                    supportFragmentManager.popBackStack()
-                    true
+    private fun showHomePage() {
+        binding.scrollView.visibility = View.VISIBLE
+        binding.fragmentContainer.visibility = View.GONE
+
+        supportFragmentManager.popBackStack(
+            null,
+            androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
+        )
+    }
+
+    private fun showAppointmentPage() {
+        binding.scrollView.visibility = View.GONE
+        binding.fragmentContainer.visibility = View.VISIBLE
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, AppointmentFragment())
+            .commit()
+    }
+
+    private fun setupBackHandler() {
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (binding.fragmentContainer.visibility == View.VISIBLE) {
+                        showHomePage()
+                    } else {
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
                 }
-                R.id.nav_appointment -> {
-                    binding.scrollView.visibility = View.GONE
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, AppointmentFragment())
-                        .addToBackStack(null)
-                        .commit()
-                    true
-                }
-                R.id.nav_profile -> {
-                    startActivity(Intent(this, EditDoctorProfileActivity::class.java))
-                    true
-                }
-                else -> false
             }
-        }
+        )
     }
 
     override fun onResume() {
         super.onResume()
+        loadDoctorProfile()
         loadArticlesFromFirestore()
     }
 }

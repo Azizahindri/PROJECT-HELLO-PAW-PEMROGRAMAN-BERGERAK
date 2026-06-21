@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projecthellopaw.R
 import com.example.projecthellopaw.ui.chat.ChatActivity
@@ -86,9 +85,8 @@ class HistoryAdapter(
                 tvStatus.text = "⚫ Selesai"
                 tvStatus.setTextColor(Color.parseColor("#757575"))
 
-                // ✅ TOMBOL REVIEW UNTUK PASIEN
-                // Di HistoryAdapter.kt - bagian bind()
                 if (item.hasReview) {
+                    // Sudah review → tampilkan "Lihat Review"
                     btnRate.text = "📋 Lihat Review"
                     btnRate.visibility = View.VISIBLE
                     btnRate.setOnClickListener {
@@ -104,20 +102,8 @@ class HistoryAdapter(
                         itemView.context.startActivity(intent)
                     }
                 } else {
-                    btnRate.text = "⭐ Beri Review"
-                    btnRate.visibility = View.VISIBLE
-                    btnRate.setOnClickListener {
-                        val intent = Intent(itemView.context, ReviewActivity::class.java).apply {
-                            putExtra("CHAT_ROOM_ID", item.chatRoomId)
-                            putExtra("DOCTOR_ID", item.doctorId)
-                            putExtra("DOCTOR_NAME", item.doctorName)
-                            putExtra("OWNER_ID", item.ownerId)
-                            putExtra("PET_NAME", item.petName)
-                            putExtra("DURATION", item.duration)
-                            putExtra("IS_READ_ONLY", false)
-                        }
-                        itemView.context.startActivity(intent)
-                    }
+                    // Belum review → sembunyikan tombol sama sekali
+                    btnRate.visibility = View.GONE
                 }
 
                 itemView.setOnClickListener {

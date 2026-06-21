@@ -60,6 +60,7 @@ dependencies {
 
     // ML Kit Smart Reply (Jika masih digunakan)
     implementation("com.google.mlkit:smart-reply:17.0.4")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Image Loading
     implementation("com.github.bumptech.glide:glide:4.16.0")

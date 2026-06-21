@@ -57,6 +57,8 @@ class ChatActivity : AppCompatActivity() {
     private var hasReview = false
     private var userRole: String = "OWNER"
 
+    private var consultationDuration = 0
+
     companion object {
         private const val TAG = "ChatActivity"
         private const val SESSION_DURATION = 1 * 60 * 1000L
@@ -137,6 +139,7 @@ class ChatActivity : AppCompatActivity() {
 
                 val chatStatus = document.getString("chatStatus")
                 hasReview = document.getBoolean("hasReview") ?: false
+                consultationDuration = document.getLong("duration")?.toInt() ?: 0
 
                 if (chatStatus == "completed") {
                     Log.d(TAG, "=== CHAT SUDAH SELESAI ===")
@@ -192,23 +195,73 @@ class ChatActivity : AppCompatActivity() {
         binding.btnAiSuggest.visibility = View.GONE
         binding.btnEndConsultation.visibility = View.GONE
 
-        binding.btnViewReview.visibility = View.VISIBLE
-        if (hasReview) {
-            binding.btnViewReview.text = "Lihat Review"
-            binding.btnViewReview.setOnClickListener {
-                Toast.makeText(this, "Review sudah diberikan", Toast.LENGTH_SHORT).show()
+        setupReviewButtonByRole()
+    }
+
+    private fun setupReviewButtonByRole() {
+        val currentUid = auth.currentUser?.uid ?: ""
+
+        val isDoctor = currentUid == doctorId
+        val isOwner = currentUid == ownerId
+
+        when {
+            isDoctor && hasReview -> {
+                binding.btnViewReview.visibility = View.VISIBLE
+                binding.btnViewReview.text = "Lihat Review"
+
+                binding.btnViewReview.setOnClickListener {
+                    val intent = Intent(this, ReviewActivity::class.java)
+                    intent.putExtra("CHAT_ROOM_ID", chatRoomId)
+                    intent.putExtra("DOCTOR_ID", doctorId)
+                    intent.putExtra("DOCTOR_NAME", doctorName)
+                    intent.putExtra("OWNER_ID", ownerId)
+                    intent.putExtra("PET_NAME", petName)
+                    intent.putExtra("DURATION", consultationDuration)
+                    intent.putExtra("IS_READ_ONLY", true)
+                    startActivity(intent)
+                }
             }
-        } else {
-            binding.btnViewReview.text = "Beri Review"
-            binding.btnViewReview.setOnClickListener {
-                val intent = Intent(this, ReviewActivity::class.java)
-                intent.putExtra("CHAT_ROOM_ID", chatRoomId)
-                intent.putExtra("DOCTOR_ID", doctorId)
-                intent.putExtra("DOCTOR_NAME", doctorName)
-                intent.putExtra("OWNER_ID", ownerId)
-                intent.putExtra("PET_NAME", petName)
-                intent.putExtra("DURATION", 0)
-                startActivity(intent)
+
+            isDoctor && !hasReview -> {
+                binding.btnViewReview.visibility = View.GONE
+            }
+
+            isOwner && hasReview -> {
+                binding.btnViewReview.visibility = View.VISIBLE
+                binding.btnViewReview.text = "Lihat Review"
+
+                binding.btnViewReview.setOnClickListener {
+                    val intent = Intent(this, ReviewActivity::class.java)
+                    intent.putExtra("CHAT_ROOM_ID", chatRoomId)
+                    intent.putExtra("DOCTOR_ID", doctorId)
+                    intent.putExtra("DOCTOR_NAME", doctorName)
+                    intent.putExtra("OWNER_ID", ownerId)
+                    intent.putExtra("PET_NAME", petName)
+                    intent.putExtra("DURATION", consultationDuration)
+                    intent.putExtra("IS_READ_ONLY", true)
+                    startActivity(intent)
+                }
+            }
+
+            isOwner && !hasReview -> {
+                binding.btnViewReview.visibility = View.VISIBLE
+                binding.btnViewReview.text = "Beri Review"
+
+                binding.btnViewReview.setOnClickListener {
+                    val intent = Intent(this, ReviewActivity::class.java)
+                    intent.putExtra("CHAT_ROOM_ID", chatRoomId)
+                    intent.putExtra("DOCTOR_ID", doctorId)
+                    intent.putExtra("DOCTOR_NAME", doctorName)
+                    intent.putExtra("OWNER_ID", ownerId)
+                    intent.putExtra("PET_NAME", petName)
+                    intent.putExtra("DURATION", consultationDuration)
+                    intent.putExtra("IS_READ_ONLY", false)
+                    startActivity(intent)
+                }
+            }
+
+            else -> {
+                binding.btnViewReview.visibility = View.GONE
             }
         }
     }
@@ -368,12 +421,17 @@ class ChatActivity : AppCompatActivity() {
 
         if (sessionStartTime == 0L) {
             Log.d(TAG, "=== sessionStartTime 0, ambil dari Firestore ===")
-            db.collection("chat_rooms").document(chatRoomId).get()
+
+            db.collection("chat_rooms")
+                .document(chatRoomId)
+                .get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val doc = task.result
+
                         if (doc != null) {
                             val createdAt = doc.getTimestamp("createdAt")
+
                             if (createdAt != null) {
                                 sessionStartTime = createdAt.toDate().time
                                 Log.d(TAG, "sessionStartTime dari Firestore: $sessionStartTime")
@@ -389,14 +447,17 @@ class ChatActivity : AppCompatActivity() {
                         sessionStartTime = System.currentTimeMillis()
                         Log.d(TAG, "sessionStartTime fallback: $sessionStartTime")
                     }
+
                     completeConsultation()
                 }
+
             return
         }
 
         isConsultationCompleted = true
         isSessionEnding = true
         timer?.cancel()
+
         Log.d(TAG, "=== Timer dibatalkan ===")
 
         val endTime = System.currentTimeMillis()
@@ -405,10 +466,12 @@ class ChatActivity : AppCompatActivity() {
 
         val finalDuration = if (durationInMinutes < 1) {
             val seconds = (durationInMillis / 1000).toInt()
-            if (seconds < 60) 1 else (seconds / 60)
+            if (seconds < 60) 1 else seconds / 60
         } else {
             durationInMinutes
         }
+
+        consultationDuration = finalDuration
 
         Log.d(TAG, "endTime: $endTime")
         Log.d(TAG, "sessionStartTime: $sessionStartTime")
@@ -425,17 +488,24 @@ class ChatActivity : AppCompatActivity() {
         Log.d(TAG, "=== UPDATING FIRESTORE ===")
         Log.d(TAG, "updates: $updates")
 
-        db.collection("chat_rooms").document(chatRoomId)
+        db.collection("chat_rooms")
+            .document(chatRoomId)
             .update(updates)
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
                     Log.e(TAG, "=== UPDATE FAILED ===")
-                    Log.e(TAG, "Failed to end consultation: ${task.exception?.message}", task.exception)
+                    Log.e(
+                        TAG,
+                        "Failed to end consultation: ${task.exception?.message}",
+                        task.exception
+                    )
+
                     Toast.makeText(
                         this,
                         "Gagal mengakhiri sesi: ${task.exception?.message}",
                         Toast.LENGTH_SHORT
                     ).show()
+
                     isConsultationCompleted = false
                     isSessionEnding = false
                     return@addOnCompleteListener
@@ -450,31 +520,6 @@ class ChatActivity : AppCompatActivity() {
                 ).show()
 
                 setChatReadOnly()
-
-                db.collection("chat_rooms").document(chatRoomId).get()
-                    .addOnCompleteListener { reviewTask ->
-                        if (reviewTask.isSuccessful) {
-                            val doc = reviewTask.result
-                            if (doc != null) {
-                                hasReview = doc.getBoolean("hasReview") ?: false
-                                if (hasReview) {
-                                    binding.btnViewReview.text = "Lihat Review"
-                                } else {
-                                    binding.btnViewReview.text = "Beri Review"
-                                    binding.btnViewReview.setOnClickListener {
-                                        val intent = Intent(this, ReviewActivity::class.java)
-                                        intent.putExtra("CHAT_ROOM_ID", chatRoomId)
-                                        intent.putExtra("DOCTOR_ID", doctorId)
-                                        intent.putExtra("DOCTOR_NAME", doctorName)
-                                        intent.putExtra("OWNER_ID", ownerId)
-                                        intent.putExtra("PET_NAME", petName)
-                                        intent.putExtra("DURATION", finalDuration)
-                                        startActivity(intent)
-                                    }
-                                }
-                            }
-                        }
-                    }
             }
     }
 

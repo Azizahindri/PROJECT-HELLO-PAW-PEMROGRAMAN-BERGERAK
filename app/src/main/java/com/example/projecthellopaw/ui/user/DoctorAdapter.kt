@@ -8,6 +8,7 @@ import android.widget.RatingBar
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.projecthellopaw.R
 
 data class DoctorItem(
@@ -20,7 +21,9 @@ data class DoctorItem(
     val bio: String,
     val isOnline: Boolean,
     val avatarUrl: String = "",
-    val totalReviews: Int = 0
+    val totalReviews: Int = 0,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )
 
 class DoctorAdapter(
@@ -59,33 +62,25 @@ class DoctorAdapter(
             "Belum ada ulasan"
         }
         holder.ratingBar.rating = item.rating
-
-        if (item.isOnline) {
-            holder.tvStatus.text = "Online"
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_online)
-            holder.tvStatus.setTextColor(holder.itemView.context.getColor(android.R.color.holo_green_dark))
-        } else {
-            holder.tvStatus.text = "Offline"
-            holder.tvStatus.setBackgroundResource(R.drawable.bg_status_offline)
-            holder.tvStatus.setTextColor(holder.itemView.context.getColor(android.R.color.holo_red_dark))
-        }
+        holder.tvStatus.text = if (item.isOnline) "🟢 Online" else "⚫ Offline"
 
         if (item.avatarUrl.isNotEmpty()) {
-            // Glide.with(holder.itemView.context).load(item.avatarUrl).into(holder.ivAvatar)
+            Glide.with(holder.itemView.context)
+                .load(item.avatarUrl)
+                .circleCrop()
+                .placeholder(R.drawable.ic_person_placeholer)
+                .into(holder.ivAvatar)
         } else {
-            holder.ivAvatar.setImageResource(R.drawable.ic_doctor_placeholder)
-        }
-
-        holder.ivConsultBtn.setOnClickListener {
-            onItemClick(item)
+            holder.ivAvatar.setImageResource(R.drawable.ic_person_placeholer)
         }
 
         holder.cardRoot.setOnClickListener { onItemClick(item) }
+        holder.ivConsultBtn.setOnClickListener { onItemClick(item) }
     }
 
-    override fun getItemCount(): Int = items.size
+    override fun getItemCount() = items.size
 
-    fun updateData(newItems: List<DoctorItem>) {
+    fun updateItems(newItems: List<DoctorItem>) {
         items = newItems
         notifyDataSetChanged()
     }
