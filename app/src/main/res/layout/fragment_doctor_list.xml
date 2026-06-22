@@ -95,8 +95,8 @@
             android:gravity="center"
             android:text="⭐ Rating Tertinggi"
             android:textSize="12sp"
-            android:textColor="#FFFFFF"
-            android:background="@drawable/bg_sort_active"
+            android:textColor="@color/text_color_sort_button"
+            android:background="@drawable/bg_sort_selected"
             android:clickable="true"
             android:focusable="true" />
 
@@ -109,8 +109,8 @@
             android:gravity="center"
             android:text="📍 Terdekat"
             android:textSize="12sp"
-            android:textColor="#356187"
-            android:background="@drawable/bg_sort_inactive"
+            android:textColor="@color/text_color_sort_button"
+            android:background="@drawable/bg_sort_selected"
             android:clickable="true"
             android:focusable="true" />
 

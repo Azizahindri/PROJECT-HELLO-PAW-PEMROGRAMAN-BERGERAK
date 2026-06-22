@@ -3,6 +3,7 @@ package com.example.projecthellopaw.ui.user
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -38,6 +39,8 @@ class DoctorListFragment : Fragment() {
     private lateinit var ivClear: ImageView
     private lateinit var adapter: DoctorAdapter
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var btnSortRating: TextView
+    private lateinit var btnSortNearby: TextView
 
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -76,11 +79,13 @@ class DoctorListFragment : Fragment() {
         layoutEmptyState = view.findViewById(R.id.layoutEmptyState)
         etSearch = view.findViewById(R.id.etSearchDoctor)
         ivClear = view.findViewById(R.id.ivClearSearchDoctor)
+        btnSortRating = view.findViewById(R.id.btnSortRating)
+        btnSortNearby = view.findViewById(R.id.btnSortNearby)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         setupRecyclerView()
-        setupSortButtons(view)
+        setupSortButtons()
         loadDoctors()
         requestLocationPermission()
 
@@ -90,11 +95,10 @@ class DoctorListFragment : Fragment() {
                 val query = s.toString().trim()
                 if (query.isEmpty()) {
                     ivClear.visibility = View.GONE
-                    filterDoctors("")
                 } else {
                     ivClear.visibility = View.VISIBLE
-                    filterDoctors(query)
                 }
+                applySortAndFilter()
             }
             override fun afterTextChanged(s: Editable?) {}
         })
@@ -102,34 +106,46 @@ class DoctorListFragment : Fragment() {
         ivClear.setOnClickListener {
             etSearch.setText("")
             ivClear.visibility = View.GONE
-            filterDoctors("")
+            applySortAndFilter()
         }
 
         return view
     }
 
-    private fun setupSortButtons(view: View) {
-        val btnSortRating = view.findViewById<TextView>(R.id.btnSortRating)
-        val btnSortNearby = view.findViewById<TextView>(R.id.btnSortNearby)
+    private fun setupSortButtons() {
+        // Set initial state: Rating aktif
+        setSortButtonState(btnSortRating, isActive = true)
+        setSortButtonState(btnSortNearby, isActive = false)
 
-        btnSortRating?.setOnClickListener {
+        btnSortRating.setOnClickListener {
             sortMode = "rating"
-            btnSortRating.isSelected = true
-            btnSortNearby?.isSelected = false
+            setSortButtonState(btnSortRating, isActive = true)
+            setSortButtonState(btnSortNearby, isActive = false)
             applySortAndFilter()
         }
 
-        btnSortNearby?.setOnClickListener {
+        btnSortNearby.setOnClickListener {
             if (userLat == null) {
                 Toast.makeText(context, "Sedang mengambil lokasi...", Toast.LENGTH_SHORT).show()
                 requestLocationPermission()
                 return@setOnClickListener
             }
             sortMode = "nearby"
-            btnSortRating?.isSelected = false
-            btnSortNearby.isSelected = true
+            setSortButtonState(btnSortRating, isActive = false)
+            setSortButtonState(btnSortNearby, isActive = true)
             applySortAndFilter()
         }
+    }
+
+    /**
+     * Mengatur tampilan visual button sort (background selector + warna teks).
+     * Menggunakan isSelected agar bekerja dengan bg_sort_selected selector drawable.
+     */
+    private fun setSortButtonState(button: TextView, isActive: Boolean) {
+        button.isSelected = isActive
+        button.setTextColor(
+            if (isActive) Color.WHITE else Color.parseColor("#356187")
+        )
     }
 
     private fun requestLocationPermission() {
@@ -163,6 +179,8 @@ class DoctorListFragment : Fragment() {
                         if (doctorList.isNotEmpty()) {
                             applySortAndFilter()
                         }
+                    } else {
+                        Log.w(TAG, "lastLocation null — GPS mungkin belum aktif")
                     }
                 }
                 .addOnFailureListener {
@@ -190,6 +208,7 @@ class DoctorListFragment : Fragment() {
             doctorList.sortedWith(compareBy { doctor ->
                 val dLat = doctor.latitude
                 val dLng = doctor.longitude
+                // Dokter yang belum set lokasi (0,0) diletakkan di akhir
                 if (dLat != 0.0 && dLng != 0.0) {
                     haversineDistance(userLat!!, userLng!!, dLat, dLng)
                 } else {
@@ -279,7 +298,9 @@ class DoctorListFragment : Fragment() {
             .addOnCompleteListener { userTask ->
                 if (!userTask.isSuccessful) {
                     Log.e(TAG, "Failed to load users: ${userTask.exception?.message}")
-                    Toast.makeText(requireContext(), "Gagal memuat data dokter", Toast.LENGTH_SHORT).show()
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Gagal memuat data dokter", Toast.LENGTH_SHORT).show()
+                    }
                     updateUIState()
                     return@addOnCompleteListener
                 }
@@ -305,7 +326,7 @@ class DoctorListFragment : Fragment() {
                         .addOnCompleteListener { profileTask ->
                             if (!profileTask.isSuccessful || profileTask.result == null || !profileTask.result!!.exists()) {
                                 processedCount++
-                                if (processedCount == totalDoctors) updateUIState()
+                                if (processedCount == totalDoctors) applySortAndFilter()
                                 return@addOnCompleteListener
                             }
 
@@ -364,10 +385,6 @@ class DoctorListFragment : Fragment() {
             }
     }
 
-    private fun filterDoctors(query: String) {
-        applySortAndFilter()
-    }
-
     private fun updateUIState() {
         if (!isAdded) return
         requireActivity().runOnUiThread {
@@ -382,6 +399,7 @@ class DoctorListFragment : Fragment() {
         }
     }
 }
+
 data class DoctorItem(
     val id: String = "",
     val name: String = "",
@@ -445,10 +463,12 @@ class DoctorAdapter(
                 .into(holder.ivAvatar)
         }
 
+        // Klik di card item → buka detail dokter
         holder.itemView.setOnClickListener {
             onItemClick(doctor)
         }
 
+        // Klik di button konsultasi → juga buka detail / chat
         holder.btnConsult.setOnClickListener {
             onItemClick(doctor)
         }

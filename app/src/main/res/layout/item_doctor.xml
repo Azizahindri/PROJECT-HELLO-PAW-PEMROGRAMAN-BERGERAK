@@ -125,6 +125,8 @@
             android:src="@drawable/ic_chat_icon"
             android:background="@drawable/bg_chat_icon"
             android:padding="10dp"
+            android:clickable="true"
+            android:focusable="true"
             android:contentDescription="Konsultasi" />
 
     </LinearLayout>
