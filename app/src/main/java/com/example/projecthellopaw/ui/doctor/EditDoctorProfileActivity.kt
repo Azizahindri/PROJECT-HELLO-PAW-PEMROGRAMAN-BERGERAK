@@ -56,7 +56,6 @@ class EditDoctorProfileActivity : AppCompatActivity() {
                 binding.etClinicName.setText(doc.getString("clinicName") ?: "")
                 binding.switchOnlineStatus.isChecked = doc.getBoolean("isOnline") ?: false
 
-                // Load koordinat yang sudah tersimpan
                 val lat = doc.getDouble("latitude") ?: 0.0
                 val lng = doc.getDouble("longitude") ?: 0.0
                 if (lat != 0.0) binding.etLatitude.setText(lat.toString())

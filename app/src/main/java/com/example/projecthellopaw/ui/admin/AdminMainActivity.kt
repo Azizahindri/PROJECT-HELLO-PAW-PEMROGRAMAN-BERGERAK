@@ -46,7 +46,6 @@ class AdminMainActivity : AppCompatActivity() {
     }
 
     private fun loadUserCounts() {
-        // 🔥 AMBIL JUMLAH USERS (ROLE = "USER")
         db.collection("users")
             .whereEqualTo("role", "OWNER")
             .get()

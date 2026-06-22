@@ -7,9 +7,9 @@ import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecthellopaw.databinding.ActivitySplashBinding
-import com.example.projecthellopaw.ui.admin.AdminMainActivity // Import halaman Admin
+import com.example.projecthellopaw.ui.admin.AdminMainActivity
 import com.example.projecthellopaw.ui.doctor.DoctorMainActivity
-import com.example.projecthellopaw.ui.user.UserMainActivity // Import halaman User/Owner
+import com.example.projecthellopaw.ui.user.UserMainActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 

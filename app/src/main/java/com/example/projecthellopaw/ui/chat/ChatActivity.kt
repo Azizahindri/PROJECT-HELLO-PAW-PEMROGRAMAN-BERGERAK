@@ -37,7 +37,7 @@ class ChatActivity : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
     private var messagesListener: ListenerRegistration? = null
-    private var chatAdapter: ChatAdapter? = null  // 🔥 DIUBAH JADI NULLABLE
+    private var chatAdapter: ChatAdapter? = null
 
     private var chatRoomId = ""
     private var ownerId = ""
@@ -58,7 +58,7 @@ class ChatActivity : AppCompatActivity() {
     private var userRole: String = "OWNER"
 
     private var consultationDuration = 0
-    private var isMessagesListenerActive = false  // 🔥 TAMBAHAN
+    private var isMessagesListenerActive = false
 
     companion object {
         private const val TAG = "ChatActivity"
@@ -281,7 +281,6 @@ class ChatActivity : AppCompatActivity() {
         val isDoctor = currentUid == doctorId
         val isOwner = currentUid == ownerId
 
-        // 🔥 Hanya tampilkan jika chat sudah selesai
         if (!isConsultationCompleted) {
             binding.btnViewReview.visibility = View.GONE
             return

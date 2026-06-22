@@ -15,12 +15,8 @@ class GeminiApiService(
     companion object {
         private const val TAG = "GeminiApiService"
 
-        // ✅ PAKAI GEMINI 2.0 FLASH (LEBIH STABLE)
         private const val BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
 
-        // Alternatif jika 2.0 Flash error:
-        // private const val BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
-        // private const val BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent"
     }
 
     private val client = OkHttpClient.Builder()

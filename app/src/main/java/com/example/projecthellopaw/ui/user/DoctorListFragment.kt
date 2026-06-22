@@ -137,10 +137,6 @@ class DoctorListFragment : Fragment() {
         }
     }
 
-    /**
-     * Mengatur tampilan visual button sort (background selector + warna teks).
-     * Menggunakan isSelected agar bekerja dengan bg_sort_selected selector drawable.
-     */
     private fun setSortButtonState(button: TextView, isActive: Boolean) {
         button.isSelected = isActive
         button.setTextColor(
@@ -463,12 +459,10 @@ class DoctorAdapter(
                 .into(holder.ivAvatar)
         }
 
-        // Klik di card item → buka detail dokter
         holder.itemView.setOnClickListener {
             onItemClick(doctor)
         }
 
-        // Klik di button konsultasi → juga buka detail / chat
         holder.btnConsult.setOnClickListener {
             onItemClick(doctor)
         }
