@@ -58,11 +58,10 @@ class ChatActivity : AppCompatActivity() {
     private var userRole: String = "OWNER"
 
     private var consultationDuration = 0
-    private var isMessagesListenerActive = false
 
     companion object {
         private const val TAG = "ChatActivity"
-        private const val SESSION_DURATION = 1 * 60 * 1000L
+        private const val SESSION_DURATION = 5 * 60 * 1000L
         private const val WARNING_TIME = 10 * 1000L
     }
 
@@ -697,7 +696,8 @@ class ChatActivity : AppCompatActivity() {
             return
         }
 
-        if (chatAdapter == null) {
+        val adapter = chatAdapter
+        if (adapter == null) {
             Log.e(TAG, "ChatAdapter is null, skipping listenToMessages")
             return
         }
@@ -732,8 +732,8 @@ class ChatActivity : AppCompatActivity() {
                     return@addSnapshotListener
                 }
 
-                val adapter = chatAdapter
-                if (adapter == null) {
+                val currentAdapter = chatAdapter
+                if (currentAdapter == null) {
                     Log.e(TAG, "ChatAdapter is null, cannot update messages")
                     return@addSnapshotListener
                 }
@@ -756,12 +756,87 @@ class ChatActivity : AppCompatActivity() {
                     }
                 })
 
-                adapter.updateMessages(messages)
+                currentAdapter.updateMessages(messages)
 
                 if (messages.isNotEmpty()) {
                     binding.rvChat.scrollToPosition(messages.size - 1)
                 }
             }
+    }
+
+    private fun buildPrompt(
+        conversationHistory: String,
+        userRole: String,
+        isFollowUp: Boolean,
+        intentType: String,
+        petName: String
+    ): String {
+        val followUpInstruction = if (isFollowUp) {
+            "Ini adalah percakapan lanjutan. User telah memberikan informasi tambahan. Berikan saran yang lebih spesifik dan mendalam berdasarkan jawaban sebelumnya."
+        } else {
+            "Ini adalah percakapan awal. Berikan saran umum yang baik untuk memulai."
+        }
+
+        val intentInstruction = when (intentType) {
+            "FOOD_DRINK" -> "Fokus pada masalah makan dan minum hewan."
+            "FEVER" -> "Fokus pada demam dan suhu tubuh hewan."
+            "VOMIT_DIARRHEA" -> "Fokus pada masalah pencernaan."
+            "WOUND" -> "Fokus pada luka dan perawatan."
+            "ITCHING" -> "Fokus pada masalah kulit dan gatal."
+            "COUGH_SNEEZE" -> "Fokus pada masalah pernapasan."
+            "LETHARGY" -> "Fokus pada kondisi lemas dan kurang energi."
+            "MEDICATION" -> "Fokus pada obat dan vitamin."
+            "VACCINE" -> "Fokus pada vaksinasi."
+            else -> "Berikan saran umum yang sesuai."
+        }
+
+        val disclaimer = "INGAT: Ini hanya simulasi percakapan untuk membantu komunikasi. Anda TIDAK memberikan diagnosis medis, resep obat, atau saran pengobatan. Anda hanya membantu merumuskan pertanyaan atau balasan yang sopan."
+
+        return if (userRole == "DOCTOR") {
+            """
+            $disclaimer
+            
+            Anda adalah asisten untuk dokter hewan dalam sesi konsultasi. Hewan yang dibicarakan adalah $petName.
+            
+            Berikut riwayat percakapan:
+            $conversationHistory
+            
+            $followUpInstruction
+            $intentInstruction
+            
+            Berikan 3 saran balasan untuk DOKTER saat merespons pasien.
+            Saran harus:
+            1. Ramah dan profesional
+            2. Menggali informasi lebih lanjut tentang kondisi hewan
+            3. Spesifik sesuai dengan topik yang dibicarakan
+            4. BERBEDA satu sama lain (jangan mengulang saran yang sama)
+            
+            Format: saran1; saran2; saran3
+            Hanya output 3 kalimat pendek, tanpa teks lain.
+            """.trimIndent()
+        } else {
+            """
+            $disclaimer
+            
+            Anda adalah asisten untuk pemilik hewan dalam sesi konsultasi. Hewan yang dibicarakan adalah $petName.
+            
+            Berikut riwayat percakapan:
+            $conversationHistory
+            
+            $followUpInstruction
+            $intentInstruction
+            
+            Berikan 3 saran pertanyaan untuk PASIEN ajukan ke dokter.
+            Saran harus:
+            1. Pertanyaan tentang kondisi hewan
+            2. Pertanyaan tentang perawatan atau gejala
+            3. Spesifik sesuai dengan topik yang dibicarakan
+            4. BERBEDA satu sama lain (jangan mengulang pertanyaan yang sama)
+            
+            Format: pertanyaan1; pertanyaan2; pertanyaan3
+            Hanya output 3 kalimat pendek, tanpa teks lain.
+            """.trimIndent()
+        }
     }
 
     private fun showAiSuggestions() {
@@ -800,7 +875,6 @@ class ChatActivity : AppCompatActivity() {
 
         val lastMessages = realChatMessages.takeLast(5)
         val conversationHistory = StringBuilder()
-
         for (msg in lastMessages) {
             val role = if (msg.senderId == doctorId) "Dokter" else "Pemilik Hewan"
             conversationHistory.append("$role: ${msg.text}\n")
@@ -832,19 +906,21 @@ class ChatActivity : AppCompatActivity() {
                 Log.d(TAG, "AI Response: $responseText")
 
                 if (!responseText.isNullOrBlank()) {
-                    val suggestionsList = responseText
+                    val cleanedText = responseText
+                        .replace("**", "")
+                        .replace("*", "")
+                        .replace("\"", "")
+                        .replace("- ", "")
+                        .replace(Regex("^\\d+\\."), "")
+
+                    val rawSuggestions = cleanedText
                         .split(Regex("[;\\n]"))
                         .map { it.trim() }
-                        .filter {
-                            it.isNotEmpty() &&
-                                    !it.startsWith("-") &&
-                                    !it.matches(Regex("^\\d+\\..*")) &&
-                                    it.length > 5
-                        }
+                        .filter { it.isNotEmpty() && it.length > 5 }
                         .toMutableList()
 
-                    while (suggestionsList.size < 3) {
-                        suggestionsList.add(
+                    while (rawSuggestions.size < 3) {
+                        rawSuggestions.add(
                             if (userRole == "DOCTOR") {
                                 "Apakah ada keluhan lain yang dirasakan?"
                             } else {
@@ -853,20 +929,20 @@ class ChatActivity : AppCompatActivity() {
                         )
                     }
 
-                    val finalSuggestions = suggestionsList.take(3)
+                    val finalSuggestions = rawSuggestions.take(3)
 
                     withContext(Dispatchers.Main) {
                         displayBottomSheet(finalSuggestions)
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        showFallbackSuggestions("Respon AI kosong, silakan coba lagi")
+                        showFallbackSuggestions("")
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error generating AI suggestions: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    showFallbackSuggestions("Gagal memuat AI: ${e.localizedMessage}")
+                    showFallbackSuggestions("")
                 }
             }
         }
@@ -874,14 +950,11 @@ class ChatActivity : AppCompatActivity() {
 
     private fun detectFollowUp(messages: List<Message>): Boolean {
         if (messages.size < 3) return false
-
         val lastSender = messages.last().senderId
         if (lastSender == doctorId) return false
-
         val lastThreeMessages = messages.takeLast(3)
         val hasQuestion = lastThreeMessages.any { it.text.contains("?") }
         val hasShortAnswer = lastThreeMessages.last().text.split(" ").size < 5
-
         return hasQuestion && hasShortAnswer
     }
 
@@ -900,77 +973,6 @@ class ChatActivity : AppCompatActivity() {
             else -> "GENERAL"
         }
     }
-
-    private fun buildPrompt(
-        conversationHistory: String,
-        userRole: String,
-        isFollowUp: Boolean,
-        intentType: String,
-        petName: String
-    ): String {
-        val followUpInstruction = if (isFollowUp) {
-            "Ini adalah percakapan lanjutan. User telah memberikan informasi tambahan. " +
-                    "Berikan saran yang lebih spesifik dan mendalam berdasarkan jawaban sebelumnya."
-        } else {
-            "Ini adalah percakapan awal. Berikan saran umum yang baik untuk memulai."
-        }
-
-        val intentInstruction = when (intentType) {
-            "FOOD_DRINK" -> "Fokus pada masalah makan dan minum hewan."
-            "FEVER" -> "Fokus pada demam dan suhu tubuh hewan."
-            "VOMIT_DIARRHEA" -> "Fokus pada masalah pencernaan."
-            "WOUND" -> "Fokus pada luka dan perawatan."
-            "ITCHING" -> "Fokus pada masalah kulit dan gatal."
-            "COUGH_SNEEZE" -> "Fokus pada masalah pernapasan."
-            "LETHARGY" -> "Fokus pada kondisi lemas dan kurang energi."
-            "MEDICATION" -> "Fokus pada obat dan vitamin."
-            "VACCINE" -> "Fokus pada vaksinasi."
-            else -> "Berikan saran umum yang sesuai."
-        }
-
-        return if (userRole == "DOCTOR") {
-            """
-            Anda adalah asisten AI untuk dokter hewan. Hewan yang dikonsultasikan adalah $petName.
-            
-            Berikut riwayat percakapan:
-            $conversationHistory
-            
-            $followUpInstruction
-            $intentInstruction
-            
-            Berikan 3 saran balasan untuk DIPAKAI OLEH DOKTER saat merespons pasien.
-            Saran harus:
-            1. Profesional dan medis
-            2. Ramah dan empati
-            3. Memberikan solusi atau saran medis
-            4. Spesifik sesuai dengan kondisi yang dibicarakan
-            
-            Format: "saran1; saran2; saran3"
-            Hanya output 3 kalimat, tanpa teks lain.
-            """.trimIndent()
-        } else {
-            """
-            Anda adalah asisten AI untuk pemilik hewan. Hewan yang dikonsultasikan adalah $petName.
-            
-            Berikut riwayat percakapan:
-            $conversationHistory
-            
-            $followUpInstruction
-            $intentInstruction
-            
-            Berikan 3 saran pertanyaan untuk DIAJUKAN OLEH PASIEN ke dokter.
-            Saran harus:
-            1. Pertanyaan tentang kondisi hewan
-            2. Pertanyaan tentang perawatan
-            3. Pertanyaan tentang gejala
-            4. Spesifik sesuai dengan kondisi yang dibicarakan
-            
-            Format: "pertanyaan1; pertanyaan2; pertanyaan3"
-            Hanya output 3 kalimat, tanpa teks lain.
-            """.trimIndent()
-        }
-    }
-
     private fun showFallbackSuggestions(errorMessage: String = "") {
         if (errorMessage.isNotEmpty()) {
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show()
@@ -992,7 +994,6 @@ class ChatActivity : AppCompatActivity() {
         }
         displayBottomSheet(fallback)
     }
-
     private fun displayBottomSheet(suggestions: List<String>) {
         try {
             val dialog = BottomSheetDialog(this)
@@ -1057,7 +1058,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (messagesListener == null && chatRoomId.isNotEmpty()) {
+        if (messagesListener == null && chatRoomId.isNotEmpty() && chatAdapter != null) {
             listenToMessages()
         }
     }

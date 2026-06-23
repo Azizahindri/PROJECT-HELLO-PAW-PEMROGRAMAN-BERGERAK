@@ -14,9 +14,7 @@ class GeminiApiService(
 ) {
     companion object {
         private const val TAG = "GeminiApiService"
-
         private const val BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-
     }
 
     private val client = OkHttpClient.Builder()
@@ -46,7 +44,7 @@ class GeminiApiService(
                     }
                 ],
                 "generationConfig": {
-                    "temperature": 0.3,
+                    "temperature": 0.7,
                     "topK": 40,
                     "topP": 0.85,
                     "maxOutputTokens": 1000
@@ -107,13 +105,21 @@ class GeminiApiService(
                             }
                         }
                     }
+
+                    val promptFeedback = jsonObject.get("promptFeedback")?.asJsonObject
+                    if (promptFeedback != null) {
+                        val blockReason = promptFeedback.get("blockReason")?.asString
+                        if (!blockReason.isNullOrEmpty()) {
+                            Log.e(TAG, "🚫 PROMPT DIBLOKIR GOOGLE! Alasan: $blockReason")
+                        }
+                    }
+
+                    Log.e(TAG, "No text found in response")
+                    return null
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing JSON: ${e.message}", e)
                     return responseBody
                 }
-
-                Log.e(TAG, "No text found in response")
-                return null
             } else {
                 Log.e(TAG, "API Error: ${response.code} - $responseBody")
                 return null
